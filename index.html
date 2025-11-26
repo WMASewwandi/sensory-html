@@ -1005,7 +1005,7 @@
           <div class="row text-center">
             <div class="col-sm-12">
               <div class="widget-copyright">
-                <p><i class="fa fa-copyright"></i> 2021 <span>Sensory. </span> All Rights Reserved</p>
+                <p><i class="fa fa-copyright"></i> 2025 <span>Sensory. </span> All Rights Reserved</p>
               </div>
             </div>
           </div>
@@ -1274,6 +1274,38 @@
         if (productDataStr) {
           try {
             const product = JSON.parse(productDataStr);
+            
+            // If price is 0, try to get from DOM or global products array
+            if ((!product.sellingPrice || product.sellingPrice === 0) && (!product.unitPrice || product.unitPrice === 0)) {
+              // Try to get price from DOM
+              const priceText = $productItem.find('.prices .price').text().trim() || 
+                               $productItem.find('.price').text().trim();
+              if (priceText) {
+                const priceMatch = priceText.replace(/[^\d.]/g, '');
+                const parsedPrice = parseFloat(priceMatch) || 0;
+                if (parsedPrice > 0) {
+                  product.sellingPrice = parsedPrice;
+                  product.unitPrice = parsedPrice;
+                }
+              }
+              
+              // Try to find full product from global products array
+              if (product.id && typeof window.homeProducts !== 'undefined' && window.homeProducts.length > 0) {
+                const fullProduct = window.homeProducts.find(p => p.id === product.id);
+                if (fullProduct) {
+                  if (fullProduct.sellingPrice && fullProduct.sellingPrice > 0) {
+                    product.sellingPrice = fullProduct.sellingPrice;
+                  }
+                  if (fullProduct.unitPrice && fullProduct.unitPrice > 0) {
+                    product.unitPrice = fullProduct.unitPrice;
+                  }
+                  if (fullProduct.description) {
+                    product.description = fullProduct.description;
+                  }
+                }
+              }
+            }
+            
             showQuickViewModal(product);
           } catch (error) {
             console.error('Error parsing product data:', error);
@@ -1295,16 +1327,44 @@
                             '/assets/img/shop/quick-view1.jpg';
         const priceText = $productItem.find('.prices .price').text().trim() || 
                          $productItem.find('.price').text().trim() || 
-                         '$0.00';
+                         'LKR 0.00';
         
-        // Create a basic product object
-        const product = {
+        // Parse price from text (remove currency symbols, commas, and extract number)
+        let parsedPrice = 0;
+        if (priceText) {
+          // Remove currency symbols (LKR, $, etc.) and commas, then extract number
+          const priceMatch = priceText.replace(/[^\d.]/g, '');
+          if (priceMatch) {
+            parsedPrice = parseFloat(priceMatch) || 0;
+          }
+        }
+        
+        // Try to get product ID from data attribute or other sources
+        const productId = $productItem.attr('data-product-id') || 
+                         $productItem.find('[data-product-id]').attr('data-product-id') ||
+                         null;
+        
+        // Try to find full product from a global products array if available
+        let fullProduct = null;
+        if (productId && typeof window.homeProducts !== 'undefined' && window.homeProducts.length > 0) {
+          fullProduct = window.homeProducts.find(p => p.id === productId);
+        }
+        
+        // Create product object - use full product data if available, otherwise use extracted data
+        const product = fullProduct || {
+          id: productId,
           name: productName,
           imageURL: productImage,
-          description: 'Product description not available.',
-          sellingPrice: 0,
-          unitPrice: 0
+          description: fullProduct ? fullProduct.description : 'Product description not available.',
+          sellingPrice: fullProduct ? (fullProduct.sellingPrice || parsedPrice) : parsedPrice,
+          unitPrice: fullProduct ? (fullProduct.unitPrice || parsedPrice) : parsedPrice
         };
+        
+        // If we have parsed price but product doesn't have price, use parsed price
+        if (parsedPrice > 0 && (!product.sellingPrice || product.sellingPrice === 0) && (!product.unitPrice || product.unitPrice === 0)) {
+          product.sellingPrice = parsedPrice;
+          product.unitPrice = parsedPrice;
+        }
         
         showQuickViewModal(product);
       }
