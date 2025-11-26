@@ -2,10 +2,10 @@
   "name": "sensory-website",
   "version": "1.0.0",
   "description": "Static website server",
-  "main": "server.js",
+  "main": "server.local.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node server.local.js",
+    "dev": "node server.local.js"
   },
   "dependencies": {
     "express": "^4.18.2"
