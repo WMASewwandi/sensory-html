@@ -1,10 +1,14 @@
 {
   "version": 2,
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "installCommand": null,
+  "framework": null,
   "cleanUrls": false,
   "trailingSlash": false,
   "headers": [
     {
-      "source": "/assets/css/(.*)",
+      "source": "/assets/css/(.*\\.css)",
       "headers": [
         {
           "key": "Content-Type",
@@ -17,7 +21,7 @@
       ]
     },
     {
-      "source": "/assets/js/(.*)",
+      "source": "/assets/js/(.*\\.js)",
       "headers": [
         {
           "key": "Content-Type",
