@@ -94,8 +94,27 @@ function formatPrice(price) {
   return 'LKR ' + parseFloat(price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+// Fetch single product by ID
+async function fetchProductById(productId) {
+  try {
+    // Fetch products and find the one with matching ID
+    const result = await fetchProducts(0, 1000, null, '');
+    
+    if (result && result.items && result.items.length > 0) {
+      const product = result.items.find(p => p.id === productId);
+      return product || null;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return null;
+  }
+}
+
 // Make functions globally accessible
 window.fetchCategories = fetchCategories;
 window.fetchProducts = fetchProducts;
+window.fetchProductById = fetchProductById;
 window.formatPrice = formatPrice;
 
