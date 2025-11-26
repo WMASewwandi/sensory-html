@@ -42,18 +42,22 @@ async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = nul
   try {
     const requestBody = {
       isQuantityRequired: true,
-      keyword: keyword,
       isActive: true,
       warehouseId: "afabb9ea-2c59-4d0c-9fa9-96f174877782",
       skipCount: skipCount,
       maxResultCount: maxResultCount
     };
 
+    // Add keyword if provided (this is what the API uses for search)
+    if (keyword && keyword.trim() !== '') {
+      requestBody.keyword = keyword.trim();
+    }
+
     // Add categoryId if provided
     if (categoryId) {
       requestBody.categoryId = categoryId;
     }
-
+    
     const response = await fetch(API_CONFIG.BASE_URL + '/services/app/product/GetAll', {
       method: 'POST',
       headers: {

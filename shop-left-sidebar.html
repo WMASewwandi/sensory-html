@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/">
 
-    <title>Shop - Kidol - Kids Toys Store eCommerce HTML Template</title>
+    <title>Shop - Sensory - Kids Toys Store</title>
 
     <!--== Favicon ==-->
     <link rel="shortcut icon" href="/assets/img/favicon.ico" type="image/x-icon" />
@@ -236,6 +236,12 @@
               </div>
               <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="column-three" role="tabpanel" aria-labelledby="column-three-tab">
+                  <div id="search-results-message" style="display: none; margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #f379a7; border-radius: 4px;">
+                    <p style="margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                      <span><strong>Search Results for:</strong> <span id="search-term-display"></span></span>
+                      <button onclick="clearSearch()" style="background: #f379a7; color: white; border: none; padding: 5px 15px; border-radius: 3px; cursor: pointer; font-size: 14px;">Clear Search</button>
+                    </p>
+                  </div>
                   <div class="row" id="products-container">
                     <!-- Products will be loaded dynamically here -->
                   </div>
@@ -822,7 +828,15 @@
     
     // Filter products by price range
     function filterProductsByPrice(products) {
+      // If price range is not set or is at default (0,0), return all products
       if (priceRange.min === 0 && priceRange.max === 0) {
+        return products;
+      }
+      // If price range equals the full range (minPrice to maxPrice), return all products
+      // This handles the case when search results load and price range should show all
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchKeyword = urlParams.get('search') || '';
+      if (searchKeyword && priceRange.min === minPrice && priceRange.max === maxPrice) {
         return products;
       }
       return products.filter(product => {
@@ -833,8 +847,18 @@
     
     // Display products for current page
     function displayProducts() {
-      // Apply price filter
-      filteredProducts = filterProductsByPrice(allProducts);
+      // Check if we're in search mode
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchKeyword = urlParams.get('search') || '';
+      
+      // When searching, always show all search results (don't apply price filter)
+      if (searchKeyword && searchKeyword.trim() !== '') {
+        // When searching, show all search results without price filtering
+        filteredProducts = allProducts;
+      } else {
+        // Only apply price filter when not searching
+        filteredProducts = filterProductsByPrice(allProducts);
+      }
       
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
@@ -869,22 +893,33 @@
         // Get category and page from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const categoryId = urlParams.get('category');
+        const searchKeyword = urlParams.get('search') || '';
         const pageParam = urlParams.get('page');
         currentPage = pageParam ? parseInt(pageParam) : 1;
+        
+        // Ensure search keyword is preserved in URL if it exists
+        if (searchKeyword && !window.location.search.includes('search=')) {
+          urlParams.set('search', searchKeyword);
+          const newUrl = window.location.pathname + '?' + urlParams.toString();
+          window.history.replaceState({}, '', newUrl);
+        }
+        
+        // Search results message will be handled in document.ready
         
         // Show loading state
         $('#products-container').html('<div class="col-12"><p class="text-center">Loading products...</p></div>');
         $('#products-container-list').html('<div class="col-12"><p class="text-center">Loading products...</p></div>');
         $('#products-container-two').html('<div class="col-12"><p class="text-center">Loading products...</p></div>');
         
-        // Fetch products
-        const result = await window.fetchProducts(0, 100, categoryId);
+        // Fetch products with search keyword (API should filter by keyword)
+        const result = await window.fetchProducts(0, 100, categoryId, searchKeyword);
         
         if (result && result.items && result.items.length > 0) {
           let productsToShow = result.items;
           
-          // Client-side filtering by categoryId if provided
-          if (categoryId) {
+          // If searching, don't filter by category (let API handle it)
+          // Only filter by category if NOT searching
+          if (categoryId && !searchKeyword) {
             productsToShow = result.items.filter(product => {
               const productCatId = String(product.categoryId || '');
               const filterCatId = String(categoryId || '');
@@ -897,12 +932,62 @@
             return product.imageURL && product.imageURL.trim() !== '';
           });
           
-          // Sort by creation date descending
-          productsWithImages.sort((a, b) => {
-            const dateA = new Date(a.creationTime || a.lastModificationTime || 0);
-            const dateB = new Date(b.creationTime || b.lastModificationTime || 0);
-            return dateB - dateA;
-          });
+          // If searching and no results after filtering, show message
+          if (searchKeyword && productsWithImages.length === 0) {
+            $('#products-container').html('<div class="col-12"><p class="text-center">No products found for "' + searchKeyword + '".</p></div>');
+            $('#products-container-list').html('<div class="col-12"><p class="text-center">No products found for "' + searchKeyword + '".</p></div>');
+            $('#products-container-two').html('<div class="col-12"><p class="text-center">No products found for "' + searchKeyword + '".</p></div>');
+            $('.pagination-area nav').html('');
+            return;
+          }
+          
+          // Sort products - prioritize search relevance if searching
+          if (searchKeyword && searchKeyword.trim() !== '') {
+            const searchTerm = searchKeyword.toLowerCase().trim();
+            productsWithImages.sort((a, b) => {
+              const nameA = (a.name || '').toLowerCase();
+              const nameB = (b.name || '').toLowerCase();
+              const descriptionA = (a.description || '').toLowerCase();
+              const descriptionB = (b.description || '').toLowerCase();
+              
+              // Calculate relevance score
+              let scoreA = 0;
+              let scoreB = 0;
+              
+              // Exact name match gets highest priority
+              if (nameA === searchTerm) scoreA += 1000;
+              if (nameB === searchTerm) scoreB += 1000;
+              
+              // Name starts with search term
+              if (nameA.startsWith(searchTerm)) scoreA += 500;
+              if (nameB.startsWith(searchTerm)) scoreB += 500;
+              
+              // Name contains search term
+              if (nameA.includes(searchTerm)) scoreA += 100;
+              if (nameB.includes(searchTerm)) scoreB += 100;
+              
+              // Description contains search term
+              if (descriptionA.includes(searchTerm)) scoreA += 50;
+              if (descriptionB.includes(searchTerm)) scoreB += 50;
+              
+              // If same relevance, sort by date (newest first)
+              if (scoreA === scoreB) {
+                const dateA = new Date(a.creationTime || a.lastModificationTime || 0);
+                const dateB = new Date(b.creationTime || b.lastModificationTime || 0);
+                return dateB - dateA;
+              }
+              
+              // Sort by relevance score (highest first)
+              return scoreB - scoreA;
+            });
+          } else {
+            // Sort by creation date descending when not searching
+            productsWithImages.sort((a, b) => {
+              const dateA = new Date(a.creationTime || a.lastModificationTime || 0);
+              const dateB = new Date(b.creationTime || b.lastModificationTime || 0);
+              return dateB - dateA;
+            });
+          }
           
           // Store all products
           allProducts = productsWithImages;
@@ -915,20 +1000,70 @@
             minPrice = Math.floor(Math.min(...prices));
             maxPrice = Math.ceil(Math.max(...prices));
             
+            // Reset price range to show all products when search is active
+            if (searchKeyword && searchKeyword.trim() !== '') {
+              priceRange.min = minPrice;
+              priceRange.max = maxPrice;
+            }
+            
             // Initialize price filter if not already initialized
             if (!window.priceSliderInitialized) {
               initializePriceFilter();
               window.priceSliderInitialized = true;
+            } else if (searchKeyword && searchKeyword.trim() !== '') {
+              // Update price slider values when searching
+              try {
+                if (window.priceSlider && typeof window.priceSlider.set === 'function') {
+                  window.priceSlider.set([minPrice, maxPrice]);
+                  $('#slider-range-value1').html(formatLKR(minPrice));
+                  $('#slider-range-value2').html(formatLKR(maxPrice));
+                }
+              } catch (e) {
+                console.log('Price slider update skipped:', e);
+              }
             }
           }
           
-          // Display products for current page
+          // Display products for current page (this will show search results)
           displayProducts();
+          
+          // Ensure search parameter stays in URL and prevent any reloads
+          if (searchKeyword && searchKeyword.trim() !== '') {
+            const currentUrlParams = new URLSearchParams(window.location.search);
+            const currentSearch = currentUrlParams.get('search');
+            if (!currentSearch || currentSearch !== searchKeyword) {
+              currentUrlParams.set('search', searchKeyword);
+              const newUrl = window.location.pathname + '?' + currentUrlParams.toString();
+              // Use replaceState to avoid triggering page reload
+              window.history.replaceState({ search: searchKeyword }, '', newUrl);
+            }
+            // Ensure search inputs are populated
+            setTimeout(function() {
+              $('#search').val(searchKeyword);
+              $('#search-input').val(searchKeyword);
+              $('#search-results-message').show();
+              $('#search-term-display').text(searchKeyword);
+            }, 100);
+          }
         } else {
-          $('#products-container').html('<div class="col-12"><p class="text-center">No products found.</p></div>');
-          $('#products-container-list').html('<div class="col-12"><p class="text-center">No products found.</p></div>');
-          $('#products-container-two').html('<div class="col-12"><p class="text-center">No products found.</p></div>');
+          // No products found - show message but preserve search parameter
+          const noResultsMessage = searchKeyword 
+            ? `No products found for "${searchKeyword}".` 
+            : 'No products found.';
+          $('#products-container').html('<div class="col-12"><p class="text-center">' + noResultsMessage + '</p></div>');
+          $('#products-container-list').html('<div class="col-12"><p class="text-center">' + noResultsMessage + '</p></div>');
+          $('#products-container-two').html('<div class="col-12"><p class="text-center">' + noResultsMessage + '</p></div>');
           $('.pagination-area nav').html('');
+          
+          // Ensure search parameter stays in URL even when no results
+          if (searchKeyword && searchKeyword.trim() !== '') {
+            const currentUrlParams = new URLSearchParams(window.location.search);
+            if (!currentUrlParams.get('search') || currentUrlParams.get('search') !== searchKeyword) {
+              currentUrlParams.set('search', searchKeyword);
+              const newUrl = window.location.pathname + '?' + currentUrlParams.toString();
+              window.history.replaceState({}, '', newUrl);
+            }
+          }
         }
       } catch (error) {
         console.error('Error loading products:', error);
@@ -1046,12 +1181,22 @@
       const categoriesList = $('#product-categories-list');
       categoriesList.empty();
       
-      // Get current category from URL
+      // Get current category and search from URL
       const urlParams = new URLSearchParams(window.location.search);
       const currentCategoryId = urlParams.get('category');
+      const searchKeyword = urlParams.get('search') || '';
       
       categories.forEach(category => {
-        const categoryLink = `shop-left-sidebar.html${category.id ? '?category=' + category.id : ''}`;
+        // Preserve search parameter when clicking categories
+        const newParams = new URLSearchParams();
+        if (category.id) {
+          newParams.set('category', category.id);
+        }
+        if (searchKeyword) {
+          newParams.set('search', searchKeyword);
+        }
+        const queryString = newParams.toString();
+        const categoryLink = `shop-left-sidebar.html${queryString ? '?' + queryString : ''}`;
         const isActive = currentCategoryId && String(category.id) === String(currentCategoryId);
         const activeClass = isActive ? 'active' : '';
         categoriesList.append(`
@@ -1060,8 +1205,38 @@
       });
     }
     
+    // Clear search function
+    function clearSearch() {
+      // Clear search inputs
+      $('#search').val('');
+      $('#search-input').val('');
+      // Reload page without search parameter
+      window.location.href = 'shop-left-sidebar.html';
+    }
+    
+    // Make clearSearch available globally
+    window.clearSearch = clearSearch;
+    
     // Initialize on page load
     $(document).ready(function() {
+      // Populate search inputs when page loads
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchKeyword = urlParams.get('search') || '';
+      
+      if (searchKeyword) {
+        // Keep search term visible in inputs
+        $('#search').val(searchKeyword);
+        $('#search-input').val(searchKeyword);
+        // Show search results message
+        $('#search-results-message').show();
+        $('#search-term-display').text(searchKeyword);
+      } else {
+        // Clear search inputs and hide message when no search
+        $('#search').val('');
+        $('#search-input').val('');
+        $('#search-results-message').hide();
+      }
+      
       // Prevent default price slider initialization from rangeSlider.js
       // We'll initialize it after products are loaded with correct min/max values
       const originalSliderInit = window.noUiSlider;

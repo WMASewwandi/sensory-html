@@ -40,6 +40,52 @@
     searchwrapper.removeClass('show');
   });
 
+  // Global Search Functionality - Handle all search forms
+  function handleSearch(searchTerm) {
+    if (searchTerm && searchTerm.trim() !== '') {
+      // Redirect to shop page with search query parameter (keep search term in input)
+      window.location.href = 'shop-left-sidebar.html?search=' + encodeURIComponent(searchTerm.trim());
+    }
+  }
+
+  // Clear search functionality
+  function clearSearch() {
+    // Clear all search inputs
+    $('#search').val('');
+    $('#search-input').val('');
+    // If on shop page, reload without search parameter
+    if (window.location.pathname.includes('shop-left-sidebar.html')) {
+      window.location.href = 'shop-left-sidebar.html';
+    }
+  }
+
+  // Handle header search form
+  $('.header-search-box form').on('submit', function(e) {
+    e.preventDefault();
+    var searchTerm = $(this).find('#search').val();
+    handleSearch(searchTerm);
+  });
+
+  // Handle search modal form
+  $('.search-box-form-wrap form').on('submit', function(e) {
+    e.preventDefault();
+    var searchTerm = $(this).find('#search-input').val();
+    handleSearch(searchTerm);
+    searchwrapper.removeClass('show');
+  });
+
+  // Handle search button clicks
+  $('.btn-src, .search-button').on('click', function(e) {
+    e.preventDefault();
+    var form = $(this).closest('form');
+    var searchInput = form.find('#search, #search-input');
+    var searchTerm = searchInput.val();
+    handleSearch(searchTerm);
+    if (searchwrapper.hasClass('show')) {
+      searchwrapper.removeClass('show');
+    }
+  });
+
   // Product Quick View JS
   var quickViewModal = $(".product-quick-view-modal");
   $(".product-action .action-quick-view").on('click', function() {

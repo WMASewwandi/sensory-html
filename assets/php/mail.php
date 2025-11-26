@@ -22,7 +22,7 @@ header("Access-Control-Allow-Origin: *");
         $recipient = "your@email.here";
 
         // Set the email subject.
-        $subject = "Kidol - Test Mail From $name";
+        $subject = "Sensory - Test Mail From $name";
 
         // Build the email content.
         $email_content = 
