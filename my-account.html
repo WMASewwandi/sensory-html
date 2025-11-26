@@ -237,7 +237,7 @@
                     <button class="nav-link" id="payment-method-tab" data-bs-toggle="tab" data-bs-target="#payment-method" type="button" role="tab" aria-controls="payment-method" aria-selected="false">Payment Method</button>
                     <button class="nav-link" id="address-edit-tab" data-bs-toggle="tab" data-bs-target="#address-edit" type="button" role="tab" aria-controls="address-edit" aria-selected="false">address</button>
                     <button class="nav-link" id="account-info-tab" data-bs-toggle="tab" data-bs-target="#account-info" type="button" role="tab" aria-controls="account-info" aria-selected="false">Account Details</button>
-                    <button class="nav-link" onclick="window.location.href='login-register.html'" type="button">Logout</button>
+                    <button class="nav-link" onclick="handleLogout()" type="button">Logout</button>
                   </div>
                 </nav>
               </div>
@@ -247,7 +247,7 @@
                     <div class="myaccount-content">
                       <h3>Dashboard</h3>
                       <div class="welcome">
-                        <p>Hello, <strong>Alex Tuntuni</strong> (If Not <strong>Tuntuni !</strong><a href="login-register.html" class="logout"> Logout</a>)</p>
+                        <p>Hello, <strong id="dashboard-name">Guest</strong> (<a href="login-register.html" class="logout" onclick="handleLogout()"> Logout</a>)</p>
                       </div>
                       <p class="mb-0">From your account dashboard. you can easily check & view your recent orders, manage your shipping and billing addresses and edit your password and account details.</p>
                     </div>
@@ -334,10 +334,10 @@
                     <div class="myaccount-content">
                       <h3>Billing Address</h3>
                       <address>
-                        <p><strong>Alex Tuntuni</strong></p>
-                        <p>1355 Market St, Suite 900 <br>
-                          San Francisco, CA 94103</p>
-                        <p>Mobile: (123) 456-7890</p>
+                        <p><strong id="address-name">-</strong></p>
+                        <p id="address-details">No address on file</p>
+                        <p>Mobile: <span id="address-mobile">-</span></p>
+                        <p>Email: <span id="address-email">-</span></p>
                       </address>
                       <a href="#/" class="check-btn sqr-btn"><i class="fa fa-edit"></i> Edit Address</a>
                     </div>
@@ -366,8 +366,12 @@
                             <input type="text" id="display-name" />
                           </div>
                           <div class="single-input-item">
-                            <label for="email" class="required">Email Addres</label>
+                            <label for="email" class="required">Email Address</label>
                             <input type="email" id="email" />
+                          </div>
+                          <div class="single-input-item">
+                            <label for="mobile-no">Mobile Number</label>
+                            <input type="tel" id="mobile-no" />
                           </div>
                           <fieldset>
                             <legend>Password change</legend>
@@ -744,8 +748,55 @@
 <!--=== jquery Zoom Min Js ===-->
 <script src="/assets/js/jquery-zoom.min.js"></script>
 
+<!--=== API Config Js ===-->
+<script src="/assets/js/config.js"></script>
+<!--=== API Service Js ===-->
+<script src="/assets/js/api-service.js"></script>
 <!--=== Custom Js ===-->
 <script src="/assets/js/custom.js"></script>
+
+<!-- My Account User Data Handler -->
+<script>
+  (function($) {
+    'use strict';
+
+    // Handle logout - direct logout without confirmation
+    window.handleLogout = function() {
+      window.logoutUser();
+      window.location.href = 'login-register.html';
+    };
+
+    $(document).ready(function() {
+      // Check if user is logged in
+      const currentUser = window.getCurrentUser();
+      
+      if (!currentUser) {
+        // Redirect to login if not logged in
+        window.location.href = 'login-register.html';
+        return;
+      }
+
+      // Update Dashboard
+      const fullName = (currentUser.firstName || '') + ' ' + (currentUser.lastName || '');
+      $('#dashboard-name').text(fullName.trim() || currentUser.email || 'User');
+
+      // Update Account Details Form
+      $('#first-name').val(currentUser.firstName || '');
+      $('#last-name').val(currentUser.lastName || '');
+      $('#display-name').val(fullName.trim() || currentUser.email || '');
+      $('#email').val(currentUser.email || '');
+      $('#mobile-no').val(currentUser.mobileNo || '');
+
+      // Update Address Section
+      $('#address-name').text(fullName.trim() || currentUser.email || '-');
+      $('#address-details').text(currentUser.customerAddresses && currentUser.customerAddresses.length > 0 
+        ? currentUser.customerAddresses[0].addressLine1 + (currentUser.customerAddresses[0].addressLine2 ? ', ' + currentUser.customerAddresses[0].addressLine2 : '')
+        : 'No address on file');
+      $('#address-mobile').text(currentUser.mobileNo || '-');
+      $('#address-email').text(currentUser.email || '-');
+    });
+  })(jQuery);
+</script>
 
 </body>
 
