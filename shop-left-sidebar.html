@@ -146,7 +146,6 @@
                   </ul>
                 </li> -->
                 <li><a href="shop-left-sidebar.html">Shop</a></li>
-                <li><a href="blog-4-column.html">Blog</a></li>
                 <li><a href="contact.html">Contact</a></li>
               </ul>
             </div>
@@ -342,7 +341,6 @@
                     <li><a href="index.html">- Home</a></li>
                     <li><a href="about.html">- About</a></li>
                     <li><a href="shop-left-sidebar.html">- Shop</a></li>
-                    <li><a href="blog-4-column.html">- Blog</a></li>
                     <li><a href="contact.html">- Contact</a></li>
                   </ul>
                 </nav>
@@ -430,6 +428,7 @@
         </div>
       </div>
     </div>
+    <div class="canvas-overlay"></div>
   </aside>
   <!--== End Product Quick View ==-->
 
@@ -492,7 +491,6 @@
         <ul class="nav-menu">
           <li class="active"><a class="ml--2" href="index.html">Home</a></li>
           <li><a class="ml--2" href="shop-left-sidebar.html">Shop</a></li>
-          <li><a class="ml--2" href="blog-4-column.html">Blog</a></li>
           <li><a class="ml--2" href="about.html">About</a></li>
           <li><a class="ml--2" href="contact.html">Contact</a></li>
         </ul>
@@ -532,6 +530,62 @@
     
     #product-categories-list li a.active:hover {
       color: #e06896 !important;
+    }
+    
+    /* Product Quick View Modal - Centered and Scrollable */
+    .product-quick-view-modal {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      padding: 20px !important;
+    }
+    
+    .product-quick-view-modal.active {
+      overflow: hidden !important;
+    }
+    
+    .product-quick-view-inner {
+      margin: 0 !important;
+      max-height: 90vh !important;
+      width: 100% !important;
+      max-width: 1200px !important;
+      display: flex !important;
+      align-items: center !important;
+      transform: translate(0, 0) !important;
+    }
+    
+    .product-quick-view-content {
+      max-height: 90vh !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    
+    .product-quick-view-content .row {
+      margin: 0 !important;
+    }
+    
+    .product-quick-view-content .row > div {
+      padding: 0 !important;
+    }
+    
+    .product-quick-view-content .thumb {
+      max-height: 90vh !important;
+      overflow: hidden !important;
+    }
+    
+    .product-quick-view-content .thumb img {
+      object-fit: cover !important;
+      height: 100% !important;
+    }
+    
+    /* Prevent body scroll when modal is open */
+    body.fix {
+      overflow: hidden !important;
+      position: fixed !important;
+      width: 100% !important;
     }
     
     /* Toast Notification Styles */
@@ -668,13 +722,14 @@
         const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
         const formattedPrice = formatPrice(productPrice);
         
-        // Store minimal product data for cart/wishlist
+        // Store minimal product data for cart/wishlist (include all price fields)
         const productData = {
           id: product.id,
           name: product.name,
           imageURL: product.imageURL,
-          sellingPrice: product.sellingPrice,
-          unitPrice: product.unitPrice
+          sellingPrice: product.sellingPrice || 0,
+          unitPrice: product.unitPrice || 0,
+          description: product.description || ''
         };
         
         // Determine column class based on container - 3 products per row
@@ -695,7 +750,7 @@
                   <img src="${productImage}" alt="${product.name}">
                   <div class="product-action">
                     <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
-                    <a class="action-quick-view" href="javascript:void(0)"><i class="ion-arrow-expand"></i></a>
+                    <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-arrow-expand"></i></a>
                     <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-heart"></i></a>
                   </div>
                 </div>
@@ -725,7 +780,7 @@
                   <img src="${productImage}" alt="${product.name}">
                   <div class="product-action">
                     <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
-                    <a class="action-quick-view" href="javascript:void(0)"><i class="ion-arrow-expand"></i></a>
+                    <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-arrow-expand"></i></a>
                     <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-heart"></i></a>
                   </div>
                 </div>
@@ -1262,6 +1317,118 @@
       if (typeof window.CartService !== 'undefined') {
         window.CartService.updateCartCount();
       }
+
+      // Handle quick view modal - use event delegation for dynamically created elements
+      $(document).on('click', '.quick-view-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const productDataStr = $(this).attr('data-product');
+        if (!productDataStr) return;
+        
+        try {
+          const product = JSON.parse(productDataStr);
+          
+          // If price is 0, try to get from the full product list
+          if ((!product.sellingPrice || product.sellingPrice === 0) && (!product.unitPrice || product.unitPrice === 0)) {
+            // Try to find the full product from allProducts array
+            if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
+              const fullProduct = allProducts.find(p => p.id === product.id);
+              if (fullProduct) {
+                Object.assign(product, fullProduct);
+              }
+            }
+          }
+          
+          showQuickViewModal(product);
+        } catch (error) {
+          console.error('Error parsing product data:', error);
+        }
+      });
+
+      // Function to show quick view modal with product data
+      function showQuickViewModal(product) {
+        const productImage = product.imageURL || '/assets/img/shop/quick-view1.jpg';
+        const productName = product.name || 'Product Name';
+        
+        // Get price - handle null, undefined, and 0 values properly
+        let productPrice = 0;
+        
+        // Check sellingPrice first
+        if (product.sellingPrice !== null && product.sellingPrice !== undefined) {
+          if (product.sellingPrice > 0) {
+            productPrice = product.sellingPrice;
+          } else if (product.unitPrice !== null && product.unitPrice !== undefined && product.unitPrice > 0) {
+            productPrice = product.unitPrice;
+          } else {
+            productPrice = product.sellingPrice; // Use even if 0
+          }
+        } 
+        // If no sellingPrice, check unitPrice
+        else if (product.unitPrice !== null && product.unitPrice !== undefined) {
+          productPrice = product.unitPrice;
+        }
+        
+        // Debug: log product data to console
+        console.log('Product in modal:', {
+          id: product.id,
+          name: product.name,
+          sellingPrice: product.sellingPrice,
+          unitPrice: product.unitPrice,
+          calculatedPrice: productPrice
+        });
+        
+        const productDescription = product.description || 'No description available.';
+        const formattedPrice = window.formatPrice ? window.formatPrice(productPrice) : (productPrice > 0 ? 'LKR ' + productPrice.toFixed(2) : 'Price not available');
+        
+        // Update modal image
+        $('.product-quick-view-modal .thumb img').attr('src', productImage).attr('alt', productName);
+        
+        // Update modal content
+        const modalContent = `
+          <div class="single-product-info">
+            <h4 class="title">${productName}</h4>
+            <div class="prices">
+              <span class="price">${formattedPrice}</span>
+            </div>
+            <div class="product-rating">
+              <div class="rating">
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+              </div>
+            </div>
+            <div class="single-product-featured">
+              <ul>
+                <li><i class="fa fa-check"></i> Free Shipping</li>
+                <li><i class="fa fa-check"></i> Support 24/7</li>
+                <li><i class="fa fa-check"></i> Money Return</li>
+              </ul>
+            </div>
+            <p class="product-desc">${productDescription}</p>
+            <div class="quick-product-action">
+              <div class="action-top">
+                <button class="btn btn-theme add-to-cart-btn" data-product='${JSON.stringify(product)}'>Add to Cart</button>
+                <a class="btn-wishlist add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(product)}">Add to Wishlist</a>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        $('#quick-view-content').html(modalContent);
+        
+        // Show modal
+        $('.product-quick-view-modal').addClass('active');
+        $('body').addClass('fix');
+      }
+
+      // Close modal handlers (if not already handled by custom.js)
+      $(document).on('click', '.product-quick-view-modal .btn-close, .canvas-overlay', function() {
+        $('.product-quick-view-modal').removeClass('active');
+        $('body').removeClass('fix');
+      });
     });
     
   })(jQuery);

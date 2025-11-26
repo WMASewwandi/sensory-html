@@ -157,7 +157,6 @@
                   </ul>
                 </li> -->
                 <li><a href="shop-left-sidebar.html">Shop</a></li>
-                <li><a href="blog-4-column.html">Blog</a></li>
                 <li><a href="contact.html">Contact</a></li>
               </ul>
             </div>
@@ -851,7 +850,7 @@
     <!--== End Product Tab Area Wrapper ==-->
 
     <!--== Start Blog Area Wrapper ==-->
-    <section class="blog-area blog-default-area">
+    <!-- <section class="blog-area blog-default-area">
       <div class="container">
         <div class="row">
           <div class="col-md-8 col-lg-6 m-auto">
@@ -865,7 +864,6 @@
         </div>
         <div class="row" data-aos="fade-up" data-aos-duration="1300">
           <div class="col-lg-4 col-md-6 col-sm-6">
-            <!--== Start Blog Post Item ==-->
             <div class="post-item">
               <div class="thumb">
                 <a href="blog-details.html"><img src="/assets/img/blog/31.jpg" alt="Image"></a>
@@ -878,10 +876,8 @@
                 <a class="btn-theme" href="blog-details.html">Read More</a>
               </div>
             </div>
-            <!--== End Blog Post Item ==-->
           </div>
           <div class="col-lg-4 col-md-6 col-sm-6">
-            <!--== Start Blog Post Item ==-->
             <div class="post-item mt-xs-30">
               <div class="thumb">
                 <a href="blog-details.html"><img src="/assets/img/blog/2.jpg" alt="Image"></a>
@@ -894,10 +890,9 @@
                 <a class="btn-theme" href="blog-details.html">Read More</a>
               </div>
             </div>
-            <!--== End Blog Post Item ==-->
+            
           </div>
           <div class="col-lg-4 col-md-6 col-sm-6">
-            <!--== Start Blog Post Item ==-->
             <div class="post-item mt-md-30">
               <div class="thumb">
                 <a href="blog-details.html"><img src="/assets/img/blog/31.jpg" alt="Image"></a>
@@ -910,11 +905,10 @@
                 <a class="btn-theme" href="blog-details.html">Read More</a>
               </div>
             </div>
-            <!--== End Blog Post Item ==-->
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
     <!--== End Blog Area Wrapper ==-->
   </main>
 
@@ -949,7 +943,6 @@
                     <li><a href="index.html">- Home</a></li>
                     <li><a href="about.html">- About</a></li>
                     <li><a href="shop-left-sidebar.html">- Shop</a></li>
-                    <li><a href="blog-4-column.html">- Blog</a></li>
                     <li><a href="contact.html">- Contact</a></li>
                   </ul>
                 </nav>
@@ -1040,70 +1033,8 @@
             </div>
           </div>
           <div class="col-lg-6 col-md-6 col-12">
-            <div class="single-product-info">
-              <h4 class="title">Jigsaw Puzzles For Kids</h4>
-              <div class="prices">
-                <span class="price">$120.59</span>
-              </div>
-              <div class="product-rating">
-                <div class="rating">
-                  <span class="fa fa-star"></span>
-                  <span class="fa fa-star"></span>
-                  <span class="fa fa-star"></span>
-                  <span class="fa fa-star"></span>
-                  <span class="fa fa-star"></span>
-                </div>
-                <div class="review">
-                  <a href="#/">( 5 Customer Review )</a>
-                </div>
-              </div>
-              <div class="single-product-featured">
-                <ul>
-                  <li><i class="fa fa-check"></i> Free Shipping</li>
-                  <li><i class="fa fa-check"></i> Support 24/7</li>
-                  <li><i class="fa fa-check"></i> Money Return</li>
-                </ul>
-              </div>
-              <p class="product-desc">Lorem ipsum dolor sit amet, consect adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quisll exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duisol aute irure dolor in reprehenderit.</p>
-              <div class="quick-product-action">
-                <div class="action-top">
-                  <div class="pro-qty">
-                    <input type="text" id="quantity" title="Quantity" value="01" />
-                  </div>
-                  <button class="btn btn-theme">Add to Cart</button>
-                  <a class="btn-wishlist" href="shop-wishlist.html">Add to Wishlist</a>
-                </div>
-              </div>
-              <div class="widget">
-                <h3 class="title">SKU:</h3>
-                <div class="widget-tags">
-                  <span>Ch-256xl</span>
-                </div>
-              </div>
-              <div class="widget">
-                <h3 class="title">Categories:</h3>
-                <div class="widget-tags">
-                  <a href="blog.html">Toys.</a>
-                  <a href="blog.html">Dresss</a>
-                </div>
-              </div>
-              <div class="widget">
-                <h3 class="title">Tag:</h3>
-                <div class="widget-tags">
-                  <a href="blog.html">Toys,</a>
-                  <a href="blog.html">Dress</a>
-                </div>
-              </div>
-              <div class="widget">
-                <h3 class="title">Share:</h3>
-                <div class="widget-tags widget-share">
-                  <span class="fa fa-facebook"></span>
-                  <span class="fa fa-dribbble"></span>
-                  <span class="fa fa-pinterest-p"></span>
-                  <span class="fa fa-twitter"></span>
-                  <span class="fa fa-linkedin"></span>
-                </div>
-              </div>
+            <div class="content" id="quick-view-content">
+              <!-- Quick view content will be loaded dynamically -->
             </div>
           </div>
         </div>
@@ -1262,6 +1193,196 @@
 <script src="/assets/js/api-service.js"></script>
 <!--=== Custom Js ===-->
 <script src="/assets/js/custom.js"></script>
+
+<!-- Product Quick View Modal Styles -->
+<style>
+  /* Product Quick View Modal - Centered and Scrollable */
+  .product-quick-view-modal {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    padding: 20px !important;
+  }
+  
+  .product-quick-view-modal.active {
+    overflow: hidden !important;
+  }
+  
+  .product-quick-view-inner {
+    margin: 0 !important;
+    max-height: 90vh !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    display: flex !important;
+    align-items: center !important;
+    transform: translate(0, 0) !important;
+  }
+  
+  .product-quick-view-content {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .product-quick-view-content .row {
+    margin: 0 !important;
+  }
+  
+  .product-quick-view-content .row > div {
+    padding: 0 !important;
+  }
+  
+  .product-quick-view-content .thumb {
+    max-height: 90vh !important;
+    overflow: hidden !important;
+  }
+  
+  .product-quick-view-content .thumb img {
+    object-fit: cover !important;
+    height: 100% !important;
+  }
+  
+  /* Prevent body scroll when modal is open */
+  body.fix {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
+</style>
+
+<!-- Home Page Product Quick View Handler -->
+<script>
+  (function($) {
+    'use strict';
+
+    $(document).ready(function() {
+      // Handle quick view modal - use event delegation for dynamically created elements
+      $(document).on('click', '.action-quick-view:has(.ion-arrow-expand)', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Get product data from the closest product item
+        const $productItem = $(this).closest('.product-item');
+        if ($productItem.length === 0) return;
+        
+        // Try to get product data from data attribute first
+        const productDataStr = $(this).attr('data-product') || $productItem.attr('data-product');
+        
+        if (productDataStr) {
+          try {
+            const product = JSON.parse(productDataStr);
+            showQuickViewModal(product);
+          } catch (error) {
+            console.error('Error parsing product data:', error);
+            // Fallback: try to extract product info from DOM
+            extractProductFromDOM($productItem);
+          }
+        } else {
+          // Extract product info from DOM if no data attribute
+          extractProductFromDOM($productItem);
+        }
+      });
+
+      // Function to extract product info from DOM
+      function extractProductFromDOM($productItem) {
+        const productName = $productItem.find('.product-info .title a').text().trim() || 
+                           $productItem.find('.product-info .title').text().trim() || 
+                           'Product Name';
+        const productImage = $productItem.find('.product-thumb img').attr('src') || 
+                            '/assets/img/shop/quick-view1.jpg';
+        const priceText = $productItem.find('.prices .price').text().trim() || 
+                         $productItem.find('.price').text().trim() || 
+                         '$0.00';
+        
+        // Create a basic product object
+        const product = {
+          name: productName,
+          imageURL: productImage,
+          description: 'Product description not available.',
+          sellingPrice: 0,
+          unitPrice: 0
+        };
+        
+        showQuickViewModal(product);
+      }
+
+      // Function to show quick view modal with product data
+      function showQuickViewModal(product) {
+        const productImage = product.imageURL || '/assets/img/shop/quick-view1.jpg';
+        const productName = product.name || 'Product Name';
+        
+        // Get price - handle null, undefined, and 0 values properly
+        let productPrice = 0;
+        if (product.sellingPrice && product.sellingPrice > 0) {
+          productPrice = product.sellingPrice;
+        } else if (product.unitPrice && product.unitPrice > 0) {
+          productPrice = product.unitPrice;
+        } else if (product.sellingPrice !== null && product.sellingPrice !== undefined) {
+          productPrice = product.sellingPrice;
+        } else if (product.unitPrice !== null && product.unitPrice !== undefined) {
+          productPrice = product.unitPrice;
+        }
+        
+        const productDescription = product.description || 'No description available.';
+        const formattedPrice = window.formatPrice ? window.formatPrice(productPrice) : (productPrice > 0 ? 'LKR ' + productPrice.toFixed(2) : 'Price not available');
+        
+        // Update modal image
+        $('.product-quick-view-modal .thumb img').attr('src', productImage).attr('alt', productName);
+        
+        // Update modal content
+        const modalContent = `
+          <div class="single-product-info">
+            <h4 class="title">${productName}</h4>
+            <div class="prices">
+              <span class="price">${formattedPrice}</span>
+            </div>
+            <div class="product-rating">
+              <div class="rating">
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+              </div>
+            </div>
+            <div class="single-product-featured">
+              <ul>
+                <li><i class="fa fa-check"></i> Free Shipping</li>
+                <li><i class="fa fa-check"></i> Support 24/7</li>
+                <li><i class="fa fa-check"></i> Money Return</li>
+              </ul>
+            </div>
+            <p class="product-desc">${productDescription}</p>
+            <div class="quick-product-action">
+              <div class="action-top">
+                <div class="pro-qty">
+                  <input type="text" id="quantity" title="Quantity" value="01" />
+                </div>
+                <button class="btn btn-theme add-to-cart-btn" data-product='${JSON.stringify(product)}'>Add to Cart</button>
+                <a class="btn-wishlist add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(product)}">Add to Wishlist</a>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        $('#quick-view-content').html(modalContent);
+        
+        // Show modal
+        $('.product-quick-view-modal').addClass('active');
+        $('body').addClass('fix');
+      }
+
+      // Close modal handlers
+      $(document).on('click', '.product-quick-view-modal .btn-close, .canvas-overlay', function() {
+        $('.product-quick-view-modal').removeClass('active');
+        $('body').removeClass('fix');
+      });
+    });
+  })(jQuery);
+</script>
 
 </body>
 
