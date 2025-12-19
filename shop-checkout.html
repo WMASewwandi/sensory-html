@@ -421,23 +421,22 @@
                   </div>
                   <div class="your-order-product">
                     <ul>
-                      <li>Brother Hoodies in Grey × 4 <span>$140.00 </span></li>
-                      <li>Enjoy The Rest T-Shirt × 1 <span>$39.59 </span></li>
+                      <!-- Order items will be loaded dynamically here -->
                     </ul>
                   </div>
                   <div class="your-order-subtotal">
-                    <h3>Subtotal <span>$617.59</span></h3>
+                    <h3>Subtotal <span id="checkout-subtotal">LKR 0.00</span></h3>
                   </div>
                   <div class="your-order-shipping">
                     <span>Shipping</span>
                     <ul>
                       <li><input type="radio" name="shipping" value="info" checked="checked"><label>Free shipping</label></li>
-                      <li><input type="radio" name="shipping" value="info" checked="checked"><label>Flat rate: <span>$100.00</span></label></li>
-                      <li><input type="radio" name="shipping" value="info" checked="checked"><label>Local pickup: <span>$120.00</span></label></li>
+                      <li><input type="radio" name="shipping" value="info" checked="checked"><label>Flat rate: <span>LKR 0.00</span></label></li>
+                      <li><input type="radio" name="shipping" value="info" checked="checked"><label>Local pickup: <span>LKR 0.00</span></label></li>
                     </ul>
                   </div>
                   <div class="your-order-total">
-                    <h3>Total <span>$617.59 </span></h3>
+                    <h3>Total <span id="checkout-total">LKR 0.00</span></h3>
                   </div>
                 </div>
                 <div class="payment-method">
@@ -617,7 +616,7 @@
             <div class="single-product-info">
               <h4 class="title">Your Products Name Here.</h4>
               <div class="prices">
-                <span class="price">$120.59</span>
+                <span class="price">LKR 0.00</span>
               </div>
               <div class="product-rating">
                 <div class="rating">
@@ -721,34 +720,11 @@
             </div>
           </div>
           <div class="cart-content cart-content-padding">
-            <ul>
-              <li class="single-product-cart">
-                <div class="cart-img">
-                  <a href="shop-single-product.html"><img src="/assets/img/shop/details/nav1.jpg" alt=""></a>
-                </div>
-                <div class="cart-title">
-                  <h4><a href="shop-single-product.html">Jigsaw Puzzles For Kids </a></h4>
-                  <span> 1 × <span class="price"> $12.00 </span></span>
-                </div>
-                <div class="cart-delete">
-                  <a href="#/"><i class="pe-7s-trash icons"></i></a>
-                </div>
-              </li>
-              <li class="single-product-cart">
-                <div class="cart-img">
-                  <a href="shop-single-product.html"><img src="/assets/img/shop/details/nav2.jpg" alt=""></a>
-                </div>
-                <div class="cart-title">
-                  <h4><a href="shop-single-product.html">Bruder Toys Mini Ships </a></h4>
-                  <span> 1 × <span class="price"> $59.00 </span></span>
-                </div>
-                <div class="cart-delete">
-                  <a href="#/"><i class="pe-7s-trash icons"></i></a>
-                </div>
-              </li>
+            <ul id="sidebar-cart-items">
+              <!-- Cart items will be loaded dynamically here -->
             </ul>
             <div class="cart-total">
-              <h4>Subtotal: <span>$278.90</span></h4>
+              <h4>Subtotal: <span id="sidebar-cart-subtotal">LKR 0.00</span></h4>
             </div>
             <div class="cart-checkout-btn">
               <a class="cart-btn" href="shop-cart.html">view cart</a>

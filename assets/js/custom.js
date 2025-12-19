@@ -97,11 +97,11 @@
     $("body").removeClass('fix');
   });
 
-  // Sidebar Cart JS
+  // Sidebar Cart JS - Navigate to cart page instead of opening sidebar
   var sidebarCartModal = $(".sidebar-cart-modal");
-  $(".cart-icon").on('click', function() {
-    sidebarCartModal.addClass('sidebar-cart-active');
-    $(".sidebar-cart-overlay").addClass('show');
+  $(".cart-icon").on('click', function(e) {
+    e.preventDefault();
+    window.location.href = '/shop-cart.html';
   });
   $(".sidebar-cart-content .cart-close").on('click', function() {
     sidebarCartModal.removeClass('sidebar-cart-active');

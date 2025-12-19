@@ -116,7 +116,7 @@
                     </div>
                     <div class="header-action-cart">
                       <button class="btn-cart cart-icon">
-                        <span class="cart-count">01</span>
+                        <span class="cart-count">0</span>
                         <i class="pe-7s-shopbag"></i>
                       </button>
                     </div>
@@ -182,7 +182,7 @@
                 </div>
                 <div class="header-action-cart">
                   <button class="btn-cart cart-icon">
-                    <span class="cart-count">01</span>
+                    <span class="cart-count">0</span>
                     <i class="pe-7s-shopbag"></i>
                   </button>
                 </div>
@@ -433,7 +433,7 @@
               <div class="single-product-info">
                 <h4 class="title">Your Products Name Here.</h4>
                 <div class="prices">
-                  <span class="price">$120.59</span>
+                  <span class="price">LKR 0.00</span>
                 </div>
                 <div class="product-rating">
                   <div class="rating">
@@ -539,34 +539,11 @@
               </div>
             </div>
             <div class="cart-content cart-content-padding">
-              <ul>
-                <li class="single-product-cart">
-                  <div class="cart-img">
-                    <a href="shop-single-product.html"><img src="/assets/img/shop/details/nav1.jpg" alt=""></a>
-                  </div>
-                  <div class="cart-title">
-                    <h4><a href="shop-single-product.html">Jigsaw Puzzles For Kids </a></h4>
-                    <span> 1 × <span class="price"> $12.00 </span></span>
-                  </div>
-                  <div class="cart-delete">
-                    <a href="#/"><i class="pe-7s-trash icons"></i></a>
-                  </div>
-                </li>
-                <li class="single-product-cart">
-                  <div class="cart-img">
-                    <a href="shop-single-product.html"><img src="/assets/img/shop/details/nav2.jpg" alt=""></a>
-                  </div>
-                  <div class="cart-title">
-                    <h4><a href="shop-single-product.html">Bruder Toys Mini Ships </a></h4>
-                    <span> 1 × <span class="price"> $59.00 </span></span>
-                  </div>
-                  <div class="cart-delete">
-                    <a href="#/"><i class="pe-7s-trash icons"></i></a>
-                  </div>
-                </li>
+              <ul id="sidebar-cart-items">
+                <!-- Cart items will be loaded dynamically here -->
               </ul>
               <div class="cart-total">
-                <h4>Subtotal: <span>$278.90</span></h4>
+                <h4>Subtotal: <span id="sidebar-cart-subtotal">LKR 0.00</span></h4>
               </div>
               <div class="cart-checkout-btn">
                 <a class="cart-btn" href="shop-cart.html">view cart</a>
@@ -650,6 +627,8 @@
   <script src="/assets/js/config.js"></script>
   <!--=== API Service Js ===-->
   <script src="/assets/js/api-service.js"></script>
+  <!--=== Cart Service Js ===-->
+  <script src="/assets/js/cart-service.js"></script>
   <!--=== Custom Js ===-->
   <script src="/assets/js/custom.js"></script>
 
@@ -659,6 +638,11 @@
       'use strict';
 
       $(document).ready(function() {
+        // Update cart count on page load
+        if (typeof CartService !== 'undefined') {
+          CartService.updateCartCount();
+        }
+        
         // Check if user is already logged in
         const currentUser = window.getCurrentUser();
         if (currentUser) {
