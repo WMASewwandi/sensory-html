@@ -39,6 +39,172 @@
   <!--== Main Style CSS ==-->
   <link href="/assets/css/style.css" rel="stylesheet" />
 
+  <!--== Custom Category Slider Overlay Styles ==-->
+  <style>
+    .category-slider-section {
+      padding: 100px 0;
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    }
+    
+    .category-slider-section .section-title {
+      margin-bottom: 60px;
+    }
+    
+    .category-slider-section .section-title .title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 15px;
+      font-family: "Fredoka One", cursive;
+    }
+    
+    .category-slider-section .section-title .desc {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .category-slider-section .section-title .desc p {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.6;
+      margin: 0;
+    }
+    
+    .category-slider-container .category-item {
+      position: relative;
+      padding: 0 10px;
+    }
+    
+    .category-slide-link {
+      display: block;
+      text-decoration: none;
+      transition: transform 0.3s ease;
+    }
+    
+    .category-slide-link:hover {
+      transform: translateY(-5px);
+    }
+    
+    .category-image-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 15px;
+      height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+      margin: 0 auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .category-item:hover .category-image-wrapper {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .category-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    
+    .category-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.2), transparent);
+      padding: 25px 20px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .category-name {
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 5px 0;
+      text-transform: capitalize;
+      font-family: "Rubik", sans-serif;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.5px;
+    }
+    
+    .category-product-count {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      font-weight: 400;
+      margin: 0;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .category-item:hover .category-image-wrapper img {
+      transform: scale(1.15);
+    }
+    
+    .category-item:hover .category-overlay {
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4), transparent);
+      padding-bottom: 25px;
+    }
+    
+    .category-item:hover .category-name {
+      transform: translateY(-2px);
+    }
+    
+    @media (max-width: 991px) {
+      .category-slider-section {
+        padding: 80px 0;
+      }
+      
+      .category-slider-section .section-title .title {
+        font-size: 30px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .category-slider-section {
+        padding: 60px 0;
+      }
+      
+      .category-image-wrapper {
+        height: 200px;
+        border-radius: 12px;
+      }
+      
+      .category-name {
+        font-size: 18px;
+      }
+      
+      .category-overlay {
+        padding: 20px 15px 15px;
+      }
+      
+      .category-slider-section .section-title {
+        margin-bottom: 40px;
+      }
+      
+      .category-slider-section .section-title .title {
+        font-size: 26px;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .category-image-wrapper {
+        height: 180px;
+      }
+      
+      .category-name {
+        font-size: 16px;
+      }
+      
+      .category-product-count {
+        font-size: 12px;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -203,8 +369,8 @@
             <div class="col-lg-12 m-auto">
               <div class="page-title-content text-center">
                 <h2 class="title">About Us</h2>
-                <div class="bread-crumbs"><a href="index.html"> Home </a><span class="breadcrumb-sep"> // </span><span
-                    class="active"> About Us</span></div>
+                <!-- <div class="bread-crumbs"><a href="index.html"> Home </a><span class="breadcrumb-sep"> // </span><span
+                    class="active"> About Us</span></div> -->
               </div>
             </div>
           </div>
@@ -248,42 +414,37 @@
       </section>
       <!--== End Divider Area Wrapper ==-->
 
-      <!--== Start Brand Logo Area ==-->
-      <div class="brand-logo-area brand-logo-default-area" data-aos="fade-up" data-aos-duration="1000">
-        <div class="container-fluid">
-          <div class="row align-items-center">
+      <!--== Start Category Area ==-->
+      <section class="category-slider-section" data-aos="fade-up" data-aos-duration="1000">
+        <div class="container">
+          <div class="row">
             <div class="col-lg-12">
-              <div class="swiper-container brand-logo-slider-container">
-                <div class="swiper-wrapper brand-logo-slider">
-                  <div class="swiper-slide brand-logo-item">
-                    <a href="#/"><img src="/assets/img/brand-logo/1.png" alt="Brand-Logo"></a>
-                  </div>
-                  <div class="swiper-slide brand-logo-item">
-                    <a href="#/"><img src="/assets/img/brand-logo/2.png" alt="Brand-Logo"></a>
-                  </div>
-                  <div class="swiper-slide brand-logo-item">
-                    <a href="#/"><img src="/assets/img/brand-logo/3.png" alt="Brand-Logo"></a>
-                  </div>
-                  <div class="swiper-slide brand-logo-item">
-                    <a href="#/"><img src="/assets/img/brand-logo/4.png" alt="Brand-Logo"></a>
-                  </div>
-                  <div class="swiper-slide brand-logo-item">
-                    <a href="#/"><img src="/assets/img/brand-logo/5.png" alt="Brand-Logo"></a>
-                  </div>
-                  <div class="swiper-slide brand-logo-item">
-                    <a href="#/"><img src="/assets/img/brand-logo/6.png" alt="Brand-Logo"></a>
-                  </div>
+              <div class="section-title text-center mb-5">
+                <h2 class="title">Our Product Categories</h2>
+                <div class="desc">
+                  <p>Explore our wide range of sensory learning products designed to inspire and educate</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <!--== End Brand Logo Area ==-->
+        <div class="container-fluid">
+          <div class="row align-items-center">
+            <div class="col-lg-12">
+              <div class="swiper-container category-slider-container">
+                <div class="swiper-wrapper category-slider" id="category-slider-wrapper">
+                  <!-- Categories will be loaded dynamically here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!--== End Category Area ==-->
 
 
       <!--== Start Newsletter Area ==-->
-      <section class="testimonial-area testimonial-default-area">
+      <!-- <section class="testimonial-area testimonial-default-area">
         <div class="container">
           <div class="row">
             <div class="col-lg-6 m-auto">
@@ -468,7 +629,7 @@
           </div>
         </div>
         <div class="thumb-style bg-img" data-bg-img="/assets/img/testimonial/shape2.png"></div>
-      </section>
+      </section> -->
       <!--== End Newsletter Area ==-->
 
       <!--== Start Divider Area Wrapper ==-->
@@ -742,8 +903,159 @@
   <!--=== jquery Zoom Min Js ===-->
   <script src="/assets/js/jquery-zoom.min.js"></script>
 
+  <!--=== API Config Js ===-->
+  <script src="/assets/js/config.js"></script>
+  <!--=== API Service Js ===-->
+  <script src="/assets/js/api-service.js"></script>
   <!--=== Custom Js ===-->
   <script src="/assets/js/custom.js"></script>
+
+  <!-- Category Slider Loader Script -->
+  <script>
+    (function($) {
+      'use strict';
+
+      // Render categories in slider format
+      function renderCategorySlider(categories) {
+        const container = $('#category-slider-wrapper');
+        if (!container.length || !categories || categories.length === 0) {
+          container.html('<div class="swiper-slide"><p class="text-center">No categories found</p></div>');
+          return;
+        }
+
+        // Use all categories
+        let displayCategories = categories;
+        
+        // Ensure we have at least 6 slides for smooth infinite loop
+        // If we have fewer, duplicate the categories
+        if (displayCategories.length < 6) {
+          const duplicatesNeeded = Math.ceil(6 / displayCategories.length);
+          const duplicated = [];
+          for (let i = 0; i < duplicatesNeeded; i++) {
+            duplicated.push(...displayCategories);
+          }
+          displayCategories = duplicated.slice(0, 6);
+        }
+        
+        container.empty();
+        
+        displayCategories.forEach((category, index) => {
+          // Use the same background image for all categories
+          const categoryImage = `/assets/img/new/101.png`;
+          const productCount = category.productCount || 0;
+          const productCountText = productCount > 0 ? `${productCount} ${productCount === 1 ? 'Product' : 'Products'}` : 'Explore';
+          
+          const categoryHtml = `
+            <div class="swiper-slide category-item">
+              <a href="shop-left-sidebar.html?category=${category.id}" class="category-slide-link">
+                <div class="category-image-wrapper">
+                  <img src="${categoryImage}" alt="${category.name}">
+                  <div class="category-overlay">
+                    <h3 class="category-name">${category.name}</h3>
+                    <p class="category-product-count">${productCountText}</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+          `;
+          
+          container.append(categoryHtml);
+        });
+
+        // Reinitialize the slider after content is loaded
+        if (typeof Swiper !== 'undefined') {
+          // Destroy existing instance if any
+          const sliderElement = document.querySelector('.category-slider-container');
+          if (sliderElement && sliderElement.swiper) {
+            sliderElement.swiper.destroy(true, true);
+          }
+          
+          // Reinitialize slider (the initialization in custom.js will handle this)
+          // But we need to trigger it manually since content is loaded dynamically
+          setTimeout(function() {
+            if (typeof window.initCategorySlider === 'function') {
+              window.initCategorySlider();
+            } else {
+              // Fallback: manually initialize
+              const totalSlides = displayCategories.length;
+              
+              new Swiper('.category-slider-container', {
+                slidesPerView: 6,
+                loop: true,
+                loopedSlides: Math.max(totalSlides, 5),
+                loopAdditionalSlides: 2,
+                speed: 1000,
+                spaceBetween: 30,
+                autoplay: {
+                  delay: 3000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: false,
+                  stopOnLastSlide: false,
+                },
+                allowTouchMove: true,
+                watchSlidesProgress: true,
+                watchSlidesVisibility: true,
+                breakpoints: {
+                  1200: {
+                    slidesPerView: 6,
+                    spaceBetween: 30
+                  },
+                  992: {
+                    slidesPerView: 4,
+                    spaceBetween: 30
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 30
+                  },
+                  576: {
+                    slidesPerView: 3,
+                    spaceBetween: 30
+                  },
+                  380: {
+                    slidesPerView: 2,
+                    spaceBetween: 30
+                  },
+                  0: {
+                    slidesPerView: 2,
+                    spaceBetween: 30
+                  }
+                }
+              });
+            }
+          }, 100);
+        }
+      }
+
+      // Load categories from API
+      async function loadCategorySlider() {
+        try {
+          if (typeof fetchCategories === 'function') {
+            const categories = await fetchCategories();
+            if (categories && categories.length > 0) {
+              renderCategorySlider(categories);
+            } else {
+              $('#category-slider-wrapper').html('<div class="swiper-slide"><p class="text-center">No categories found</p></div>');
+            }
+          } else {
+            console.error('fetchCategories function not available');
+          }
+        } catch (error) {
+          console.error('Error loading categories:', error);
+          $('#category-slider-wrapper').html('<div class="swiper-slide"><p class="text-center">Error loading categories</p></div>');
+        }
+      }
+
+      // Load categories when page is ready
+      $(document).ready(function() {
+        // Wait a bit for all scripts to load
+        setTimeout(function() {
+          loadCategorySlider();
+        }, 500);
+      });
+
+    })(window.jQuery);
+  </script>
 
 </body>
 

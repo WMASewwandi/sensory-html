@@ -157,16 +157,27 @@
     }
   });
 
-  // Brand Slider
-  var swiper = new Swiper('.brand-logo-slider-container', {
+  // Category Slider
+  var swiper = new Swiper('.category-slider-container', {
     slidesPerView : 6,
     loop: true,
+    loopedSlides: 5,
+    loopAdditionalSlides: 2,
     speed: 1000,
-    spaceBetween : 0,
-    autoplay: false,
+    spaceBetween : 30,
+    autoplay: {
+      delay: 3000,
+      disableOnInteraction: false,
+      pauseOnMouseEnter: false,
+      stopOnLastSlide: false,
+    },
+    allowTouchMove: true,
+    watchSlidesProgress: true,
+    watchSlidesVisibility: true,
     breakpoints: {
       1200:{
-          slidesPerView : 6
+          slidesPerView : 6,
+          spaceBetween : 30
       },
 
       992:{
@@ -568,11 +579,27 @@
       const marginClass = marginClasses[index % 3];
       const categoryImage = `assets/img/category/${(index % 5) + 1}.png`; // Cycle through available images
       
+      // const categoryHtml = `
+      //   <div class="col-sm-6 col-md-4">
+      //     <div class="category-item ${marginClass}">
+      //       <div class="thumb ${styleClass}">
+      //          <img src="${categoryImage}" alt="${category.name}">
+      //         <div class="content">
+      //           <div class="contact-info">
+      //             <h2 class="title">${category.name}</h2>
+      //             <h4 class="price">${category.productCount} Items</h4>
+      //           </div>
+      //           <a class="btn-link" href="shop-left-sidebar.html?category=${category.id}">Shop Now</a>
+      //         </div>
+      //       </div>
+      //     </div>
+      //   </div>
+      // `;
+      
       const categoryHtml = `
         <div class="col-sm-6 col-md-4">
           <div class="category-item ${marginClass}">
             <div class="thumb ${styleClass}">
-              <img src="${categoryImage}" alt="${category.name}">
               <div class="content">
                 <div class="contact-info">
                   <h2 class="title">${category.name}</h2>
@@ -584,7 +611,6 @@
           </div>
         </div>
       `;
-      
       container.append(categoryHtml);
     });
   }
