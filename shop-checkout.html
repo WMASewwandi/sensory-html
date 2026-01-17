@@ -804,8 +804,362 @@
 <!--=== jquery Zoom Min Js ===-->
 <script src="/assets/js/jquery-zoom.min.js"></script>
 
+<!--=== API Config Js ===-->
+<script src="/assets/js/config.js"></script>
+<!--=== API Service Js ===-->
+<script src="/assets/js/api-service.js"></script>
+<!--=== Cart Service Js ===-->
+<script src="/assets/js/cart-service.js"></script>
 <!--=== Custom Js ===-->
 <script src="/assets/js/custom.js"></script>
+
+<!-- Checkout Page Integration -->
+<script>
+(function($) {
+  'use strict';
+
+  // Format price with LKR currency
+  function formatPrice(price) {
+    if (price === null || price === undefined || price === 0) {
+      return 'LKR 0.00';
+    }
+    return 'LKR ' + parseFloat(price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  // Load cart items into checkout order summary
+  function loadOrderSummary() {
+    const cart = CartService.getCart();
+    const orderList = $('.your-order-product ul');
+    const subtotalEl = $('#checkout-subtotal');
+    const totalEl = $('#checkout-total');
+
+    if (cart.length === 0) {
+      orderList.html('<li>Your cart is empty. <a href="shop-left-sidebar.html">Continue Shopping</a></li>');
+      subtotalEl.text('LKR 0.00');
+      totalEl.text('LKR 0.00');
+      return;
+    }
+
+    orderList.empty();
+    let subtotal = 0;
+
+    cart.forEach((item) => {
+      const itemTotal = item.price * item.quantity;
+      subtotal += itemTotal;
+
+      const itemHtml = `
+        <li>${item.name} <span>x ${item.quantity}</span> <span class="float-end">${formatPrice(itemTotal)}</span></li>
+      `;
+      orderList.append(itemHtml);
+    });
+
+    subtotalEl.text(formatPrice(subtotal));
+    totalEl.text(formatPrice(subtotal));
+  }
+
+  // Prefill billing details from logged-in user
+  function prefillBillingDetails() {
+    const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
+
+    if (currentUser) {
+      // Prefill form fields with user data
+      $('.billing-info-wrap input[type="text"]').eq(0).val(currentUser.firstName || '');
+      $('.billing-info-wrap input[type="text"]').eq(1).val(currentUser.lastName || '');
+
+      // Find and fill phone and email fields
+      const phoneInput = $('.billing-info-wrap input[type="text"]').filter(function() {
+        return $(this).prev('label').text().toLowerCase().includes('phone');
+      });
+      const emailInput = $('.billing-info-wrap input[type="text"]').filter(function() {
+        return $(this).prev('label').text().toLowerCase().includes('email');
+      });
+
+      if (phoneInput.length) phoneInput.val(currentUser.mobileNo || '');
+      if (emailInput.length) emailInput.val(currentUser.email || '');
+
+      // Fill address if available
+      if (currentUser.customerAddresses && currentUser.customerAddresses.length > 0) {
+        const address = currentUser.customerAddresses[0];
+        $('.billing-address').val(address.addressLine1 || '');
+        $('.billing-address').next('input').val(address.addressLine2 || '');
+      }
+    }
+  }
+
+  $(document).ready(function() {
+    // Update cart count on page load
+    if (typeof CartService !== 'undefined') {
+      CartService.updateCartCount();
+    }
+
+    // Load order summary from cart
+    loadOrderSummary();
+
+    // Prefill billing details if user is logged in
+    prefillBillingDetails();
+
+    // Create order function
+    async function createOrder(orderData) {
+      try {
+        const headers = window.getAuthHeaders ? window.getAuthHeaders() : {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        };
+
+        const apiUrl = API_CONFIG.BASE_URL + '/pos/shopping-cart-orders';
+        console.log('Creating order:', {
+          url: apiUrl,
+          method: 'POST',
+          headers: headers,
+          body: orderData
+        });
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(orderData)
+        });
+
+        console.log('Order creation response:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          url: response.url
+        });
+
+        if (!response.ok) {
+          let errorData = {};
+          try {
+            const errorText = await response.text();
+            if (errorText) {
+              errorData = JSON.parse(errorText);
+            }
+          } catch (e) {
+            console.error('Error parsing error response:', e);
+          }
+          
+          const errorMessage = errorData.message || errorData.error?.message || `Order creation failed (Status: ${response.status})`;
+          console.error('Order creation failed:', {
+            status: response.status,
+            statusText: response.statusText,
+            errorData: errorData
+          });
+          throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+        console.log('Order created successfully:', data);
+        
+        // Handle both direct response and wrapped response
+        const order = data.data || data;
+        
+        return {
+          success: true,
+          order: order,
+          message: data.message || 'Order created successfully!'
+        };
+      } catch (error) {
+        console.error('Error creating order:', error);
+        return {
+          success: false,
+          message: error.message || 'Order creation failed. Please try again.'
+        };
+      }
+    }
+
+    // Handle place order button
+    $('.place-order a').on('click', async function(e) {
+      e.preventDefault();
+
+      const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
+      const cart = CartService.getCart();
+
+      if (cart.length === 0) {
+        alert('Your cart is empty. Please add items before checkout.');
+        return;
+      }
+
+      // Check if user is logged in for checkout
+      if (!currentUser) {
+        if (confirm('Please login to complete your order. Would you like to login now?')) {
+          window.location.href = 'login-register.html';
+        }
+        return;
+      }
+
+      // Get form values
+      const billingInfo = {
+        firstName: $('.billing-info-wrap input[type="text"]').eq(0).val()?.trim() || '',
+        lastName: $('.billing-info-wrap input[type="text"]').eq(1).val()?.trim() || '',
+        companyName: $('.billing-info-wrap input[type="text"]').eq(2).val()?.trim() || '',
+        country: $('.billing-info-wrap .select-active').eq(0).val() || '',
+        streetAddress1: $('.billing-info-wrap .billing-address').eq(0).val()?.trim() || '',
+        streetAddress2: $('.billing-info-wrap .billing-address').eq(0).next('input').val()?.trim() || '',
+        city: $('.billing-info-wrap input[type="text"]').eq(5).val()?.trim() || '',
+        state: $('.billing-info-wrap .select-active').eq(1).val() || '',
+        postalCode: $('.billing-info-wrap input[type="text"]').eq(6).val()?.trim() || '',
+        phone: $('.billing-info-wrap input[type="text"]').filter(function() {
+          return $(this).prev('label').text().toLowerCase().includes('phone');
+        }).val()?.trim() || '',
+        email: $('.billing-info-wrap input[type="text"]').filter(function() {
+          return $(this).prev('label').text().toLowerCase().includes('email');
+        }).val()?.trim() || currentUser.email || ''
+      };
+
+      // Validate required fields
+      if (!billingInfo.firstName || !billingInfo.lastName || !billingInfo.country || 
+          !billingInfo.streetAddress1 || !billingInfo.city || !billingInfo.phone || !billingInfo.email) {
+        alert('Please fill in all required billing fields.');
+        return;
+      }
+
+      // Check if shipping address is different
+      const shipToDifferentAddress = $('.checkout-account input[type="checkbox"]').is(':checked');
+      let deliveryInfo = null;
+
+      if (shipToDifferentAddress) {
+        deliveryInfo = {
+          firstName: $('.different-address input[type="text"]').eq(0).val()?.trim() || '',
+          lastName: $('.different-address input[type="text"]').eq(1).val()?.trim() || '',
+          companyName: $('.different-address input[type="text"]').eq(2).val()?.trim() || '',
+          country: $('.different-address .select-active').eq(0).val() || '',
+          streetAddress1: $('.different-address .billing-address').eq(0).val()?.trim() || '',
+          streetAddress2: $('.different-address .billing-address').eq(0).next('input').val()?.trim() || '',
+          city: $('.different-address input[type="text"]').eq(5).val()?.trim() || '',
+          state: $('.different-address .select-active').eq(1).val() || '',
+          postalCode: $('.different-address input[type="text"]').eq(6).val()?.trim() || ''
+        };
+      }
+
+      // Get payment method
+      const paymentMethod = $('input[name="payment_method"]:checked').val() || 'CashOnDelivery';
+      const paymentMethodText = $('input[name="payment_method"]:checked').next('label').text().trim();
+      
+      // Map payment method text to code
+      let paymentMethodCode = 'CashOnDelivery';
+      if (paymentMethodText.toLowerCase().includes('bank')) {
+        paymentMethodCode = 'BankTransfer';
+      } else if (paymentMethodText.toLowerCase().includes('check')) {
+        paymentMethodCode = 'Check';
+      } else if (paymentMethodText.toLowerCase().includes('paypal')) {
+        paymentMethodCode = 'PayPal';
+      }
+
+      // Get shipping method
+      const shippingMethod = $('input[name="shipping"]:checked').val() || 'Free';
+      const shippingMethodText = $('input[name="shipping"]:checked').next('label').text().trim();
+      let shippingMethodCode = 'Free';
+      let shippingCost = 0;
+      
+      if (shippingMethodText.toLowerCase().includes('flat')) {
+        shippingMethodCode = 'FlatRate';
+        shippingCost = 0; // You can adjust this based on your logic
+      } else if (shippingMethodText.toLowerCase().includes('pickup')) {
+        shippingMethodCode = 'LocalPickup';
+      }
+
+      // Get order notes
+      const orderNotes = $('textarea[name="message"]').val()?.trim() || '';
+
+      // Calculate totals
+      const subtotal = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+      const discountAmount = 0; // You can add coupon logic here
+      const totalAmount = subtotal - discountAmount + shippingCost;
+
+      // Prepare order data
+      const orderData = {
+        // Billing address
+        billingFirstName: billingInfo.firstName,
+        billingLastName: billingInfo.lastName,
+        billingCompanyName: billingInfo.companyName || null,
+        billingCountry: billingInfo.country,
+        billingStreetAddress1: billingInfo.streetAddress1,
+        billingStreetAddress2: billingInfo.streetAddress2 || null,
+        billingCity: billingInfo.city,
+        billingState: billingInfo.state || null,
+        billingPostalCode: billingInfo.postalCode || null,
+        
+        // Contact info
+        email: billingInfo.email,
+        phoneNumber: billingInfo.phone,
+        
+        // Delivery address (if different)
+        deliveryFirstName: deliveryInfo ? deliveryInfo.firstName : null,
+        deliveryLastName: deliveryInfo ? deliveryInfo.lastName : null,
+        deliveryCompanyName: deliveryInfo ? deliveryInfo.companyName : null,
+        deliveryCountry: deliveryInfo ? deliveryInfo.country : null,
+        deliveryStreetAddress1: deliveryInfo ? deliveryInfo.streetAddress1 : null,
+        deliveryStreetAddress2: deliveryInfo ? deliveryInfo.streetAddress2 : null,
+        deliveryCity: deliveryInfo ? deliveryInfo.city : null,
+        deliveryState: deliveryInfo ? deliveryInfo.state : null,
+        deliveryPostalCode: deliveryInfo ? deliveryInfo.postalCode : null,
+        
+        // Payment and shipping
+        paymentMethod: paymentMethodCode,
+        shippingMethod: shippingMethodCode,
+        shippingCost: shippingCost,
+        
+        // Order items
+        orderItems: cart.map(item => ({
+          productId: item.id,
+          productName: item.name || 'Product',
+          productImageUrl: item.imageURL || item.imageUrl || null,
+          quantity: item.quantity || 1,
+          unitPrice: item.price || 0,
+          discountAmount: 0
+        })),
+        
+        // Discount and notes
+        discountAmount: discountAmount,
+        couponCode: null,
+        orderNotes: orderNotes || null
+      };
+
+      // Disable button and show loading
+      const placeOrderBtn = $(this);
+      const originalText = placeOrderBtn.text();
+      placeOrderBtn.prop('disabled', true).text('Placing Order...');
+
+      try {
+        // Log order data for debugging
+        console.log('Submitting order:', orderData);
+        
+        // Create order
+        const result = await createOrder(orderData);
+        console.log('Order creation result:', result);
+
+        if (result.success && result.order) {
+          // Clear cart
+          CartService.clearCart();
+          CartService.updateCartCount();
+
+          // Show success message
+          const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
+          const orderId = result.order.id || result.order.orderId || '';
+          alert('Order placed successfully! Order Number: ' + orderNumber);
+          
+          // Redirect to order confirmation page or order details
+          if (orderId) {
+            window.location.href = 'my-account.html?order=' + orderId;
+          } else {
+            window.location.href = 'shop-cart.html';
+          }
+        } else {
+          const errorMsg = result.message || 'Failed to place order. Please try again.';
+          alert(errorMsg);
+          console.error('Order creation failed:', result);
+          placeOrderBtn.prop('disabled', false).text(originalText);
+        }
+      } catch (error) {
+        const errorMsg = error.message || 'An error occurred while placing your order. Please try again.';
+        alert(errorMsg);
+        console.error('Order creation error:', error);
+        placeOrderBtn.prop('disabled', false).text(originalText);
+      }
+    });
+  });
+})(jQuery);
+</script>
 
 </body>
 

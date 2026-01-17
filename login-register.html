@@ -681,8 +681,13 @@
             const result = await window.loginCustomer(email, password);
             
             if (result.success) {
-              // Save user data to localStorage
-              window.saveCurrentUser(result.user);
+              // Save user data, token, and refresh token to localStorage
+              window.saveCurrentUser(result.user, result.token, result.refreshToken);
+              
+              // Merge guest cart with user cart after login
+              if (typeof CartService !== 'undefined' && result.user && result.user.id) {
+                CartService.mergeCartAfterLogin(result.user.id);
+              }
               
               // Show success message
               showLoginMessage('Login successful! Redirecting...', 'success');

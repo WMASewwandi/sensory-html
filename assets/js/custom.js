@@ -97,6 +97,96 @@
     $("body").removeClass('fix');
   });
 
+  // Format price with LKR currency
+  function formatPrice(price) {
+    if (price === null || price === undefined || price === 0) {
+      return 'LKR 0.00';
+    }
+    return 'LKR ' + parseFloat(price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  // Load and render sidebar cart items
+  function loadSidebarCart() {
+    if (typeof CartService === 'undefined') {
+      return;
+    }
+    
+    const cart = CartService.getCart();
+    const sidebarItemsContainer = $('#sidebar-cart-items');
+    const sidebarSubtotalEl = $('#sidebar-cart-subtotal');
+    
+    if (!sidebarItemsContainer.length) {
+      return; // Sidebar cart not on this page
+    }
+    
+    sidebarItemsContainer.empty();
+    
+    if (cart.length === 0) {
+      sidebarItemsContainer.html('<li class="text-center" style="padding: 20px;">Your cart is empty.</li>');
+      if (sidebarSubtotalEl.length) {
+        sidebarSubtotalEl.text('LKR 0.00');
+      }
+      return;
+    }
+    
+    let subtotal = 0;
+    
+    cart.forEach((item) => {
+      const itemTotal = (item.price || 0) * (item.quantity || 1);
+      subtotal += itemTotal;
+      
+      const itemHtml = `
+        <li class="cart-item">
+          <div class="cart-img">
+            <a href="shop-single-product.html?id=${item.id}">
+              <img src="${item.imageURL || item.imageUrl || 'https://www.holoimage.net/images/no-image.jpg'}" alt="${item.name || 'Product'}">
+            </a>
+          </div>
+          <div class="cart-content">
+            <h5>
+              <a href="shop-single-product.html?id=${item.id}">${item.name || 'Product'}</a>
+            </h5>
+            <span class="cart-price">${formatPrice(item.price || 0)} × ${item.quantity || 1}</span>
+            <div class="cart-item-close">
+              <a href="javascript:void(0);" class="remove-sidebar-item" data-product-id="${item.id}">
+                <i class="pe-7s-close"></i>
+              </a>
+            </div>
+          </div>
+        </li>
+      `;
+      
+      sidebarItemsContainer.append(itemHtml);
+    });
+    
+    if (sidebarSubtotalEl.length) {
+      sidebarSubtotalEl.text(formatPrice(subtotal));
+    }
+  }
+  
+  // Handle remove item from sidebar cart
+  $(document).on('click', '.remove-sidebar-item', function(e) {
+    e.preventDefault();
+    if (typeof CartService !== 'undefined') {
+      const productId = $(this).data('product-id');
+      CartService.removeFromCart(productId);
+      loadSidebarCart();
+      CartService.updateCartCount();
+      
+      // If on cart page, trigger cart reload
+      if ($('#cart-items-container').length) {
+        // Trigger custom event to reload cart page
+        $(document).trigger('cartUpdated');
+        // Fallback: reload after a short delay if event handler doesn't exist
+        setTimeout(function() {
+          if ($('#cart-items-container').html().includes(productId)) {
+            location.reload();
+          }
+        }, 100);
+      }
+    }
+  });
+
   // Sidebar Cart JS - Navigate to cart page instead of opening sidebar
   var sidebarCartModal = $(".sidebar-cart-modal");
   $(".cart-icon").on('click', function(e) {
@@ -660,19 +750,16 @@
 
     container.empty();
     
-    // Filter out products without imageURL
-    const productsWithImages = products.filter(product => {
-      return product.imageURL && product.imageURL.trim() !== '';
-    });
-    
-    if (productsWithImages.length === 0) {
-      container.html('<div class="col-12"><p class="text-center">No products with images found.</p></div>');
+    if (!products || products.length === 0) {
+      container.html('<div class="col-12"><p class="text-center">No products found.</p></div>');
       return;
     }
     
-    productsWithImages.forEach((product) => {
-      // Use product image (we already filtered, so imageURL exists)
-      const productImage = product.imageURL;
+    const defaultImage = 'https://www.holoimage.net/images/no-image.jpg';
+    
+    products.forEach((product) => {
+      // Use product image or default image
+      const productImage = (product.imageURL && product.imageURL.trim() !== '') ? product.imageURL : defaultImage;
       const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
       const formattedPrice = formatPrice(productPrice);
       
@@ -765,19 +852,17 @@
           console.log(`Filtered ${productsToShow.length} products for category ${categoryId} from ${result.items.length} total products`);
         }
         
-        // Filter products with imageURL
-        const productsWithImages = productsToShow.filter(product => {
-          return product.imageURL && product.imageURL.trim() !== '';
-        });
+        // Use all products (no image filter - will use default image if needed)
+        const defaultImage = 'https://www.holoimage.net/images/no-image.jpg';
         
-        if (productsWithImages.length === 0) {
-          container.html('<div class="col-12"><p class="text-center">No products with images found.</p></div>');
+        if (productsToShow.length === 0) {
+          container.html('<div class="col-12"><p class="text-center">No products found.</p></div>');
           return;
         }
         
         // Sort by creation date (descending - newest first)
         // Check for common date field names: creationTime, createdDate, dateCreated, creationDate
-        const sortedProducts = productsWithImages.sort((a, b) => {
+        const sortedProducts = productsToShow.sort((a, b) => {
           const dateA = a.creationTime || a.createdDate || a.dateCreated || a.creationDate || a.lastModificationTime || 0;
           const dateB = b.creationTime || b.createdDate || b.dateCreated || b.creationDate || b.lastModificationTime || 0;
           
@@ -864,24 +949,22 @@
       const result = await fetchProducts(0, 100, null);
       
       if (result && result.items && result.items.length > 0) {
-        // Filter products with imageURL
-        const productsWithImages = result.items.filter(product => {
-          return product.imageURL && product.imageURL.trim() !== '';
-        });
+        // Use all products (no image filter - will use default image if needed)
+        const defaultImage = 'https://www.holoimage.net/images/no-image.jpg';
         
-        if (productsWithImages.length === 0) {
+        if (result.items.length === 0) {
           return;
         }
         
         // Shuffle and get 10 random products
-        const shuffledProducts = shuffleArray(productsWithImages);
+        const shuffledProducts = shuffleArray(result.items);
         const randomProducts = shuffledProducts.slice(0, 10);
         
         // Render trending products in slider format
         container.empty();
         
         randomProducts.forEach((product) => {
-          const productImage = product.imageURL;
+          const productImage = (product.imageURL && product.imageURL.trim() !== '') ? product.imageURL : defaultImage;
           const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
           const formattedPrice = formatPrice(productPrice);
           
@@ -984,6 +1067,9 @@
     if (productData && typeof CartService !== 'undefined') {
       CartService.addToCart(productData);
       
+      // Update sidebar cart if it exists
+      loadSidebarCart();
+      
       // Show feedback
       $this.find('i').addClass('added');
       setTimeout(() => {
@@ -1034,6 +1120,8 @@
     // Update cart count on page load
     if (typeof CartService !== 'undefined') {
       CartService.updateCartCount();
+      // Load sidebar cart items
+      loadSidebarCart();
     }
     
     // Update wishlist count on page load
