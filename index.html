@@ -1309,7 +1309,7 @@
                            $productItem.find('.product-info .title').text().trim() || 
                            'Product Name';
         const productImage = $productItem.find('.product-thumb img').attr('src') || 
-                            '/assets/img/shop/quick-view1.jpg';
+                            'https://www.holoimage.net/images/no-image.jpg';
         const priceText = $productItem.find('.prices .price').text().trim() || 
                          $productItem.find('.price').text().trim() || 
                          'LKR 0.00';
@@ -1356,7 +1356,7 @@
 
       // Function to show quick view modal with product data
       function showQuickViewModal(product) {
-        const productImage = product.imageURL || '/assets/img/shop/quick-view1.jpg';
+        const productImage = product.imageURL || 'https://www.holoimage.net/images/no-image.jpg';
         const productName = product.name || 'Product Name';
         
         // Get price - handle null, undefined, and 0 values properly

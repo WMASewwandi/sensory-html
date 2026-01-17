@@ -5,12 +5,10 @@
 // Fetch all categories
 async function fetchCategories() {
   try {
-    const response = await fetch(API_CONFIG.BASE_URL + '/services/app/category/GetAllCategories?includeProductCount=true', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+    const headers = getAuthHeaders();
+    const response = await fetch(API_CONFIG.BASE_URL + '/inventory/categories?pageNumber=1&pageSize=1000', {
+      method: 'GET',
+      headers: headers
     });
 
     if (!response.ok) {
@@ -19,12 +17,10 @@ async function fetchCategories() {
 
     const data = await response.json();
     
-    if (data.success && data.result) {
-      // Sort by sequenceNumber (null values last)
-      const sortedCategories = data.result.sort((a, b) => {
-        if (a.sequenceNumber === null) return 1;
-        if (b.sequenceNumber === null) return -1;
-        return a.sequenceNumber - b.sequenceNumber;
+    if (data.success && data.data && data.data.items) {
+      // Sort by name alphabetically
+      const sortedCategories = data.data.items.sort((a, b) => {
+        return (a.name || '').localeCompare(b.name || '');
       });
       
       return sortedCategories;
@@ -40,45 +36,60 @@ async function fetchCategories() {
 // Fetch products
 async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = null, keyword = '') {
   try {
-    const requestBody = {
-      isQuantityRequired: true,
-      isActive: true,
-      warehouseId: "afabb9ea-2c59-4d0c-9fa9-96f174877782",
-      skipCount: skipCount,
-      maxResultCount: maxResultCount
-    };
+    // Calculate pageNumber from skipCount and maxResultCount
+    const pageNumber = Math.floor(skipCount / maxResultCount) + 1;
+    const pageSize = maxResultCount;
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams({
+      pageNumber: pageNumber.toString(),
+      pageSize: pageSize.toString()
+    });
 
-    // Add keyword if provided (this is what the API uses for search)
+    // Add keyword if provided
     if (keyword && keyword.trim() !== '') {
-      requestBody.keyword = keyword.trim();
+      queryParams.append('keyword', keyword.trim());
     }
 
     // Add categoryId if provided
     if (categoryId) {
-      requestBody.categoryId = categoryId;
+      queryParams.append('categoryId', categoryId.toString());
     }
     
-    const response = await fetch(API_CONFIG.BASE_URL + '/services/app/product/GetAll', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
+    const apiUrl = API_CONFIG.BASE_URL + '/inventory/products?' + queryParams.toString();
+    console.log('Fetching products from:', apiUrl);
+    
+    const headers = getAuthHeaders();
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: headers
     });
 
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      const errorText = await response.text();
+      console.error('API Error Response:', response.status, errorText);
+      throw new Error(`Network response was not ok: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
     
-    if (data.success && data.result && data.result.items) {
+    if (data.success && data.data && data.data.items) {
+      // Normalize product data to match existing code expectations
+      const normalizedItems = data.data.items.map(product => ({
+        ...product,
+        // Map imageUrl to imageURL for backward compatibility
+        imageURL: product.imageUrl || product.imageURL || null,
+        // Map unitPrice from sellingPrice if unitPrice doesn't exist
+        unitPrice: product.unitPrice || product.sellingPrice || 0
+      }));
+      
+      console.log('Fetched products:', normalizedItems.length, 'items');
       return {
-        items: data.result.items,
-        totalCount: data.result.totalCount
+        items: normalizedItems,
+        totalCount: data.data.totalCount
       };
     } else {
+      console.error('Invalid response format:', data);
       throw new Error('Invalid response format');
     }
   } catch (error) {
@@ -119,30 +130,39 @@ async function fetchProductById(productId) {
 // Register new customer
 async function registerCustomer(customerData) {
   try {
-    const response = await fetch(API_CONFIG.BASE_URL + '/services/ecommerce/eCommerceCustomer/Create', {
+    // Map customer data to Identity Service RegisterRequest format
+    const registerData = {
+      firstName: customerData.firstName,
+      lastName: customerData.lastName,
+      email: customerData.email || customerData.emailAddress,
+      password: customerData.password
+    };
+
+    const response = await fetch(API_CONFIG.BASE_URL + '/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(customerData)
+      body: JSON.stringify(registerData)
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || 'Registration failed');
+      const errorMessage = errorData.message || errorData.error?.message || 'Registration failed';
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
     
-    if (data.success && data.result) {
+    if (data.success && data.data) {
       return {
         success: true,
-        customer: data.result,
-        message: 'Registration successful!'
+        user: data.data,
+        message: data.message || 'Registration successful!'
       };
     } else {
-      throw new Error(data.error?.message || 'Invalid response format');
+      throw new Error(data.message || data.error?.message || 'Invalid response format');
     }
   } catch (error) {
     console.error('Error registering customer:', error);
@@ -154,15 +174,14 @@ async function registerCustomer(customerData) {
 }
 
 // Login customer
-async function loginCustomer(emailAddress, password) {
+async function loginCustomer(email, password) {
   try {
     const loginData = {
-      emailAddress: emailAddress,
-      password: password,
-      userType: 2
+      email: email,
+      password: password
     };
 
-    const response = await fetch(API_CONFIG.BASE_URL + '/services/ecommerce/eCommerceCustomerAccount/Login', {
+    const response = await fetch(API_CONFIG.BASE_URL + '/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -173,19 +192,24 @@ async function loginCustomer(emailAddress, password) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || 'Login failed');
+      const errorMessage = errorData.message || errorData.error?.message || 'Login failed';
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
     
-    if (data.success && data.result) {
+    if (data.success && data.data) {
+      const loginResponse = data.data;
       return {
         success: true,
-        user: data.result,
-        message: 'Login successful!'
+        user: loginResponse.user,
+        token: loginResponse.token,
+        refreshToken: loginResponse.refreshToken,
+        expiresAt: loginResponse.expiresAt,
+        message: data.message || 'Login successful!'
       };
     } else {
-      throw new Error(data.error?.message || 'Invalid response format');
+      throw new Error(data.message || data.error?.message || 'Invalid response format');
     }
   } catch (error) {
     console.error('Error logging in:', error);
@@ -207,13 +231,25 @@ function getCurrentUser() {
   }
 }
 
-// Save logged-in user
-function saveCurrentUser(userData) {
+// Get authentication token
+function getAuthToken() {
+  try {
+    return localStorage.getItem('authToken') || null;
+  } catch (error) {
+    console.error('Error getting auth token:', error);
+    return null;
+  }
+}
+
+// Save logged-in user and token
+function saveCurrentUser(userData, token, refreshToken) {
   try {
     localStorage.setItem('loggedInUser', JSON.stringify(userData));
-    // Also save JWT token separately for API calls
-    if (userData.jWtToken) {
-      localStorage.setItem('authToken', userData.jWtToken);
+    if (token) {
+      localStorage.setItem('authToken', token);
+    }
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
     }
   } catch (error) {
     console.error('Error saving user data:', error);
@@ -224,6 +260,24 @@ function saveCurrentUser(userData) {
 function logoutUser() {
   localStorage.removeItem('loggedInUser');
   localStorage.removeItem('authToken');
+  localStorage.removeItem('refreshToken');
+  // Clear user-specific cart data if needed
+  // Note: You may want to keep the cart for guest users
+}
+
+// Get headers with authentication token
+function getAuthHeaders() {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  };
+  
+  const token = getAuthToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
 }
 
 // Make functions globally accessible
@@ -234,6 +288,8 @@ window.formatPrice = formatPrice;
 window.registerCustomer = registerCustomer;
 window.loginCustomer = loginCustomer;
 window.getCurrentUser = getCurrentUser;
+window.getAuthToken = getAuthToken;
 window.saveCurrentUser = saveCurrentUser;
 window.logoutUser = logoutUser;
+window.getAuthHeaders = getAuthHeaders;
 

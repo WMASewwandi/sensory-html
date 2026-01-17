@@ -660,6 +660,37 @@
 (function($) {
   'use strict';
   
+  // Debug: Check localStorage directly
+  function checkLocalStorageCart() {
+    const user = window.getCurrentUser ? window.getCurrentUser() : null;
+    let cartKey = 'cart_guest';
+    if (user && user.id) {
+      cartKey = `cart_${user.id}`;
+    }
+    
+    const storedCart = localStorage.getItem(cartKey);
+    console.log('Cart key:', cartKey);
+    console.log('Stored cart data:', storedCart);
+    
+    if (storedCart) {
+      try {
+        const parsed = JSON.parse(storedCart);
+        console.log('Parsed cart:', parsed);
+      } catch (e) {
+        console.error('Error parsing cart:', e);
+      }
+    } else {
+      console.log('No cart found in localStorage with key:', cartKey);
+      // Try all cart keys
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('cart_')) {
+          console.log('Found cart key:', key, 'Value:', localStorage.getItem(key));
+        }
+      }
+    }
+  }
+  
   // Format price with LKR currency
   function formatPrice(price) {
     if (price === null || price === undefined || price === 0) {
@@ -668,51 +699,171 @@
     return 'LKR ' + parseFloat(price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
   
+  // Get cart directly from localStorage as fallback
+  function getCartDirectly() {
+    try {
+      // Try to get user from multiple possible locations
+      let user = null;
+      
+      // Method 1: window.getCurrentUser()
+      if (typeof window.getCurrentUser === 'function') {
+        user = window.getCurrentUser();
+      }
+      
+      // Method 2: Direct localStorage access
+      if (!user) {
+        try {
+          const loggedInUserStr = localStorage.getItem('loggedInUser');
+          if (loggedInUserStr) {
+            user = JSON.parse(loggedInUserStr);
+          }
+        } catch (e) {
+          console.warn('Error parsing loggedInUser from localStorage:', e);
+        }
+      }
+      
+      console.log('Current user:', user);
+      
+      // Determine cart key
+      let cartKey = 'cart_guest';
+      if (user && user.id) {
+        cartKey = `cart_${user.id}`;
+      }
+      
+      console.log('Looking for cart with key:', cartKey);
+      
+      // Try the expected cart key first
+      const storedCart = localStorage.getItem(cartKey);
+      if (storedCart) {
+        console.log('Found cart with expected key:', cartKey);
+        const parsed = JSON.parse(storedCart);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      
+      // Try to find any cart key (fallback)
+      console.log('Cart not found with expected key, searching all cart keys...');
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('cart_')) {
+          const cartData = localStorage.getItem(key);
+          if (cartData) {
+            try {
+              const parsed = JSON.parse(cartData);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                console.log('Found cart in key:', key, 'Items:', parsed);
+                return parsed;
+              }
+            } catch (e) {
+              console.error('Error parsing cart from key', key, ':', e);
+            }
+          }
+        }
+      }
+      
+      console.log('No cart found in localStorage');
+      return [];
+    } catch (error) {
+      console.error('Error getting cart directly:', error);
+      return [];
+    }
+  }
+  
   // Render cart items
   function renderCart() {
-    const cart = CartService.getCart();
-    const container = $('#cart-items-container');
-    const subtotalEl = $('#cart-subtotal');
-    const totalEl = $('#cart-total');
-    
-    if (cart.length === 0) {
-      container.html('<tr><td colspan="6" class="text-center">Your cart is empty. <a href="index.html">Continue Shopping</a></td></tr>');
-      subtotalEl.text('LKR 0.00');
-      totalEl.text('LKR 0.00');
-      return;
+    try {
+      let cart = [];
+      
+      // Try to get cart from CartService first
+      if (typeof CartService !== 'undefined' && typeof CartService.getCart === 'function') {
+        cart = CartService.getCart();
+        console.log('Got cart from CartService:', cart);
+      } else {
+        // Fallback: get cart directly from localStorage
+        console.warn('CartService not available, using direct localStorage access');
+        cart = getCartDirectly();
+      }
+      
+      const container = $('#cart-items-container');
+      const subtotalEl = $('#cart-subtotal');
+      const totalEl = $('#cart-total');
+      
+      // Debug logging
+      console.log('Cart items:', cart);
+      console.log('Container found:', container.length);
+      
+      if (!container.length) {
+        console.error('Cart container not found: #cart-items-container');
+        // Try to find it with a different selector
+        const altContainer = $('tbody#cart-items-container, #cart-items-container');
+        if (altContainer.length) {
+          console.log('Found container with alternative selector');
+        }
+        return;
+      }
+      
+      if (!cart || !Array.isArray(cart) || cart.length === 0) {
+        container.html('<tr><td colspan="6" class="text-center">Your cart is empty. <a href="shop-left-sidebar.html">Continue Shopping</a></td></tr>');
+        if (subtotalEl.length) subtotalEl.text('LKR 0.00');
+        if (totalEl.length) totalEl.text('LKR 0.00');
+        return;
+      }
+      
+      container.empty();
+      let subtotal = 0;
+      
+      cart.forEach((item) => {
+        if (!item || !item.id) {
+          console.warn('Invalid cart item:', item);
+          return;
+        }
+        
+        // Handle price: even if 0, still display the item
+        const itemPrice = parseFloat(item.price) || 0;
+        const itemQuantity = parseInt(item.quantity) || 1;
+        const itemTotal = itemPrice * itemQuantity;
+        subtotal += itemTotal;
+        
+        const imageUrl = item.imageURL || item.imageUrl || 'https://www.holoimage.net/images/no-image.jpg';
+        const productName = item.name || 'Product';
+        
+        console.log('Rendering cart item:', {
+          id: item.id,
+          name: productName,
+          price: itemPrice,
+          quantity: itemQuantity,
+          total: itemTotal
+        });
+        
+        const rowHtml = `
+          <tr data-product-id="${item.id}">
+            <td class="product-thumbnail">
+              <a href="shop-single-product.html?id=${item.id}"><img src="${imageUrl}" alt="${productName}" onerror="this.src='https://www.holoimage.net/images/no-image.jpg'"></a>
+            </td>
+            <td class="product-name">
+              <h5><a href="shop-single-product.html?id=${item.id}">${productName}</a></h5>
+            </td>
+            <td class="product-price"><span class="amount">${formatPrice(itemPrice)}</span></td>
+            <td class="cart-quality">
+              <div class="product-details-quality">
+                <input type="number" class="input-text qty text cart-qty-input" step="1" min="1" max="100" name="quantity" value="${itemQuantity}" title="Qty" data-product-id="${item.id}">
+              </div>
+            </td>
+            <td class="product-total"><span class="item-total">${formatPrice(itemTotal)}</span></td>
+            <td class="product-remove"><a href="javascript:void(0)" class="remove-cart-item" data-product-id="${item.id}"><i class="ion-ios-trash-outline"></i></a></td>
+          </tr>
+        `;
+        
+        container.append(rowHtml);
+      });
+      
+      if (subtotalEl.length) subtotalEl.text(formatPrice(subtotal));
+      if (totalEl.length) totalEl.text(formatPrice(subtotal));
+      
+      console.log('Cart rendered successfully. Items:', cart.length, 'Subtotal:', subtotal);
+    } catch (error) {
+      console.error('Error rendering cart:', error);
+      console.error('Error stack:', error.stack);
     }
-    
-    container.empty();
-    let subtotal = 0;
-    
-    cart.forEach((item) => {
-      const itemTotal = item.price * item.quantity;
-      subtotal += itemTotal;
-      
-      const rowHtml = `
-        <tr data-product-id="${item.id}">
-          <td class="product-thumbnail">
-            <a href="shop-single-product.html?id=${item.id}"><img src="${item.imageURL || 'https://png.pngtree.com/element_our/20190528/ourmid/pngtree-no-photo-icon-image_1128432.jpg'}" alt="${item.name}"></a>
-          </td>
-          <td class="product-name">
-            <h5><a href="shop-single-product.html?id=${item.id}">${item.name}</a></h5>
-          </td>
-          <td class="product-price"><span class="amount">${formatPrice(item.price)}</span></td>
-          <td class="cart-quality">
-            <div class="product-details-quality">
-              <input type="number" class="input-text qty text cart-qty-input" step="1" min="1" max="100" name="quantity" value="${item.quantity}" title="Qty" data-product-id="${item.id}">
-            </div>
-          </td>
-          <td class="product-total"><span class="item-total">${formatPrice(itemTotal)}</span></td>
-          <td class="product-remove"><a href="javascript:void(0)" class="remove-cart-item" data-product-id="${item.id}"><i class="ion-ios-trash-outline"></i></a></td>
-        </tr>
-      `;
-      
-      container.append(rowHtml);
-    });
-    
-    subtotalEl.text(formatPrice(subtotal));
-    totalEl.text(formatPrice(subtotal));
   }
   
   // Handle quantity change
@@ -722,6 +873,11 @@
     CartService.updateQuantity(productId, quantity);
     renderCart();
     CartService.updateCartCount();
+    
+    // Also update sidebar cart if function exists
+    if (typeof loadSidebarCart === 'function') {
+      loadSidebarCart();
+    }
   });
   
   // Handle remove item
@@ -729,14 +885,79 @@
     const productId = $(this).data('product-id');
     CartService.removeFromCart(productId);
     renderCart();
+    CartService.updateCartCount();
+    
+    // Also update sidebar cart if function exists
+    if (typeof loadSidebarCart === 'function') {
+      loadSidebarCart();
+    }
+  });
+  
+  // Listen for cart updates from sidebar
+  $(document).on('cartUpdated', function() {
+    renderCart();
+    CartService.updateCartCount();
   });
   
   // Initialize cart on page load
   $(document).ready(function() {
-    renderCart();
-    if (typeof CartService !== 'undefined') {
-      CartService.updateCartCount();
-    }
+    // Check localStorage directly for debugging
+    checkLocalStorageCart();
+    
+    // Wait a bit to ensure all scripts are loaded
+    setTimeout(function() {
+      // Check if CartService is available
+      if (typeof CartService === 'undefined') {
+        console.error('CartService is not defined. Make sure cart-service.js is loaded.');
+        console.log('Available globals:', Object.keys(window).filter(k => k.toLowerCase().includes('cart')));
+        
+        // Try to access via window
+        if (typeof window.CartService !== 'undefined') {
+          console.log('Found CartService on window object');
+        }
+        
+        // Retry after a longer delay
+        setTimeout(function() {
+          if (typeof CartService !== 'undefined' || typeof window.CartService !== 'undefined') {
+            const service = CartService || window.CartService;
+            console.log('CartService now available, rendering cart...');
+            renderCart();
+            if (service.updateCartCount) {
+              service.updateCartCount();
+            }
+          }
+        }, 500);
+        return;
+      }
+      
+      console.log('Initializing cart page...');
+      console.log('CartService available:', typeof CartService);
+      
+      // Render cart
+      renderCart();
+      
+      // Update cart count
+      if (typeof CartService.updateCartCount === 'function') {
+        CartService.updateCartCount();
+      }
+      
+      // Also load sidebar cart if function exists
+      if (typeof loadSidebarCart === 'function') {
+        loadSidebarCart();
+      }
+    }, 100);
+    
+    // Also try on window load as fallback
+    $(window).on('load', function() {
+      console.log('Window loaded, checking cart again...');
+      if (typeof CartService !== 'undefined' || typeof window.CartService !== 'undefined') {
+        const service = CartService || window.CartService;
+        renderCart();
+        if (service && service.updateCartCount) {
+          service.updateCartCount();
+        }
+      }
+    });
   });
   
 })(jQuery);

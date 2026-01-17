@@ -4,11 +4,74 @@
 
 // Cart Management
 const CartService = {
+  // Get cart key based on user (if logged in) or guest
+  getCartKey: function() {
+    let user = null;
+    
+    // Method 1: Try window.getCurrentUser function
+    if (typeof window.getCurrentUser === 'function') {
+      try {
+        user = window.getCurrentUser();
+      } catch (error) {
+        console.warn('Error calling window.getCurrentUser:', error);
+      }
+    }
+    
+    // Method 2: Direct localStorage access (fallback)
+    if (!user || !user.id) {
+      try {
+        const loggedInUserStr = localStorage.getItem('loggedInUser');
+        if (loggedInUserStr) {
+          user = JSON.parse(loggedInUserStr);
+        }
+      } catch (error) {
+        console.warn('Error parsing loggedInUser from localStorage:', error);
+      }
+    }
+    
+    if (user && user.id) {
+      const cartKey = `cart_${user.id}`;
+      console.log('Cart key for logged-in user:', cartKey);
+      return cartKey;
+    }
+    
+    console.log('Using guest cart key');
+    return 'cart_guest';
+  },
+
   // Get cart from localStorage
   getCart: function() {
     try {
-      const cart = localStorage.getItem('cart');
-      return cart ? JSON.parse(cart) : [];
+      const cartKey = this.getCartKey();
+      console.log('Getting cart with key:', cartKey);
+      const cart = localStorage.getItem(cartKey);
+      
+      if (!cart) {
+        console.log('No cart found with key:', cartKey);
+        // Try to find any cart key as fallback
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('cart_')) {
+            const cartData = localStorage.getItem(key);
+            if (cartData) {
+              try {
+                const parsed = JSON.parse(cartData);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  console.log('Found cart in alternative key:', key);
+                  return parsed;
+                }
+              } catch (e) {
+                console.error('Error parsing cart from key', key, ':', e);
+              }
+            }
+          }
+        }
+        return [];
+      }
+      
+      const parsed = JSON.parse(cart);
+      console.log('Cart retrieved successfully:', parsed);
+      return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
       console.error('Error getting cart:', error);
       return [];
@@ -27,13 +90,14 @@ const CartService = {
         cart.push({
           id: product.id,
           name: product.name,
-          imageURL: product.imageURL,
+          imageURL: product.imageURL || product.imageUrl,
           price: product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0),
           quantity: 1
         });
       }
       
-      localStorage.setItem('cart', JSON.stringify(cart));
+      const cartKey = this.getCartKey();
+      localStorage.setItem(cartKey, JSON.stringify(cart));
       this.updateCartCount();
       return cart;
     } catch (error) {
@@ -47,7 +111,8 @@ const CartService = {
     try {
       const cart = this.getCart();
       const updatedCart = cart.filter(item => item.id !== productId);
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      const cartKey = this.getCartKey();
+      localStorage.setItem(cartKey, JSON.stringify(updatedCart));
       this.updateCartCount();
       return updatedCart;
     } catch (error) {
@@ -67,7 +132,8 @@ const CartService = {
           return this.removeFromCart(productId);
         }
         item.quantity = quantity;
-        localStorage.setItem('cart', JSON.stringify(cart));
+        const cartKey = this.getCartKey();
+        localStorage.setItem(cartKey, JSON.stringify(cart));
         this.updateCartCount();
       }
       
@@ -110,8 +176,39 @@ const CartService = {
 
   // Clear cart
   clearCart: function() {
-    localStorage.removeItem('cart');
+    const cartKey = this.getCartKey();
+    localStorage.removeItem(cartKey);
     this.updateCartCount();
+  },
+
+  // Merge guest cart with user cart after login
+  mergeCartAfterLogin: function(userId) {
+    try {
+      const guestCart = localStorage.getItem('cart_guest');
+      const userCartKey = `cart_${userId}`;
+      const userCart = localStorage.getItem(userCartKey);
+      
+      if (guestCart) {
+        const guestItems = JSON.parse(guestCart);
+        const existingUserCart = userCart ? JSON.parse(userCart) : [];
+        
+        // Merge items - if product exists in user cart, keep the higher quantity
+        guestItems.forEach(guestItem => {
+          const existingItem = existingUserCart.find(item => item.id === guestItem.id);
+          if (existingItem) {
+            existingItem.quantity = Math.max(existingItem.quantity, guestItem.quantity);
+          } else {
+            existingUserCart.push(guestItem);
+          }
+        });
+        
+        localStorage.setItem(userCartKey, JSON.stringify(existingUserCart));
+        localStorage.removeItem('cart_guest');
+        this.updateCartCount();
+      }
+    } catch (error) {
+      console.error('Error merging cart after login:', error);
+    }
   }
 };
 
