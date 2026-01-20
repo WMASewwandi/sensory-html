@@ -310,10 +310,8 @@
                     <h3>Subtotal <span id="checkout-subtotal">LKR 0.00</span></h3>
                   </div>
                   <div class="your-order-shipping">
-                    <span>Shipping</span>
-                    <ul>
-                      <li><input type="radio" name="shipping" value="info" checked="checked"><label>Free shipping</label></li>
-                    </ul>
+                    <h3>Shipping <span id="checkout-shipping">LKR 450.00</span></h3>
+                    <p class="shipping-note" style="font-size: 12px; color: #666; margin-top: 8px; margin-bottom: 0;">Free shipping for orders over LKR 40,000</p>
                   </div>
                   <div class="your-order-total">
                     <h3>Total <span id="checkout-total">LKR 0.00</span></h3>
@@ -662,16 +660,27 @@
     return 'LKR ' + parseFloat(price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
+  // Calculate shipping cost based on order total
+  function calculateShippingCost(subtotal) {
+    // Free shipping if order is over 40,000 LKR, otherwise 450 LKR
+    if (subtotal >= 40000) {
+      return 0;
+    }
+    return 450;
+  }
+
   // Load cart items into checkout order summary
   function loadOrderSummary() {
     const cart = CartService.getCart();
     const orderList = $('.your-order-product ul');
     const subtotalEl = $('#checkout-subtotal');
+    const shippingEl = $('#checkout-shipping');
     const totalEl = $('#checkout-total');
 
     if (cart.length === 0) {
       orderList.html('<li>Your cart is empty. <a href="shop-left-sidebar.html">Continue Shopping</a></li>');
       subtotalEl.text('LKR 0.00');
+      shippingEl.text('LKR 450.00');
       totalEl.text('LKR 0.00');
       return;
     }
@@ -689,8 +698,13 @@
       orderList.append(itemHtml);
     });
 
+    // Calculate shipping cost
+    const shippingCost = calculateShippingCost(subtotal);
+    const total = subtotal + shippingCost;
+
     subtotalEl.text(formatPrice(subtotal));
-    totalEl.text(formatPrice(subtotal));
+    shippingEl.text(formatPrice(shippingCost));
+    totalEl.text(formatPrice(total));
   }
 
   // Prefill billing details from logged-in user
@@ -862,10 +876,8 @@
       }
 
       // Get shipping method
-      const shippingMethod = $('input[name="shipping"]:checked').val() || 'Free';
-      const shippingMethodText = $('input[name="shipping"]:checked').next('label').text().trim();
+      const shippingMethod = 'Free';
       let shippingMethodCode = 'Free';
-      let shippingCost = 0;
 
       // Get order notes
       const orderNotes = $('textarea[name="message"]').val()?.trim() || '';
@@ -873,6 +885,10 @@
       // Calculate totals
       const subtotal = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
       const discountAmount = 0; // You can add coupon logic here
+      
+      // Calculate shipping cost: 450 LKR if subtotal < 40,000, free if >= 40,000
+      let shippingCost = calculateShippingCost(subtotal);
+      
       const totalAmount = subtotal - discountAmount + shippingCost;
 
       // Prepare order data

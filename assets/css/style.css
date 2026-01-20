@@ -8048,7 +8048,22 @@ table p {
   color: #f379a7;
 }
 .your-order-area .your-order-wrap .your-order-shipping {
-  padding: 21px 0 22px;
+  padding: 20px 0;
+}
+.your-order-area .your-order-wrap .your-order-shipping h3 {
+  font-family: "Rubik", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.your-order-area .your-order-wrap .your-order-shipping h3 span {
+  font-family: "Rubik", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #f379a7;
 }
 .your-order-area .your-order-wrap .your-order-shipping > span {
   font-family: "Rubik", sans-serif;
