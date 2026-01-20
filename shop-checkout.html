@@ -224,16 +224,6 @@
         </div>
         <div class="row">
           <div class="col-lg-12">
-            <div class="checkout-coupon-wrap mb-65 mb-md-40">
-              <p class="cart-page-title"><i class="ion-ios-pricetag-outline"></i> Have a coupon? <a class="checkout-coupon-active" href="#/">Click here to enter your code</a></p>
-              <div class="checkout-coupon-content">
-                <form action="#">
-                  <p>If you have a coupon code, please apply it below.</p>
-                  <input type="text" placeholder="Coupon code">
-                  <button type="submit">Apply coupon</button>
-                </form>
-              </div>
-            </div>
           </div>
         </div>
         <div class="row">
@@ -273,17 +263,9 @@
                   </div>
                 </div>
                 <div class="col-12">
-                  <div class="billing-select mb-20">
+                  <div class="billing-info mb-20">
                     <label>District <abbr class="required" title="required">*</abbr></label>
-                    <div class="select-style">
-                      <select class="select-active">
-                        <option>Select an option…</option>
-                        <option>Barguna</option>
-                        <option>Bandarban</option>
-                        <option>Barbados</option>
-                        <option>Barbados</option>
-                      </select>
-                    </div>
+                    <input type="text">
                   </div>
                 </div>
                 <div class="col-12">
@@ -302,77 +284,6 @@
                   <div class="billing-info mb-20">
                     <label>Email Address <abbr class="required" title="required">*</abbr></label>
                     <input type="text">
-                  </div>
-                </div>
-              </div>
-              <div class="checkout-account">
-                <input class="checkout-toggle" type="checkbox">
-                <span>Ship to a different address?</span>
-              </div>
-              <div class="different-address open-toggle mt-30">
-                <div class="row">
-                  <div class="col-12">
-                    <div class="billing-info mb-20">
-                      <label>First name <abbr class="required" title="required">*</abbr></label>
-                      <input type="text">
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="billing-info mb-20">
-                      <label>Last name <abbr class="required" title="required">*</abbr></label>
-                      <input type="text">
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="billing-info mb-20">
-                      <label>Company name (optional) <abbr class="required" title="required">*</abbr></label>
-                      <input type="text">
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="billing-info mb-20">
-                      <label>Street Address <abbr class="required" title="required">*</abbr></label>
-                      <input class="billing-address" placeholder="House number and street name" type="text">
-                      <input placeholder="Apartment, suite, unit, etc. (optional)" type="text">
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="billing-info mb-20">
-                      <label>Town / City <abbr class="required" title="required">*</abbr></label>
-                      <input type="text">
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="billing-select mb-20">
-                      <label>District <abbr class="required" title="required">*</abbr></label>
-                      <div class="select-style">
-                        <select class="select-active">
-                          <option>Select an option…</option>
-                          <option>Barguna</option>
-                          <option>Bandarban</option>
-                          <option>Barbados</option>
-                          <option>Barbados</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="billing-info mb-20">
-                      <label>Postcode / ZIP (optional) <abbr class="required" title="required">*</abbr></label>
-                      <input type="text">
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="billing-info mb-20">
-                      <label>Phone <abbr class="required" title="required">*</abbr></label>
-                      <input type="text">
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="billing-info mb-20">
-                      <label>Email Address <abbr class="required" title="required">*</abbr></label>
-                      <input type="text">
-                    </div>
                   </div>
                 </div>
               </div>
@@ -402,8 +313,6 @@
                     <span>Shipping</span>
                     <ul>
                       <li><input type="radio" name="shipping" value="info" checked="checked"><label>Free shipping</label></li>
-                      <li><input type="radio" name="shipping" value="info" checked="checked"><label>Flat rate: <span>LKR 0.00</span></label></li>
-                      <li><input type="radio" name="shipping" value="info" checked="checked"><label>Local pickup: <span>LKR 0.00</span></label></li>
                     </ul>
                   </div>
                   <div class="your-order-total">
@@ -419,33 +328,15 @@
                     </div>
                   </div>
                   <div class="pay-top sin-payment">
-                    <input id="payment-method-2" class="input-radio" type="radio" value="cheque" name="payment_method">
-                    <label for="payment-method-2">Check payments</label>
-                    <div class="payment-box payment_method_bacs">
-                      <p>Please send a check to Store Name, Store Street, Store Town, Store State / County, Store Postcode.</p>
-                    </div>
-                  </div>
-                  <div class="pay-top sin-payment">
                     <input id="payment-method-3" class="input-radio" type="radio" value="cheque" name="payment_method">
                     <label for="payment-method-3">Cash on delivery </label>
                     <div class="payment-box payment_method_bacs">
                       <p>Pay with cash upon delivery. </p>
                     </div>
                   </div>
-                  <div class="pay-top sin-payment sin-payment-3">
-                    <input id="payment-method-4" class="input-radio" type="radio" value="cheque" name="payment_method">
-                    <label for="payment-method-4">PayPal <img alt="" src="/assets/img/icons/payment-3.png"><a href="#">What is PayPal?</a></label>
-                    <div class="payment-box payment_method_bacs">
-                      <p>Pay via PayPal; you can pay with your credit card if you don’t have a PayPal account.</p>
-                    </div>
-                  </div>
                 </div>
                 <div class="payment-condition">
                   <p>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <a href="#">privacy policy</a>.</p>
-                </div>
-                <div class="payment-checkbox">
-                  <input class="checkout-toggle" type="checkbox">
-                  <span>Ship to a different address? <a href="#">terms and conditions *</a></span>
                 </div>
               </div>
               <div class="place-order">
@@ -937,11 +828,10 @@
         firstName: $('.billing-info-wrap input[type="text"]').eq(0).val()?.trim() || '',
         lastName: $('.billing-info-wrap input[type="text"]').eq(1).val()?.trim() || '',
         companyName: $('.billing-info-wrap input[type="text"]').eq(2).val()?.trim() || '',
-        country: $('.billing-info-wrap .select-active').eq(0).val() || '',
         streetAddress1: $('.billing-info-wrap .billing-address').eq(0).val()?.trim() || '',
         streetAddress2: $('.billing-info-wrap .billing-address').eq(0).next('input').val()?.trim() || '',
-        city: $('.billing-info-wrap input[type="text"]').eq(5).val()?.trim() || '',
-        state: $('.billing-info-wrap .select-active').eq(1).val() || '',
+        city: $('.billing-info-wrap input[type="text"]').eq(4).val()?.trim() || '',
+        district: $('.billing-info-wrap input[type="text"]').eq(5).val()?.trim() || '',
         postalCode: $('.billing-info-wrap input[type="text"]').eq(6).val()?.trim() || '',
         phone: $('.billing-info-wrap input[type="text"]').filter(function() {
           return $(this).prev('label').text().toLowerCase().includes('phone');
@@ -952,29 +842,14 @@
       };
 
       // Validate required fields
-      if (!billingInfo.firstName || !billingInfo.lastName || !billingInfo.country || 
-          !billingInfo.streetAddress1 || !billingInfo.city || !billingInfo.phone || !billingInfo.email) {
+      if (!billingInfo.firstName || !billingInfo.lastName || 
+          !billingInfo.streetAddress1 || !billingInfo.city || !billingInfo.district || !billingInfo.phone || !billingInfo.email) {
         alert('Please fill in all required billing fields.');
         return;
       }
 
-      // Check if shipping address is different
-      const shipToDifferentAddress = $('.checkout-account input[type="checkbox"]').is(':checked');
+      // Shipping address is same as billing (removed different address option)
       let deliveryInfo = null;
-
-      if (shipToDifferentAddress) {
-        deliveryInfo = {
-          firstName: $('.different-address input[type="text"]').eq(0).val()?.trim() || '',
-          lastName: $('.different-address input[type="text"]').eq(1).val()?.trim() || '',
-          companyName: $('.different-address input[type="text"]').eq(2).val()?.trim() || '',
-          country: $('.different-address .select-active').eq(0).val() || '',
-          streetAddress1: $('.different-address .billing-address').eq(0).val()?.trim() || '',
-          streetAddress2: $('.different-address .billing-address').eq(0).next('input').val()?.trim() || '',
-          city: $('.different-address input[type="text"]').eq(5).val()?.trim() || '',
-          state: $('.different-address .select-active').eq(1).val() || '',
-          postalCode: $('.different-address input[type="text"]').eq(6).val()?.trim() || ''
-        };
-      }
 
       // Get payment method
       const paymentMethod = $('input[name="payment_method"]:checked').val() || 'CashOnDelivery';
@@ -984,10 +859,6 @@
       let paymentMethodCode = 'CashOnDelivery';
       if (paymentMethodText.toLowerCase().includes('bank')) {
         paymentMethodCode = 'BankTransfer';
-      } else if (paymentMethodText.toLowerCase().includes('check')) {
-        paymentMethodCode = 'Check';
-      } else if (paymentMethodText.toLowerCase().includes('paypal')) {
-        paymentMethodCode = 'PayPal';
       }
 
       // Get shipping method
@@ -995,13 +866,6 @@
       const shippingMethodText = $('input[name="shipping"]:checked').next('label').text().trim();
       let shippingMethodCode = 'Free';
       let shippingCost = 0;
-      
-      if (shippingMethodText.toLowerCase().includes('flat')) {
-        shippingMethodCode = 'FlatRate';
-        shippingCost = 0; // You can adjust this based on your logic
-      } else if (shippingMethodText.toLowerCase().includes('pickup')) {
-        shippingMethodCode = 'LocalPickup';
-      }
 
       // Get order notes
       const orderNotes = $('textarea[name="message"]').val()?.trim() || '';
@@ -1017,11 +881,12 @@
         billingFirstName: billingInfo.firstName,
         billingLastName: billingInfo.lastName,
         billingCompanyName: billingInfo.companyName || null,
-        billingCountry: billingInfo.country,
+        billingCountry: '',
         billingStreetAddress1: billingInfo.streetAddress1,
         billingStreetAddress2: billingInfo.streetAddress2 || null,
         billingCity: billingInfo.city,
-        billingState: billingInfo.state || null,
+        billingDistrict: billingInfo.district,
+        billingState: '',
         billingPostalCode: billingInfo.postalCode || null,
         
         // Contact info
