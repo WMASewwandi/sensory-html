@@ -2678,6 +2678,17 @@ table p {
   text-align: center;
   width: 16px;
 }
+.header-area.header-default .header-action-area .btn-cart .cart-count:empty,
+.header-area.header-default .header-action-area .btn-cart .cart-count.hidden,
+.header-area.header-default .header-action-area .btn-cart .cart-count[style*="display: none"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+/* Hide cart count badge when it's 0 */
+.cart-count.hidden,
+.cart-count:empty {
+  display: none !important;
+}
 .header-area.header-default .header-action-area .btn-cart:hover {
   color: #f379a7;
 }
@@ -2831,6 +2842,10 @@ table p {
   line-height: 21px;
   width: 21px;
 }
+.header-area.header-default.header-style .header-action-area .btn-cart .cart-count:empty,
+.header-area.header-default.header-style .header-action-area .btn-cart .cart-count.hidden {
+  display: none !important;
+}
 .header-area.header-default.header-style .header-action-area .btn-cart:hover {
   color: #f379a7;
 }
@@ -2873,6 +2888,10 @@ table p {
 .header-area.header-default.header-style.sticky-header.sticky .header-action-area .btn-cart .cart-count {
   background-color: #f379a7;
   color: #fff;
+}
+.header-area.header-default.header-style.sticky-header.sticky .header-action-area .btn-cart .cart-count:empty,
+.header-area.header-default.header-style.sticky-header.sticky .header-action-area .btn-cart .cart-count.hidden {
+  display: none !important;
 }
 .header-area.header-default.header-style.sticky-header.sticky .header-action-area .btn-cart:hover {
   color: #f379a7;
@@ -3350,6 +3369,11 @@ table p {
   height: 21px;
   line-height: 21px;
   right: -8px;
+}
+.header-middle .header-align .header-align-right .header-action-area button .cart-count:empty,
+.header-middle .header-align .header-align-right .header-action-area button .cart-count.hidden {
+  display: none !important;
+}
   position: absolute;
   text-align: center;
   width: 21px;

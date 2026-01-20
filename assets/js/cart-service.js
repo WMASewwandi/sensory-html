@@ -153,22 +153,33 @@ const CartService = {
   // Update cart count badge
   updateCartCount: function() {
     const count = this.getCartCount();
-    $('.cart-count').text(count);
-    if (count === 0) {
-      $('.cart-count').hide();
-    } else {
-      $('.cart-count').show();
+    
+    // Update using jQuery
+    if (typeof jQuery !== 'undefined' && jQuery('.cart-count').length > 0) {
+      jQuery('.cart-count').each(function() {
+        const $el = jQuery(this);
+        if (count === 0 || count === '0' || parseInt(count) === 0) {
+          $el.hide().addClass('hidden').css('display', 'none').css('visibility', 'hidden');
+        } else {
+          $el.text(count).show().removeClass('hidden').css('display', 'inline-block').css('visibility', 'visible');
+        }
+      });
     }
     
-    // Also update on all pages
+    // Also update on all pages using vanilla JS
     if (typeof window !== 'undefined' && window.document) {
       const allCartCounts = document.querySelectorAll('.cart-count');
       allCartCounts.forEach(el => {
-        el.textContent = count;
-        if (count === 0) {
-          el.style.display = 'none';
+        if (count === 0 || count === '0' || parseInt(count) === 0) {
+          el.style.setProperty('display', 'none', 'important');
+          el.style.setProperty('visibility', 'hidden', 'important');
+          el.classList.add('hidden');
+          el.textContent = '0';
         } else {
-          el.style.display = 'inline-block';
+          el.textContent = count;
+          el.style.setProperty('display', 'inline-block', 'important');
+          el.style.setProperty('visibility', 'visible', 'important');
+          el.classList.remove('hidden');
         }
       });
     }
@@ -289,4 +300,52 @@ const WishlistService = {
 // Make services globally accessible
 window.CartService = CartService;
 window.WishlistService = WishlistService;
+
+// Initialize cart count visibility on page load - hide badges showing 0
+(function() {
+  function hideZeroCartCounts() {
+    // Immediately hide all cart counts that show "0"
+    const allCartCounts = document.querySelectorAll('.cart-count');
+    allCartCounts.forEach(el => {
+      const text = el.textContent.trim();
+      if (text === '0' || text === '' || text === '01' || parseInt(text) === 0) {
+        el.style.setProperty('display', 'none', 'important');
+        el.style.setProperty('visibility', 'hidden', 'important');
+        el.classList.add('hidden');
+      }
+    });
+  }
+  
+  // Run immediately
+  if (typeof document !== 'undefined') {
+    hideZeroCartCounts();
+  }
+  
+  // Run when DOM is ready
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        hideZeroCartCounts();
+        if (typeof CartService !== 'undefined' && typeof CartService.updateCartCount === 'function') {
+          CartService.updateCartCount();
+        }
+      });
+    } else {
+      hideZeroCartCounts();
+      if (typeof CartService !== 'undefined' && typeof CartService.updateCartCount === 'function') {
+        CartService.updateCartCount();
+      }
+    }
+  }
+  
+  // Also run when jQuery is ready (if available)
+  if (typeof jQuery !== 'undefined') {
+    jQuery(document).ready(function() {
+      hideZeroCartCounts();
+      if (typeof CartService !== 'undefined' && typeof CartService.updateCartCount === 'function') {
+        CartService.updateCartCount();
+      }
+    });
+  }
+})();
 
