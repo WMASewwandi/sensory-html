@@ -245,12 +245,6 @@
                 </div>
                 <div class="col-12">
                   <div class="billing-info mb-20">
-                    <label>Company name (optional) <abbr class="required" title="required">*</abbr></label>
-                    <input type="text">
-                  </div>
-                </div>
-                <div class="col-12">
-                  <div class="billing-info mb-20">
                     <label>Street Address <abbr class="required" title="required">*</abbr></label>
                     <input class="billing-address" placeholder="House number and street name" type="text">
                     <input placeholder="Apartment, suite, unit, etc. (optional)" type="text">
@@ -861,13 +855,20 @@
     const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
     const authToken = window.getAuthToken ? window.getAuthToken() : null;
     
-    if (!isLoggedIn || !currentUser || !authToken) {
-      // User is not logged in or session expired, redirect to login page
+    // Only redirect if token is missing - don't show message if token exists
+    if (!authToken) {
+      // Token is missing, show message and redirect to login page
       showToast('Please login to proceed with checkout.', 'warning');
       setTimeout(() => {
         window.location.href = 'login-register.html?redirect=shop-checkout.html';
       }, 2000);
       return;
+    }
+    
+    // If token exists but user data is missing, still allow (token is the key requirement)
+    if (!currentUser && authToken) {
+      // Token exists but user data missing - might be a data sync issue, but allow checkout
+      // User can still proceed as token is present
     }
 
     // Update cart count on page load
@@ -888,8 +889,8 @@
         const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
         const authToken = window.getAuthToken ? window.getAuthToken() : null;
         
-        if (!currentUser || !authToken) {
-          throw new Error('User must be logged in to place an order. Please login and try again.');
+        if (!authToken) {
+          throw new Error('Please login to proceed with checkout.');
         }
 
         // Get headers with authentication token - use getAuthHeaders to ensure token is included
@@ -982,9 +983,9 @@
         return;
       }
 
-      // Check if user is logged in for checkout - mandatory (check sessionStorage)
-      if (!isLoggedIn || !currentUser || !authToken) {
-        showToast('Your session has expired. Please login again to complete your order.', 'warning');
+      // Check if token exists - mandatory for checkout
+      if (!authToken) {
+        showToast('Please login to proceed with checkout.', 'warning');
         setTimeout(() => {
           window.location.href = 'login-register.html?redirect=shop-checkout.html';
         }, 2000);
@@ -995,18 +996,18 @@
       const billingInfo = {
         firstName: $('.billing-info-wrap input[type="text"]').eq(0).val()?.trim() || '',
         lastName: $('.billing-info-wrap input[type="text"]').eq(1).val()?.trim() || '',
-        companyName: $('.billing-info-wrap input[type="text"]').eq(2).val()?.trim() || '',
+        companyName: null, // Company name field removed
         streetAddress1: $('.billing-info-wrap .billing-address').eq(0).val()?.trim() || '',
         streetAddress2: $('.billing-info-wrap .billing-address').eq(0).next('input').val()?.trim() || '',
-        city: $('.billing-info-wrap input[type="text"]').eq(4).val()?.trim() || '',
-        district: $('.billing-info-wrap input[type="text"]').eq(5).val()?.trim() || '',
-        postalCode: $('.billing-info-wrap input[type="text"]').eq(6).val()?.trim() || '',
+        city: $('.billing-info-wrap input[type="text"]').eq(2).val()?.trim() || '',
+        district: $('.billing-info-wrap input[type="text"]').eq(3).val()?.trim() || '',
+        postalCode: $('.billing-info-wrap input[type="text"]').eq(4).val()?.trim() || '',
         phone: $('.billing-info-wrap input[type="text"]').filter(function() {
           return $(this).prev('label').text().toLowerCase().includes('phone');
         }).val()?.trim() || '',
         email: $('.billing-info-wrap input[type="text"]').filter(function() {
           return $(this).prev('label').text().toLowerCase().includes('email');
-        }).val()?.trim() || currentUser.email || ''
+        }).val()?.trim() || (currentUser ? currentUser.email : '') || ''
       };
 
       // Validate required fields
@@ -1050,7 +1051,7 @@
         // Billing address
         billingFirstName: billingInfo.firstName,
         billingLastName: billingInfo.lastName,
-        billingCompanyName: billingInfo.companyName || null,
+        billingCompanyName: null,
         billingCountry: '',
         billingStreetAddress1: billingInfo.streetAddress1,
         billingStreetAddress2: billingInfo.streetAddress2 || null,
