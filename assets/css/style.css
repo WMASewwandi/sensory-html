@@ -2671,12 +2671,16 @@ table p {
   display: inline-block;
   top: -8px;
   font-size: 10px;
-  height: 16px;
-  line-height: 16px;
+  font-weight: 600;
+  height: 18px;
+  line-height: 18px;
   right: -8px;
   position: absolute;
   text-align: center;
-  width: 16px;
+  min-width: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  z-index: 10;
 }
 .header-area.header-default .header-action-area .btn-cart .cart-count:empty,
 .header-area.header-default .header-action-area .btn-cart .cart-count.hidden,
@@ -2837,10 +2841,18 @@ table p {
   background-color: #f379a7;
   color: #fff;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 600;
   height: 21px;
   line-height: 21px;
-  width: 21px;
+  min-width: 21px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  text-align: center;
+  z-index: 10;
 }
 .header-area.header-default.header-style .header-action-area .btn-cart .cart-count:empty,
 .header-area.header-default.header-style .header-action-area .btn-cart .cart-count.hidden {
@@ -2888,6 +2900,7 @@ table p {
 .header-area.header-default.header-style.sticky-header.sticky .header-action-area .btn-cart .cart-count {
   background-color: #f379a7;
   color: #fff;
+  z-index: 10;
 }
 .header-area.header-default.header-style.sticky-header.sticky .header-action-area .btn-cart .cart-count:empty,
 .header-area.header-default.header-style.sticky-header.sticky .header-action-area .btn-cart .cart-count.hidden {
@@ -3364,19 +3377,21 @@ table p {
   color: #fff;
   display: inline-block;
   top: -8px;
-  font-size: 14px;
-  font-weight: 300;
+  font-size: 12px;
+  font-weight: 600;
   height: 21px;
   line-height: 21px;
   right: -8px;
+  position: absolute;
+  text-align: center;
+  min-width: 21px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  z-index: 10;
 }
 .header-middle .header-align .header-align-right .header-action-area button .cart-count:empty,
 .header-middle .header-align .header-align-right .header-action-area button .cart-count.hidden {
   display: none !important;
-}
-  position: absolute;
-  text-align: center;
-  width: 21px;
 }
 @media only screen and (max-width: 767px) {
   .header-middle .header-align .header-align-right .header-action-area .btn-menu {
