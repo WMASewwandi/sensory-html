@@ -325,13 +325,6 @@
                       <p>Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.</p>
                     </div>
                   </div>
-                  <div class="pay-top sin-payment">
-                    <input id="payment-method-3" class="input-radio" type="radio" value="cheque" name="payment_method">
-                    <label for="payment-method-3">Cash on delivery </label>
-                    <div class="payment-box payment_method_bacs">
-                      <p>Pay with cash upon delivery. </p>
-                    </div>
-                  </div>
                 </div>
                 <div class="payment-condition">
                   <p>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <a href="privacy-policy.html">privacy policy</a>.</p>
@@ -866,11 +859,11 @@
       let deliveryInfo = null;
 
       // Get payment method
-      const paymentMethod = $('input[name="payment_method"]:checked').val() || 'CashOnDelivery';
+      const paymentMethod = $('input[name="payment_method"]:checked').val() || 'BankTransfer';
       const paymentMethodText = $('input[name="payment_method"]:checked').next('label').text().trim();
       
       // Map payment method text to code
-      let paymentMethodCode = 'CashOnDelivery';
+      let paymentMethodCode = 'BankTransfer';
       if (paymentMethodText.toLowerCase().includes('bank')) {
         paymentMethodCode = 'BankTransfer';
       }
