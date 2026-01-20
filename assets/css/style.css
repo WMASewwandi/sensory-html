@@ -6328,7 +6328,7 @@ table p {
   display: flex;
   height: 60px;
   justify-content: space-between;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
   padding: 10px 29px;
 }
 @media only screen and (max-width: 767px) {
