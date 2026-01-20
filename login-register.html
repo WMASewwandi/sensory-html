@@ -615,8 +615,16 @@
         // Check if user is already logged in
         const currentUser = window.getCurrentUser();
         if (currentUser) {
-          // User is already logged in, redirect to my account page
-          window.location.href = 'my-account.html';
+          // Check for redirect parameter
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectUrl = urlParams.get('redirect');
+          
+          // Redirect to specified page or default to my account page
+          if (redirectUrl) {
+            window.location.href = redirectUrl;
+          } else {
+            window.location.href = 'my-account.html';
+          }
           return;
         }
 
@@ -650,8 +658,14 @@
             const result = await window.loginCustomer(email, password);
             
             if (result.success) {
-              // Save user data, token, and refresh token to localStorage
-              window.saveCurrentUser(result.user, result.token, result.refreshToken);
+              // Prepare user data with expiresAt from response
+              const userDataWithExpiry = {
+                ...result.user,
+                expiresAt: result.expiresAt || result.data?.expiresAt
+              };
+              
+              // Save user data, token, and refresh token to sessionStorage (expires when browser closes)
+              window.saveCurrentUser(userDataWithExpiry, result.token, result.refreshToken);
               
               // Merge guest cart with user cart after login
               if (typeof CartService !== 'undefined' && result.user && result.user.id) {
@@ -661,9 +675,17 @@
               // Show success message
               showLoginMessage('Login successful! Redirecting...', 'success');
               
-              // Redirect to my account page
+              // Check for redirect parameter
+              const urlParams = new URLSearchParams(window.location.search);
+              const redirectUrl = urlParams.get('redirect');
+              
+              // Redirect to specified page or default to my account page
               setTimeout(function() {
-                window.location.href = 'my-account.html';
+                if (redirectUrl) {
+                  window.location.href = redirectUrl;
+                } else {
+                  window.location.href = 'my-account.html';
+                }
               }, 1000);
             } else {
               showLoginMessage(result.message || 'Login failed. Please check your credentials.', 'error');

@@ -17,7 +17,19 @@ const CartService = {
       }
     }
     
-    // Method 2: Direct localStorage access (fallback)
+    // Method 2: Check sessionStorage (for active session)
+    if (!user || !user.id) {
+      try {
+        const loggedInUserStr = sessionStorage.getItem('loggedInUser');
+        if (loggedInUserStr) {
+          user = JSON.parse(loggedInUserStr);
+        }
+      } catch (error) {
+        console.warn('Error parsing loggedInUser from sessionStorage:', error);
+      }
+    }
+    
+    // Method 3: Direct localStorage access (fallback for backward compatibility)
     if (!user || !user.id) {
       try {
         const loggedInUserStr = localStorage.getItem('loggedInUser');

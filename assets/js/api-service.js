@@ -205,7 +205,8 @@ async function loginCustomer(email, password) {
         user: loginResponse.user,
         token: loginResponse.token,
         refreshToken: loginResponse.refreshToken,
-        expiresAt: loginResponse.expiresAt,
+        expiresAt: loginResponse.expiresAt, // expiresAt from response.data.expiresAt
+        data: loginResponse, // Include full data object for access to expiresAt
         message: data.message || 'Login successful!'
       };
     } else {
@@ -223,8 +224,14 @@ async function loginCustomer(email, password) {
 // Get current logged-in user
 function getCurrentUser() {
   try {
-    const userData = localStorage.getItem('loggedInUser');
-    return userData ? JSON.parse(userData) : null;
+    // Check sessionStorage first (for active session)
+    const userData = sessionStorage.getItem('loggedInUser');
+    if (userData) {
+      return JSON.parse(userData);
+    }
+    // Fallback to localStorage for backward compatibility (optional)
+    const localUserData = localStorage.getItem('loggedInUser');
+    return localUserData ? JSON.parse(localUserData) : null;
   } catch (error) {
     console.error('Error getting current user:', error);
     return null;
@@ -234,6 +241,12 @@ function getCurrentUser() {
 // Get authentication token
 function getAuthToken() {
   try {
+    // Check sessionStorage first (for active session)
+    const token = sessionStorage.getItem('authToken');
+    if (token) {
+      return token;
+    }
+    // Fallback to localStorage for backward compatibility (optional)
     return localStorage.getItem('authToken') || null;
   } catch (error) {
     console.error('Error getting auth token:', error);
@@ -241,28 +254,58 @@ function getAuthToken() {
   }
 }
 
-// Save logged-in user and token
+// Save logged-in user and token to sessionStorage (expires when browser closes)
 function saveCurrentUser(userData, token, refreshToken) {
   try {
-    localStorage.setItem('loggedInUser', JSON.stringify(userData));
+    // Store in sessionStorage (expires when browser closes)
+    sessionStorage.setItem('loggedInUser', JSON.stringify(userData));
     if (token) {
-      localStorage.setItem('authToken', token);
+      sessionStorage.setItem('authToken', token);
     }
     if (refreshToken) {
-      localStorage.setItem('refreshToken', refreshToken);
+      sessionStorage.setItem('refreshToken', refreshToken);
+    }
+    
+    // Also store expiresAt if provided in userData
+    if (userData && userData.expiresAt) {
+      sessionStorage.setItem('tokenExpiresAt', userData.expiresAt);
     }
   } catch (error) {
     console.error('Error saving user data:', error);
   }
 }
 
-// Logout user
+// Logout user - clear both sessionStorage and localStorage
 function logoutUser() {
-  localStorage.removeItem('loggedInUser');
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('refreshToken');
-  // Clear user-specific cart data if needed
-  // Note: You may want to keep the cart for guest users
+  try {
+    // Clear sessionStorage
+    sessionStorage.removeItem('loggedInUser');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('tokenExpiresAt');
+    
+    // Also clear localStorage for cleanup
+    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
+    
+    // Clear user-specific cart data if needed
+    // Note: You may want to keep the cart for guest users
+  } catch (error) {
+    console.error('Error during logout:', error);
+  }
+}
+
+// Check if user session is valid (token exists in sessionStorage)
+function isUserLoggedIn() {
+  try {
+    const token = sessionStorage.getItem('authToken');
+    const user = sessionStorage.getItem('loggedInUser');
+    return !!(token && user);
+  } catch (error) {
+    console.error('Error checking login status:', error);
+    return false;
+  }
 }
 
 // Get headers with authentication token
@@ -292,4 +335,5 @@ window.getAuthToken = getAuthToken;
 window.saveCurrentUser = saveCurrentUser;
 window.logoutUser = logoutUser;
 window.getAuthHeaders = getAuthHeaders;
+window.isUserLoggedIn = isUserLoggedIn;
 

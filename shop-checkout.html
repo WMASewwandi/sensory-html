@@ -641,9 +641,134 @@
 <script src="/assets/js/custom.js"></script>
 
 <!-- Checkout Page Integration -->
+<style>
+  /* Toast Notification Styles */
+  .toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 500px;
+    animation: slideInRight 0.3s ease-out;
+    font-size: 14px;
+  }
+  
+  .toast-notification.success {
+    background-color: #4CAF50;
+  }
+  
+  .toast-notification.error {
+    background-color: #f44336;
+  }
+  
+  .toast-notification.warning {
+    background-color: #ff9800;
+  }
+  
+  .toast-notification.info {
+    background-color: #2196F3;
+  }
+  
+  .toast-notification .toast-icon {
+    font-size: 20px;
+  }
+  
+  .toast-notification .toast-message {
+    flex: 1;
+  }
+  
+  .toast-notification .toast-close {
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    line-height: 1;
+  }
+  
+  .toast-notification .toast-close:hover {
+    opacity: 1;
+  }
+  
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+  
+  .toast-notification.hide {
+    animation: slideOutRight 0.3s ease-out forwards;
+  }
+</style>
 <script>
 (function($) {
   'use strict';
+
+  // Toast notification function
+  function showToast(message, type = 'success') {
+    // Remove existing toasts
+    $('.toast-notification').remove();
+    
+    let icon = '<i class="fa fa-check-circle"></i>';
+    if (type === 'error') {
+      icon = '<i class="fa fa-exclamation-circle"></i>';
+    } else if (type === 'warning') {
+      icon = '<i class="fa fa-exclamation-triangle"></i>';
+    } else if (type === 'info') {
+      icon = '<i class="fa fa-info-circle"></i>';
+    }
+    
+    const toast = $(`
+      <div class="toast-notification ${type}">
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-message">${message}</span>
+        <span class="toast-close">&times;</span>
+      </div>
+    `);
+    
+    $('body').append(toast);
+    
+    // Auto hide after 5 seconds for errors, 3 seconds for others
+    const hideDelay = type === 'error' ? 5000 : 3000;
+    setTimeout(function() {
+      toast.addClass('hide');
+      setTimeout(function() {
+        toast.remove();
+      }, 300);
+    }, hideDelay);
+    
+    // Close on click
+    toast.find('.toast-close').on('click', function() {
+      toast.addClass('hide');
+      setTimeout(function() {
+        toast.remove();
+      }, 300);
+    });
+  }
 
   // Format price with LKR currency
   function formatPrice(price) {
@@ -730,6 +855,21 @@
   }
 
   $(document).ready(function() {
+    // Check if user is logged in - mandatory for checkout
+    // Check sessionStorage for active session (token expires when browser closes)
+    const isLoggedIn = window.isUserLoggedIn ? window.isUserLoggedIn() : false;
+    const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
+    const authToken = window.getAuthToken ? window.getAuthToken() : null;
+    
+    if (!isLoggedIn || !currentUser || !authToken) {
+      // User is not logged in or session expired, redirect to login page
+      showToast('Please login to proceed with checkout.', 'warning');
+      setTimeout(() => {
+        window.location.href = 'login-register.html?redirect=shop-checkout.html';
+      }, 2000);
+      return;
+    }
+
     // Update cart count on page load
     if (typeof CartService !== 'undefined') {
       CartService.updateCartCount();
@@ -744,30 +884,49 @@
     // Create order function
     async function createOrder(orderData) {
       try {
-        const headers = window.getAuthHeaders ? window.getAuthHeaders() : {
+        // Get authentication headers with token - mandatory for checkout
+        const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
+        const authToken = window.getAuthToken ? window.getAuthToken() : null;
+        
+        if (!currentUser || !authToken) {
+          throw new Error('User must be logged in to place an order. Please login and try again.');
+        }
+
+        // Get headers with authentication token - use getAuthHeaders to ensure token is included
+        let headers = {};
+        if (window.getAuthHeaders) {
+          headers = window.getAuthHeaders();
+        } else {
+          headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          };
+        }
+
+        // Explicitly ensure Authorization header is set with token
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        } else {
+          throw new Error('Authentication token is missing. Please login again.');
+        }
+
+        const apiUrl = API_CONFIG.BASE_URL + '/pos/shopping-cart-orders';
+
+        // Ensure headers are properly formatted for fetch API
+        const fetchHeaders = {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         };
-
-        const apiUrl = API_CONFIG.BASE_URL + '/pos/shopping-cart-orders';
-        console.log('Creating order:', {
-          url: apiUrl,
-          method: 'POST',
-          headers: headers,
-          body: orderData
-        });
+        
+        // Add Authorization header with token
+        if (authToken) {
+          fetchHeaders['Authorization'] = `Bearer ${authToken}`;
+        }
 
         const response = await fetch(apiUrl, {
           method: 'POST',
-          headers: headers,
+          headers: fetchHeaders,
           body: JSON.stringify(orderData)
-        });
-
-        console.log('Order creation response:', {
-          status: response.status,
-          statusText: response.statusText,
-          ok: response.ok,
-          url: response.url
         });
 
         if (!response.ok) {
@@ -778,20 +937,19 @@
               errorData = JSON.parse(errorText);
             }
           } catch (e) {
-            console.error('Error parsing error response:', e);
+            // Error parsing error response - use default error message
+          }
+          
+          // Handle 401 Unauthorized specifically
+          if (response.status === 401) {
+            throw new Error('Authentication failed. Please check your login and try again.');
           }
           
           const errorMessage = errorData.message || errorData.error?.message || `Order creation failed (Status: ${response.status})`;
-          console.error('Order creation failed:', {
-            status: response.status,
-            statusText: response.statusText,
-            errorData: errorData
-          });
           throw new Error(errorMessage);
         }
 
         const data = await response.json();
-        console.log('Order created successfully:', data);
         
         // Handle both direct response and wrapped response
         const order = data.data || data;
@@ -802,7 +960,6 @@
           message: data.message || 'Order created successfully!'
         };
       } catch (error) {
-        console.error('Error creating order:', error);
         return {
           success: false,
           message: error.message || 'Order creation failed. Please try again.'
@@ -814,19 +971,23 @@
     $('.place-order a').on('click', async function(e) {
       e.preventDefault();
 
+      // Check sessionStorage for active session
+      const isLoggedIn = window.isUserLoggedIn ? window.isUserLoggedIn() : false;
       const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
+      const authToken = window.getAuthToken ? window.getAuthToken() : null;
       const cart = CartService.getCart();
 
       if (cart.length === 0) {
-        alert('Your cart is empty. Please add items before checkout.');
+        showToast('Your cart is empty. Please add items before checkout.', 'warning');
         return;
       }
 
-      // Check if user is logged in for checkout
-      if (!currentUser) {
-        if (confirm('Please login to complete your order. Would you like to login now?')) {
-          window.location.href = 'login-register.html';
-        }
+      // Check if user is logged in for checkout - mandatory (check sessionStorage)
+      if (!isLoggedIn || !currentUser || !authToken) {
+        showToast('Your session has expired. Please login again to complete your order.', 'warning');
+        setTimeout(() => {
+          window.location.href = 'login-register.html?redirect=shop-checkout.html';
+        }, 2000);
         return;
       }
 
@@ -851,7 +1012,7 @@
       // Validate required fields
       if (!billingInfo.firstName || !billingInfo.lastName || 
           !billingInfo.streetAddress1 || !billingInfo.city || !billingInfo.district || !billingInfo.phone || !billingInfo.email) {
-        alert('Please fill in all required billing fields.');
+        showToast('Please fill in all required billing fields.', 'warning');
         return;
       }
 
@@ -940,12 +1101,8 @@
       placeOrderBtn.prop('disabled', true).text('Placing Order...');
 
       try {
-        // Log order data for debugging
-        console.log('Submitting order:', orderData);
-        
         // Create order
         const result = await createOrder(orderData);
-        console.log('Order creation result:', result);
 
         if (result.success && result.order) {
           // Clear cart
@@ -955,25 +1112,35 @@
           // Show success message
           const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
           const orderId = result.order.id || result.order.orderId || '';
-          alert('Order placed successfully! Order Number: ' + orderNumber);
+          showToast('Order placed successfully! Order Number: ' + orderNumber, 'success');
           
           // Redirect to order confirmation page or order details
-          if (orderId) {
-            window.location.href = 'my-account.html?order=' + orderId;
-          } else {
-            window.location.href = 'shop-cart.html';
-          }
+          setTimeout(() => {
+            if (orderId) {
+              window.location.href = 'my-account.html?order=' + orderId;
+            } else {
+              window.location.href = 'shop-cart.html';
+            }
+          }, 2000);
         } else {
           const errorMsg = result.message || 'Failed to place order. Please try again.';
-          alert(errorMsg);
-          console.error('Order creation failed:', result);
+          showToast(errorMsg, 'error');
           placeOrderBtn.prop('disabled', false).text(originalText);
         }
       } catch (error) {
         const errorMsg = error.message || 'An error occurred while placing your order. Please try again.';
-        alert(errorMsg);
-        console.error('Order creation error:', error);
-        placeOrderBtn.prop('disabled', false).text(originalText);
+        showToast(errorMsg, 'error');
+        
+        // If authentication error, redirect to login (but don't clear sessionStorage)
+        if (errorMsg.includes('session has expired') || errorMsg.includes('login') || errorMsg.includes('Authentication')) {
+          // DO NOT call logoutUser() - preserve sessionStorage
+          // Just redirect to login page
+          setTimeout(() => {
+            window.location.href = 'login-register.html?redirect=shop-checkout.html';
+          }, 2000);
+        } else {
+          placeOrderBtn.prop('disabled', false).text(originalText);
+        }
       }
     });
   });
