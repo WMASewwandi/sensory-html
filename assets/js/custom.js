@@ -693,7 +693,6 @@
               <div class="content">
                 <div class="contact-info">
                   <h2 class="title">${category.name}</h2>
-                  <h4 class="price">${category.productCount} Items</h4>
                 </div>
                 <a class="btn-link" href="shop-left-sidebar.html?category=${category.id}">Shop Now</a>
               </div>
