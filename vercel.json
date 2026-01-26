@@ -4,7 +4,7 @@
   "outputDirectory": ".",
   "installCommand": null,
   "framework": null,
-  "cleanUrls": false,
+  "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
     {

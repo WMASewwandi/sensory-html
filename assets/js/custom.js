@@ -44,7 +44,7 @@
   function handleSearch(searchTerm) {
     if (searchTerm && searchTerm.trim() !== '') {
       // Redirect to shop page with search query parameter (keep search term in input)
-      window.location.href = 'shop-left-sidebar.html?search=' + encodeURIComponent(searchTerm.trim());
+      window.location.href = 'shop-left-sidebar?search=' + encodeURIComponent(searchTerm.trim());
     }
   }
 
@@ -54,8 +54,8 @@
     $('#search').val('');
     $('#search-input').val('');
     // If on shop page, reload without search parameter
-    if (window.location.pathname.includes('shop-left-sidebar.html')) {
-      window.location.href = 'shop-left-sidebar.html';
+    if (window.location.pathname.includes('shop-left-sidebar')) {
+      window.location.href = 'shop-left-sidebar';
     }
   }
 
@@ -191,7 +191,7 @@
   var sidebarCartModal = $(".sidebar-cart-modal");
   $(".cart-icon").on('click', function(e) {
     e.preventDefault();
-    window.location.href = '/shop-cart.html';
+    window.location.href = '/shop-cart';
   });
   $(".sidebar-cart-content .cart-close").on('click', function() {
     sidebarCartModal.removeClass('sidebar-cart-active');
@@ -694,7 +694,7 @@
                 <div class="contact-info">
                   <h2 class="title">${category.name}</h2>
                 </div>
-                <a class="btn-link" href="shop-left-sidebar.html?category=${category.id}">Shop Now</a>
+                <a class="btn-link" href="shop-left-sidebar?category=${category.id}">Shop Now</a>
               </div>
             </div>
           </div>
