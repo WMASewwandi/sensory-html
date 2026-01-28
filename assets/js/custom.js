@@ -762,13 +762,14 @@
       const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
       const formattedPrice = formatPrice(productPrice);
       
-      // Store minimal product data for cart/wishlist
+      // Store product data for cart/wishlist and modal (include description)
       const productData = {
         id: product.id,
         name: product.name,
         imageURL: product.imageURL,
         sellingPrice: product.sellingPrice,
-        unitPrice: product.unitPrice
+        unitPrice: product.unitPrice,
+        description: product.description || ''
       };
       
       const productHtml = `
@@ -779,7 +780,7 @@
               <img src="${productImage}" alt="${product.name}">
               <div class="product-action">
                 <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
-                <a class="action-quick-view" href="javascript:void(0)"><i class="ion-arrow-expand"></i></a>
+                <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-arrow-expand"></i></a>
                 <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-heart"></i></a>
               </div>
             </div>
@@ -876,6 +877,9 @@
         // Get first 8 products (newest)
         const latestProducts = sortedProducts.slice(0, 8);
         
+        // Store all products globally for modal access (with full description)
+        window.homeProducts = result.items;
+        
         if (latestProducts.length > 0) {
           renderProducts(latestProducts);
         } else {
@@ -967,13 +971,14 @@
           const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
           const formattedPrice = formatPrice(productPrice);
           
-          // Store minimal product data for cart/wishlist
+          // Store product data for cart/wishlist and modal (include description)
           const productData = {
             id: product.id,
             name: product.name,
             imageURL: product.imageURL,
             sellingPrice: product.sellingPrice,
-            unitPrice: product.unitPrice
+            unitPrice: product.unitPrice,
+            description: product.description || ''
           };
           
           const slideItemHtml = `
@@ -984,7 +989,7 @@
                   <img src="${productImage}" alt="${product.name}">
                   <div class="product-action">
                     <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
-                    <a class="action-quick-view" href="javascript:void(0)"><i class="ion-arrow-expand"></i></a>
+                    <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-arrow-expand"></i></a>
                     <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-heart"></i></a>
                   </div>
                 </div>

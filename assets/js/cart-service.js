@@ -60,30 +60,30 @@ const CartService = {
       
       if (!cart) {
         console.log('No cart found with key:', cartKey);
-        // Try to find any cart key as fallback
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith('cart_')) {
-            const cartData = localStorage.getItem(key);
-            if (cartData) {
-              try {
-                const parsed = JSON.parse(cartData);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                  console.log('Found cart in alternative key:', key);
-                  return parsed;
-                }
-              } catch (e) {
-                console.error('Error parsing cart from key', key, ':', e);
-              }
-            }
-          }
-        }
         return [];
       }
       
       const parsed = JSON.parse(cart);
       console.log('Cart retrieved successfully:', parsed);
-      return Array.isArray(parsed) ? parsed : [];
+      
+      // Ensure we return an array and filter out invalid items
+      const cartArray = Array.isArray(parsed) ? parsed : [];
+      // Filter out invalid items (items without id or with invalid quantity)
+      const validCart = cartArray.filter(item => {
+        if (!item || !item.id) {
+          return false;
+        }
+        const quantity = parseInt(item.quantity) || 0;
+        return quantity > 0;
+      });
+      
+      // If we filtered out invalid items, save the cleaned cart
+      if (validCart.length !== cartArray.length) {
+        console.log('Cleaned cart: removed', cartArray.length - validCart.length, 'invalid items');
+        localStorage.setItem(cartKey, JSON.stringify(validCart));
+      }
+      
+      return validCart;
     } catch (error) {
       console.error('Error getting cart:', error);
       return [];
@@ -159,7 +159,14 @@ const CartService = {
   // Get cart count
   getCartCount: function() {
     const cart = this.getCart();
-    return cart.reduce((total, item) => total + item.quantity, 0);
+    // Only count valid items with valid quantities
+    return cart.reduce((total, item) => {
+      if (!item || !item.id) {
+        return total;
+      }
+      const quantity = parseInt(item.quantity) || 0;
+      return total + (quantity > 0 ? quantity : 0);
+    }, 0);
   },
 
   // Update cart count badge
@@ -333,31 +340,40 @@ window.WishlistService = WishlistService;
     hideZeroCartCounts();
   }
   
+  function updateCartCountOnLoad() {
+    // Clean the cart first to remove any invalid items
+    if (typeof CartService !== 'undefined' && typeof CartService.getCart === 'function') {
+      // This will automatically clean invalid items
+      CartService.getCart();
+    }
+    
+    // Then update the count
+    if (typeof CartService !== 'undefined' && typeof CartService.updateCartCount === 'function') {
+      CartService.updateCartCount();
+    }
+    
+    // Also hide zero counts
+    hideZeroCartCounts();
+  }
+  
   // Run when DOM is ready
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        hideZeroCartCounts();
-        if (typeof CartService !== 'undefined' && typeof CartService.updateCartCount === 'function') {
-          CartService.updateCartCount();
-        }
-      });
+      document.addEventListener('DOMContentLoaded', updateCartCountOnLoad);
     } else {
-      hideZeroCartCounts();
-      if (typeof CartService !== 'undefined' && typeof CartService.updateCartCount === 'function') {
-        CartService.updateCartCount();
-      }
+      // DOM is already ready
+      updateCartCountOnLoad();
     }
   }
   
   // Also run when jQuery is ready (if available)
   if (typeof jQuery !== 'undefined') {
-    jQuery(document).ready(function() {
-      hideZeroCartCounts();
-      if (typeof CartService !== 'undefined' && typeof CartService.updateCartCount === 'function') {
-        CartService.updateCartCount();
-      }
-    });
+    jQuery(document).ready(updateCartCountOnLoad);
+  }
+  
+  // Run on window load as additional fallback
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', updateCartCountOnLoad);
   }
 })();
 
