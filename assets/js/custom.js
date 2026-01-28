@@ -44,7 +44,7 @@
   function handleSearch(searchTerm) {
     if (searchTerm && searchTerm.trim() !== '') {
       // Redirect to shop page with search query parameter (keep search term in input)
-      window.location.href = 'shop-left-sidebar?search=' + encodeURIComponent(searchTerm.trim());
+      window.location.href = 'shop?search=' + encodeURIComponent(searchTerm.trim());
     }
   }
 
@@ -54,8 +54,8 @@
     $('#search').val('');
     $('#search-input').val('');
     // If on shop page, reload without search parameter
-    if (window.location.pathname.includes('shop-left-sidebar')) {
-      window.location.href = 'shop-left-sidebar';
+    if (window.location.pathname.includes('shop')) {
+      window.location.href = 'shop';
     }
   }
 
@@ -679,7 +679,7 @@
       //             <h2 class="title">${category.name}</h2>
       //             <h4 class="price">${category.productCount} Items</h4>
       //           </div>
-      //           <a class="btn-link" href="shop-left-sidebar.html?category=${category.id}">Shop Now</a>
+      //           <a class="btn-link" href="shop.html?category=${category.id}">Shop Now</a>
       //         </div>
       //       </div>
       //     </div>
@@ -694,7 +694,7 @@
                 <div class="contact-info">
                   <h2 class="title">${category.name}</h2>
                 </div>
-                <a class="btn-link" href="shop-left-sidebar?category=${category.id}">Shop Now</a>
+                <a class="btn-link" href="shop?category=${category.id}">Shop Now</a>
               </div>
             </div>
           </div>

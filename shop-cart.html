@@ -157,7 +157,7 @@
                     <li><a href="page-not-found">404</a></li>
                   </ul>
                 </li> -->
-                <li><a href="shop-left-sidebar">Shop</a></li>
+                <li><a href="shop">Shop</a></li>
                 <li><a href="contact">Contact</a></li>
               </ul>
             </div>
@@ -245,7 +245,7 @@
             </div>
             <div class="cart-shiping-update-wrapper">
               <div class="cart-shiping-btn continure-btn">
-                <a class="btn btn-link" href="shop-left-sidebar"><i class="ion-ios-arrow-left"></i> Back To Shop</a>
+                <a class="btn btn-link" href="shop"><i class="ion-ios-arrow-left"></i> Back To Shop</a>
               </div>
               <div class="cart-shiping-btn update-btn">
                 <div class="grand-total-wrap">
@@ -294,7 +294,7 @@
                   <ul class="nav-menu nav item-hover-style">
                     <li><a href="/">- Home</a></li>
                     <li><a href="about">- About</a></li>
-                    <li><a href="shop-left-sidebar">- Shop</a></li>
+                    <li><a href="shop">- Shop</a></li>
                     <li><a href="contact">- Contact</a></li>
                   </ul>
                 </nav>
@@ -701,7 +701,7 @@
       }
       
       if (!cart || !Array.isArray(cart) || cart.length === 0) {
-        container.html('<tr><td colspan="6" class="text-center">Your cart is empty. <a href="shop-left-sidebar">Continue Shopping</a></td></tr>');
+        container.html('<tr><td colspan="6" class="text-center">Your cart is empty. <a href="shop">Continue Shopping</a></td></tr>');
         if (subtotalEl.length) subtotalEl.text('LKR 0.00');
         if (totalEl.length) totalEl.text('LKR 0.00');
         return;

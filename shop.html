@@ -144,7 +144,7 @@
                     <li><a href="page-not-found">404</a></li>
                   </ul>
                 </li> -->
-                <li class="active"><a href="shop-left-sidebar">Shop</a></li>
+                <li class="active"><a href="shop">Shop</a></li>
                 <li><a href="contact">Contact</a></li>
               </ul>
             </div>
@@ -223,12 +223,12 @@
                 <div class="product-sorting-menu product-sorting">
                   <span class="current">Sort By : <span> Default <i class="fa fa-angle-down"></i></span></span>
                   <ul>
-                    <li class="active"><a href="shop-left-sidebar" class="active">Sort by Default</a></li>
-                    <li><a href="shop-left-sidebar">Sort by Popularity</a></li>
-                    <li><a href="shop-left-sidebar">Sort by Rated</a></li>
-                    <li><a href="shop-left-sidebar">Sort by Latest</a></li>
-                    <li><a href="shop-left-sidebar">Sort by Price: <i class="lastudioicon-arrow-up"></i></a></li>
-                    <li><a href="shop-left-sidebar">Sort by Price: <i class="lastudioicon-arrow-down"></i></a></li>
+                    <li class="active"><a href="shop" class="active">Sort by Default</a></li>
+                    <li><a href="shop">Sort by Popularity</a></li>
+                    <li><a href="shop">Sort by Rated</a></li>
+                    <li><a href="shop">Sort by Latest</a></li>
+                    <li><a href="shop">Sort by Price: <i class="lastudioicon-arrow-up"></i></a></li>
+                    <li><a href="shop">Sort by Price: <i class="lastudioicon-arrow-down"></i></a></li>
                   </ul>
                 </div>
               </div>
@@ -343,7 +343,7 @@
                   <ul class="nav-menu nav item-hover-style">
                     <li><a href="/">- Home</a></li>
                     <li><a href="about">- About</a></li>
-                    <li><a href="shop-left-sidebar">- Shop</a></li>
+                    <li><a href="shop">- Shop</a></li>
                     <li><a href="contact">- Contact</a></li>
                   </ul>
                 </nav>
@@ -487,7 +487,7 @@
       <nav class="aside-menu-nav">
         <ul class="nav-menu">
           <li class="active"><a class="ml--2" href="/">Home</a></li>
-          <li><a class="ml--2" href="shop-left-sidebar">Shop</a></li>
+          <li><a class="ml--2" href="shop">Shop</a></li>
           <li><a class="ml--2" href="about">About</a></li>
           <li><a class="ml--2" href="contact">Contact</a></li>
         </ul>
@@ -1482,7 +1482,7 @@
           newParams.set('search', searchKeyword);
         }
         const queryString = newParams.toString();
-        const categoryLink = `shop-left-sidebar${queryString ? '?' + queryString : ''}`;
+        const categoryLink = `shop${queryString ? '?' + queryString : ''}`;
         const isActive = currentCategoryId && String(category.id) === String(currentCategoryId);
         const activeClass = isActive ? 'active' : '';
         const listItem = $(`
@@ -1530,7 +1530,7 @@
       $('#search').val('');
       $('#search-input').val('');
       // Reload page without search parameter
-      window.location.href = 'shop-left-sidebar';
+      window.location.href = 'shop';
     }
     
     // Make clearSearch available globally
