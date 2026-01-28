@@ -815,6 +815,16 @@
       $(document).off('click', '.add-to-cart-btn').on('click', '.add-to-cart-btn', function(e) {
         e.preventDefault();
         const productData = JSON.parse($(this).attr('data-product'));
+        
+        // Get quantity from modal input if in modal
+        const quantityInput = $('.product-quick-view-modal #modal-quantity');
+        if (quantityInput.length > 0) {
+          const quantity = parseInt(quantityInput.val()) || 1;
+          if (quantity > 0) {
+            productData.quantity = quantity;
+          }
+        }
+        
         if (window.CartService) {
           window.CartService.addToCart(productData);
           showToast('Product added to cart!', 'success');
@@ -939,7 +949,6 @@
       
       // Ensure allProducts is available
       if (!allProducts || allProducts.length === 0) {
-        console.warn('No products available to display. Attempting to reload...');
         // Try to reload products if array is empty
         loadProducts();
         return;
@@ -1322,7 +1331,6 @@
         // Check if categories container exists
         const categoriesContainer = $('#product-categories-list');
         if (!categoriesContainer || !categoriesContainer.length) {
-          console.warn('Categories container not found. Retrying in 300ms...');
           setTimeout(function() {
             loadProductCategories();
           }, 300);
@@ -1346,7 +1354,6 @@
               });
             }
           } catch (error) {
-            console.warn('Could not fetch products for category counts:', error);
             // Continue with API-provided counts or 0
           }
           
@@ -1455,7 +1462,6 @@
     function renderCategories(categories) {
       const categoriesList = $('#product-categories-list');
       if (!categoriesList || !categoriesList.length) {
-        console.warn('Categories list container not found for rendering');
         return;
       }
       
@@ -1593,14 +1599,12 @@
         });
       } else {
         // Retry loading products after a short delay if containers aren't ready
-        console.warn('Product containers not found. Retrying in 500ms...');
         setTimeout(function() {
           if (productContainers.every(id => $(id).length > 0)) {
             loadProducts().catch(function(error) {
               console.error('Error in loadProducts after retry:', error);
             });
           } else {
-            console.error('Product containers still not found after retry.');
             // Still try to load products - displayProducts will handle empty containers
             loadProducts().catch(function(error) {
               console.error('Error in loadProducts (final attempt):', error);
@@ -1637,15 +1641,6 @@
           productPrice = product.unitPrice;
         }
         
-        // Debug: log product data to console
-        console.log('Product in modal:', {
-          id: product.id,
-          name: product.name,
-          sellingPrice: product.sellingPrice,
-          unitPrice: product.unitPrice,
-          calculatedPrice: productPrice
-        });
-        
         const productDescription = product.description || 'No description available.';
         // Use formatPrice function with thousand separators
         const formattedPrice = window.formatPrice ? window.formatPrice(productPrice) : (productPrice > 0 ? 'LKR ' + parseFloat(productPrice).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 'Price not available');
@@ -1672,6 +1667,9 @@
             <p class="product-desc">${productDescription}</p>
             <div class="quick-product-action">
               <div class="action-top">
+                <div class="pro-qty">
+                  <input type="text" id="modal-quantity" title="Quantity" value="1" min="1" />
+                </div>
                 <button class="btn btn-theme add-to-cart-btn" data-product='${JSON.stringify(product)}'>Add to Cart</button>
                 <a class="btn-wishlist add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(product)}">Add to Wishlist</a>
               </div>
@@ -1680,6 +1678,13 @@
         `;
         
         $('#quick-view-content').html(modalContent);
+        
+        // Initialize quantity buttons for the modal
+        const modalProQty = $('#quick-view-content .pro-qty');
+        if (modalProQty.length > 0 && modalProQty.find('.qty-btn').length === 0) {
+          modalProQty.append('<a href="#" class="inc qty-btn"><i class="fa fa-plus"></i></a>');
+          modalProQty.append('<a href="#" class="dec qty-btn"><i class="fa fa-minus"></i></a>');
+        }
         
         // Show modal
         $('.product-quick-view-modal').addClass('active');
@@ -1718,6 +1723,26 @@
       $(document).on('click', '.product-quick-view-modal .btn-close, .canvas-overlay', function() {
         $('.product-quick-view-modal').removeClass('active');
         $('body').removeClass('fix');
+      });
+      
+      // Handle quantity buttons in modal (event delegation for dynamically created elements)
+      $(document).on('click', '.product-quick-view-modal .qty-btn', function(e) {
+        e.preventDefault();
+        const $button = $(this);
+        const $input = $button.parent().find('input');
+        const oldValue = parseInt($input.val()) || 1;
+        
+        if ($button.hasClass('inc')) {
+          const newVal = oldValue + 1;
+          $input.val(newVal);
+        } else if ($button.hasClass('dec')) {
+          if (oldValue > 1) {
+            const newVal = oldValue - 1;
+            $input.val(newVal);
+          } else {
+            $input.val(1);
+          }
+        }
       });
     }
     

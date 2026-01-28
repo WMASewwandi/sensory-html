@@ -838,18 +838,8 @@
             const filterCatId = String(categoryId || '');
             const matches = productCatId === filterCatId;
             
-            if (!matches && product.categoryId) {
-              console.log('Product category mismatch:', {
-                productName: product.name,
-                productCategoryId: product.categoryId,
-                filterCategoryId: categoryId
-              });
-            }
-            
             return matches;
           });
-          
-          console.log(`Filtered ${productsToShow.length} products for category ${categoryId} from ${result.items.length} total products`);
         }
         
         // Use all products (no image filter - will use default image if needed)
@@ -913,7 +903,6 @@
     const $this = $(this);
     const categoryId = $this.data('category-id');
     
-    console.log('Category filter clicked:', categoryId); // Debug log
     
     // Update active states
     $('#category-tabs .nav-link').removeClass('active');

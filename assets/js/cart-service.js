@@ -43,11 +43,9 @@ const CartService = {
     
     if (user && user.id) {
       const cartKey = `cart_${user.id}`;
-      console.log('Cart key for logged-in user:', cartKey);
       return cartKey;
     }
     
-    console.log('Using guest cart key');
     return 'cart_guest';
   },
 
@@ -55,16 +53,13 @@ const CartService = {
   getCart: function() {
     try {
       const cartKey = this.getCartKey();
-      console.log('Getting cart with key:', cartKey);
       const cart = localStorage.getItem(cartKey);
       
       if (!cart) {
-        console.log('No cart found with key:', cartKey);
         return [];
       }
       
       const parsed = JSON.parse(cart);
-      console.log('Cart retrieved successfully:', parsed);
       
       // Ensure we return an array and filter out invalid items
       const cartArray = Array.isArray(parsed) ? parsed : [];
@@ -79,7 +74,6 @@ const CartService = {
       
       // If we filtered out invalid items, save the cleaned cart
       if (validCart.length !== cartArray.length) {
-        console.log('Cleaned cart: removed', cartArray.length - validCart.length, 'invalid items');
         localStorage.setItem(cartKey, JSON.stringify(validCart));
       }
       
@@ -94,17 +88,18 @@ const CartService = {
   addToCart: function(product) {
     try {
       const cart = this.getCart();
+      const quantity = parseInt(product.quantity) || 1;
       const existingItem = cart.find(item => item.id === product.id);
       
       if (existingItem) {
-        existingItem.quantity += 1;
+        existingItem.quantity += quantity;
       } else {
         cart.push({
           id: product.id,
           name: product.name,
           imageURL: product.imageURL || product.imageUrl,
           price: product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0),
-          quantity: 1
+          quantity: quantity
         });
       }
       

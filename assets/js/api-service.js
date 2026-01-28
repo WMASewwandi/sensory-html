@@ -57,7 +57,6 @@ async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = nul
     }
     
     const apiUrl = API_CONFIG.BASE_URL + '/inventory/products?' + queryParams.toString();
-    console.log('Fetching products from:', apiUrl);
     
     const headers = getAuthHeaders();
     const response = await fetch(apiUrl, {
@@ -83,7 +82,6 @@ async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = nul
         unitPrice: product.unitPrice || product.sellingPrice || 0
       }));
       
-      console.log('Fetched products:', normalizedItems.length, 'items');
       return {
         items: normalizedItems,
         totalCount: data.data.totalCount
