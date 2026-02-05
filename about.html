@@ -908,16 +908,21 @@
         container.empty();
         
         displayCategories.forEach((category, index) => {
-          // Use the same background image for all categories
-          const categoryImage = `/assets/img/new/101.png`;
+          // Get imageUrl from category data (check both imageUrl and imageURL for compatibility)
+          const categoryImage = category.imageUrl || category.imageURL;
           const productCount = category.productCount || 0;
           const productCountText = productCount > 0 ? `${productCount} ${productCount === 1 ? 'Product' : 'Products'}` : 'Explore';
+          
+          // Build style attribute for background image only if imageUrl exists
+          let backgroundStyle = '';
+          if (categoryImage && categoryImage.trim() !== '') {
+            backgroundStyle = `style="background-image: url('${categoryImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;"`;
+          }
           
           const categoryHtml = `
             <div class="swiper-slide category-item">
               <a href="shop?category=${category.id}" class="category-slide-link">
-                <div class="category-image-wrapper">
-                  <img src="${categoryImage}" alt="${category.name}">
+                <div class="category-image-wrapper" ${backgroundStyle}>
                   <div class="category-overlay">
                     <h3 class="category-name">${category.name}</h3>
                     <p class="category-product-count">${productCountText}</p>

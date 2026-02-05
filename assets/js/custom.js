@@ -702,29 +702,19 @@
     displayCategories.forEach((category, index) => {
       const styleClass = styleClasses[index % 3];
       const marginClass = marginClasses[index % 3];
-      const categoryImage = `assets/img/category/${(index % 5) + 1}.png`; // Cycle through available images
+      // Get imageUrl from category data (check both imageUrl and imageURL for compatibility)
+      const categoryImage = category.imageUrl || category.imageURL;
       
-      // const categoryHtml = `
-      //   <div class="col-sm-6 col-md-4">
-      //     <div class="category-item ${marginClass}">
-      //       <div class="thumb ${styleClass}">
-      //          <img src="${categoryImage}" alt="${category.name}">
-      //         <div class="content">
-      //           <div class="contact-info">
-      //             <h2 class="title">${category.name}</h2>
-      //             <h4 class="price">${category.productCount} Items</h4>
-      //           </div>
-      //           <a class="btn-link" href="shop.html?category=${category.id}">Shop Now</a>
-      //         </div>
-      //       </div>
-      //     </div>
-      //   </div>
-      // `;
+      // Build style attribute for background image only if imageUrl exists
+      let backgroundStyle = '';
+      if (categoryImage && categoryImage.trim() !== '') {
+        backgroundStyle = `style="background-image: url('${categoryImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;"`;
+      }
       
       const categoryHtml = `
         <div class="col-sm-6 col-md-4">
           <div class="category-item ${marginClass}">
-            <div class="thumb ${styleClass}">
+            <div class="thumb ${styleClass}" ${backgroundStyle}>
               <div class="content">
                 <div class="contact-info">
                   <h2 class="title">${category.name}</h2>
