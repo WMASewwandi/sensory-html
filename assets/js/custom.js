@@ -787,11 +787,14 @@
       const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
       const formattedPrice = formatPrice(productPrice);
       
-      // Store product data for cart/wishlist and modal (include description)
+      // Store product data for cart/wishlist and modal (include description and images)
       const productData = {
         id: product.id,
         name: product.name,
         imageURL: product.imageURL,
+        imageUrl: product.imageUrl,
+        images: product.images || [],
+        imageUrls: product.imageUrls || [],
         sellingPrice: product.sellingPrice,
         unitPrice: product.unitPrice,
         description: product.description || ''
@@ -985,11 +988,14 @@
           const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
           const formattedPrice = formatPrice(productPrice);
           
-          // Store product data for cart/wishlist and modal (include description)
+          // Store product data for cart/wishlist and modal (include description and images)
           const productData = {
             id: product.id,
             name: product.name,
             imageURL: product.imageURL,
+            imageUrl: product.imageUrl,
+            images: product.images || [],
+            imageUrls: product.imageUrls || [],
             sellingPrice: product.sellingPrice,
             unitPrice: product.unitPrice,
             description: product.description || ''

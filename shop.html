@@ -416,7 +416,10 @@
         <div class="row row-gutter-0">
           <div class="col-lg-6 col-md-6 col-12">
             <div class="thumb">
-              <img src="/assets/img/shop/quick-view1.jpg" alt="Image">
+              <img id="quick-view-main-image" src="/assets/img/shop/quick-view1.jpg" alt="Image">
+              <div class="product-image-thumbnails" id="quick-view-thumbnails">
+                <!-- Thumbnails will be loaded dynamically -->
+              </div>
             </div>
           </div>
           <div class="col-lg-6 col-md-6 col-12">
@@ -576,12 +579,53 @@
     
     .product-quick-view-content .thumb {
       max-height: 90vh !important;
-      overflow: hidden !important;
+      overflow: visible !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
     
     .product-quick-view-content .thumb img {
-      object-fit: cover !important;
-      height: 100% !important;
+      object-fit: contain !important;
+      max-height: 60vh !important;
+      width: 100% !important;
+      margin-top: 20px !important;
+      margin-bottom: 15px !important;
+    }
+    
+    .product-image-thumbnails {
+      display: flex !important;
+      gap: 10px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      padding: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      min-height: 80px;
+    }
+    
+    .product-image-thumbnails .thumbnail-item {
+      width: 80px;
+      height: 80px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+      margin: 5px;
+    }
+    
+    .product-image-thumbnails .thumbnail-item:hover {
+      border-color: #333;
+    }
+    
+    .product-image-thumbnails .thumbnail-item.active {
+      border-color: #007bff;
+    }
+    
+    .product-image-thumbnails .thumbnail-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     
     /* Prevent body scroll when modal is open */
@@ -722,11 +766,14 @@
         const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
         const formattedPrice = formatPrice(productPrice);
         
-        // Store minimal product data for cart/wishlist (include all price fields)
+        // Store minimal product data for cart/wishlist (include all price fields and images)
         const productData = {
           id: product.id,
           name: product.name,
           imageURL: product.imageURL,
+          imageUrl: product.imageUrl,
+          images: product.images || [],
+          imageUrls: product.imageUrls || [],
           sellingPrice: product.sellingPrice || 0,
           unitPrice: product.unitPrice || 0,
           description: product.description || ''
@@ -1658,7 +1705,6 @@
 
       // Function to show quick view modal with product data
       function showQuickViewModal(product) {
-        const productImage = product.imageURL || 'https://www.holoimage.net/images/no-image.jpg';
         const productName = product.name || 'Product Name';
         
         // Get price - handle null, undefined, and 0 values properly
@@ -1683,8 +1729,67 @@
         // Use formatPrice function with thousand separators
         const formattedPrice = window.formatPrice ? window.formatPrice(productPrice) : (productPrice > 0 ? 'LKR ' + parseFloat(productPrice).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 'Price not available');
         
-        // Update modal image
-        $('.product-quick-view-modal .thumb img').attr('src', productImage).attr('alt', productName);
+        // Handle images - use images array if available, otherwise fallback to imageUrl/imageURL
+        let productImages = [];
+        let mainImage = 'https://www.holoimage.net/images/no-image.jpg';
+        
+        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+          // Use images array - first image as main, all as thumbnails
+          productImages = product.images.map(img => img.imageUrl || img.imageURL).filter(url => url);
+          if (productImages.length > 0) {
+            mainImage = productImages[0];
+          }
+        } else if (product.imageUrls && Array.isArray(product.imageUrls) && product.imageUrls.length > 0) {
+          // Fallback to imageUrls array
+          productImages = product.imageUrls.filter(url => url);
+          if (productImages.length > 0) {
+            mainImage = productImages[0];
+          }
+        } else {
+          // Fallback to single imageUrl/imageURL
+          const singleImage = product.imageUrl || product.imageURL;
+          if (singleImage) {
+            mainImage = singleImage;
+            productImages = [singleImage];
+          }
+        }
+        
+        // Update modal main image
+        $('#quick-view-main-image').attr('src', mainImage).attr('alt', productName);
+        
+        // Update thumbnails
+        const thumbnailsContainer = $('#quick-view-thumbnails');
+        thumbnailsContainer.empty();
+        
+        // Show thumbnails if there are multiple images
+        if (productImages.length > 1) {
+          thumbnailsContainer.show(); // Ensure container is visible
+          productImages.forEach((imageUrl, index) => {
+            const isActive = index === 0 ? 'active' : '';
+            const thumbnailHtml = `
+              <div class="thumbnail-item ${isActive}" data-image-index="${index}">
+                <img src="${imageUrl}" alt="${productName} - Image ${index + 1}">
+              </div>
+            `;
+            thumbnailsContainer.append(thumbnailHtml);
+          });
+          
+          // Add click handlers for thumbnails
+          thumbnailsContainer.off('click', '.thumbnail-item').on('click', '.thumbnail-item', function() {
+            const $this = $(this);
+            const imageUrl = $this.find('img').attr('src');
+            
+            // Update main image
+            $('#quick-view-main-image').attr('src', imageUrl);
+            
+            // Update active state
+            thumbnailsContainer.find('.thumbnail-item').removeClass('active');
+            $this.addClass('active');
+          });
+        } else {
+          // Hide thumbnails container if only one image
+          thumbnailsContainer.hide();
+        }
         
         // Update modal content
         const modalContent = `
@@ -1740,14 +1845,17 @@
         try {
           const product = JSON.parse(productDataStr);
           
-          // If price is 0, try to get from the full product list
-          if ((!product.sellingPrice || product.sellingPrice === 0) && (!product.unitPrice || product.unitPrice === 0)) {
-            // Try to find the full product from allProducts array
-            if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
-              const fullProduct = allProducts.find(p => p.id === product.id);
-              if (fullProduct) {
-                Object.assign(product, fullProduct);
-              }
+          // Always try to get the full product data (including images) from the product list
+          // Try to find the full product from allProducts array
+          if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
+            const fullProduct = allProducts.find(p => p.id === product.id);
+            if (fullProduct) {
+              Object.assign(product, fullProduct);
+            }
+          } else if (typeof window.homeProducts !== 'undefined' && window.homeProducts.length > 0) {
+            const fullProduct = window.homeProducts.find(p => p.id === product.id);
+            if (fullProduct) {
+              Object.assign(product, fullProduct);
             }
           }
           
