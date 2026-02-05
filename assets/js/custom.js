@@ -2,6 +2,41 @@
   
   "use strict";
 
+  // Global Toast Notification Function
+  window.showToast = function(message, type = 'success') {
+    // Remove existing toasts
+    $('.toast-notification').remove();
+    
+    const icon = type === 'success' ? '<i class="ion-checkmark-circled"></i>' : 
+                 type === 'error' ? '<i class="ion-close-circled"></i>' : 
+                 '<i class="ion-information-circled"></i>';
+    const toast = $(`
+      <div class="toast-notification ${type}">
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-message">${message}</span>
+        <span class="toast-close">&times;</span>
+      </div>
+    `);
+    
+    $('body').append(toast);
+    
+    // Auto hide after 3 seconds
+    setTimeout(function() {
+      toast.addClass('hide');
+      setTimeout(function() {
+        toast.remove();
+      }, 300);
+    }, 3000);
+    
+    // Close on click
+    toast.find('.toast-close').on('click', function() {
+      toast.addClass('hide');
+      setTimeout(function() {
+        toast.remove();
+      }, 300);
+    });
+  };
+
   // Preloader
   function stylePreloader() {
     $('body').addClass('preloader-deactive');
@@ -1072,7 +1107,7 @@
   });
 
   // Handle add to wishlist clicks
-  $(document).on('click', '.add-to-wishlist-btn', function(e) {
+  $(document).on('click', '.add-to-wishlist-btn', async function(e) {
     e.preventDefault();
     const $this = $(this);
     let productData = $this.data('product');
@@ -1088,17 +1123,29 @@
     }
     
     if (productData && typeof WishlistService !== 'undefined') {
-      const added = WishlistService.addToWishlist(productData);
+      // Disable button to prevent multiple clicks
+      $this.prop('disabled', true);
       
-      if (added) {
-        // Show feedback
-        $this.find('i').addClass('added');
-        setTimeout(() => {
-          $this.find('i').removeClass('added');
-        }, 1000);
-      } else {
-        // Already in wishlist
-        alert('Product is already in your wishlist!');
+      try {
+        const result = await WishlistService.addToWishlist(productData);
+        
+        if (result.success) {
+          // Show feedback
+          $this.find('i').addClass('added');
+        showToast(result.message || 'Product added to wishlist!', 'success');
+          setTimeout(() => {
+            $this.find('i').removeClass('added');
+          }, 1000);
+        } else {
+          // Show error message
+          showToast(result.message || 'Failed to add product to wishlist', 'error');
+        }
+      } catch (error) {
+        console.error('Error adding to wishlist:', error);
+        showToast('An error occurred. Please try again.', 'error');
+      } finally {
+        // Re-enable button
+        $this.prop('disabled', false);
       }
     }
   });
@@ -1119,7 +1166,9 @@
     
     // Update wishlist count on page load
     if (typeof WishlistService !== 'undefined') {
-      WishlistService.updateWishlistCount();
+      WishlistService.updateWishlistCount().catch(err => {
+        console.error('Error updating wishlist count:', err);
+      });
     }
     
     // Load categories and products after page loads

@@ -97,6 +97,7 @@
                 <div class="header-action-area">
                   <div class="header-action-wishlist">
                     <button class="btn-wishlist" onclick="window.location.href='shop-wishlist'">
+                      <span class="wishlist-count">0</span>
                       <i class="pe-7s-like"></i>
                     </button>
                   </div>
@@ -163,6 +164,7 @@
               </div>
               <div class="header-action-wishlist">
                 <button class="btn-wishlist" onclick="window.location.href='shop-wishlist'">
+                  <span class="wishlist-count">0</span>
                   <i class="pe-7s-like"></i>
                 </button>
               </div>
@@ -514,10 +516,14 @@
   <script src="/assets/js/jquery.appear.js"></script>
   <script src="/assets/js/jquery.countdown.min.js"></script>
   <script src="/assets/js/tippy.all.min.js"></script>
-  <script src="/assets/js/custom.js"></script>
-  <script src="/assets/js/cart-service.js"></script>
+  <!--=== API Config Js ===-->
   <script src="/assets/js/config.js"></script>
+  <!--=== Cart & Wishlist Service Js ===-->
+  <script src="/assets/js/cart-service.js"></script>
+  <!--=== API Service Js ===-->
   <script src="/assets/js/api-service.js"></script>
+  <!--=== Custom Js ===-->
+  <script src="/assets/js/custom.js"></script>
   <style>
     /* Active Category Styling */
     #product-categories-list li a.active {
@@ -831,12 +837,44 @@
         }
       });
       
-      $(document).off('click', '.add-to-wishlist-btn').on('click', '.add-to-wishlist-btn', function(e) {
+      $(document).off('click', '.add-to-wishlist-btn').on('click', '.add-to-wishlist-btn', async function(e) {
         e.preventDefault();
-        const productData = JSON.parse($(this).attr('data-product'));
-        if (window.CartService) {
-          window.CartService.addToWishlist(productData);
-          showToast('Product added to wishlist!', 'success');
+        const $this = $(this);
+        let productData;
+        
+        try {
+          const productDataStr = $this.attr('data-product');
+          if (!productDataStr) {
+            console.error('No product data found');
+            return;
+          }
+          productData = JSON.parse(productDataStr);
+        } catch (error) {
+          console.error('Error parsing product data:', error);
+          return;
+        }
+        
+        if (productData && typeof window.WishlistService !== 'undefined') {
+          // Disable button to prevent multiple clicks
+          $this.prop('disabled', true);
+          
+          try {
+            const result = await window.WishlistService.addToWishlist(productData);
+            
+            if (result.success) {
+              showToast(result.message || 'Product added to wishlist!', 'success');
+            } else {
+              showToast(result.message || 'Failed to add product to wishlist', 'error');
+            }
+          } catch (error) {
+            console.error('Error adding to wishlist:', error);
+            showToast('An error occurred. Please try again.', 'error');
+          } finally {
+            // Re-enable button
+            $this.prop('disabled', false);
+          }
+        } else {
+          showToast('Wishlist service is not available. Please refresh the page.', 'error');
         }
       });
     }

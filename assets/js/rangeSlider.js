@@ -7,31 +7,55 @@ $(document).ready(function() {
     $(this).width(50);
   });
   var rangeSlider = document.getElementById('slider-range');
+  
+  // Only initialize if the slider element exists
+  if (!rangeSlider) {
+    return; // Exit early if element doesn't exist
+  }
+  
   var moneyFormat = wNumb({
     decimals: 0,
     thousand: ',',
     prefix: 'LKR '
   });
-  noUiSlider.create(rangeSlider, {
-    start: [100, 1000],
-    step: 10,
-    range: {
-      'min': [100],
-      'max': [1000]
-    },
-    format: moneyFormat,
-    connect: true
-  });
   
-  // Set visual min and max values and also update value hidden form inputs
-  rangeSlider.noUiSlider.on('update', function(values, handle) {
-    document.getElementById('slider-range-value1').innerHTML = values[0];
-    document.getElementById('slider-range-value2').innerHTML = values[1];
-    document.getElementsByName('min-value').value = moneyFormat.from(
-      values[0]);
-    document.getElementsByName('max-value').value = moneyFormat.from(
-      values[1]);
-  });
+  try {
+    noUiSlider.create(rangeSlider, {
+      start: [100, 1000],
+      step: 10,
+      range: {
+        'min': [100],
+        'max': [1000]
+      },
+      format: moneyFormat,
+      connect: true
+    });
+    
+    // Set visual min and max values and also update value hidden form inputs
+    rangeSlider.noUiSlider.on('update', function(values, handle) {
+      var value1El = document.getElementById('slider-range-value1');
+      var value2El = document.getElementById('slider-range-value2');
+      
+      if (value1El) {
+        value1El.innerHTML = values[0];
+      }
+      if (value2El) {
+        value2El.innerHTML = values[1];
+      }
+      
+      var minValueInputs = document.getElementsByName('min-value');
+      var maxValueInputs = document.getElementsByName('max-value');
+      
+      if (minValueInputs.length > 0) {
+        minValueInputs[0].value = moneyFormat.from(values[0]);
+      }
+      if (maxValueInputs.length > 0) {
+        maxValueInputs[0].value = moneyFormat.from(values[1]);
+      }
+    });
+  } catch (error) {
+    console.warn('RangeSlider initialization failed:', error);
+  }
 });
 
 

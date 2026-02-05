@@ -110,6 +110,7 @@
                 <div class="header-action-area">
                   <div class="header-action-wishlist">
                     <button class="btn-wishlist" onclick="window.location.href='shop-wishlist'">
+                      <span class="wishlist-count">0</span>
                       <i class="pe-7s-like"></i>
                     </button>
                   </div>
@@ -176,6 +177,7 @@
               </div>
               <div class="header-action-wishlist">
                 <button class="btn-wishlist" onclick="window.location.href='shop-wishlist'">
+                  <span class="wishlist-count">0</span>
                   <i class="pe-7s-like"></i>
                 </button>
               </div>
@@ -231,7 +233,6 @@
                     <thead>
                       <tr>
                         <th class="width-remove"></th>
-                        <th class="width-thumbnail"></th>
                         <th class="width-name">Product</th>
                         <th class="width-price"> Unit price </th>
                         <th class="width-stock-status"> Stock status </th>
@@ -351,63 +352,8 @@
             </div>
           </div>
           <div class="col-lg-6 col-md-6 col-12">
-            <div class="single-product-info">
-              <h4 class="title">Your Products Name Here.</h4>
-              <div class="prices">
-                <span class="price">LKR 0.00</span>
-              </div>
-              <div class="product-rating">
-                <div class="rating">
-                  <span class="fa fa-star"></span>
-                  <span class="fa fa-star"></span>
-                  <span class="fa fa-star"></span>
-                  <span class="fa fa-star"></span>
-                  <span class="fa fa-star"></span>
-                </div>
-                <div class="review">
-                  <a href="#/">( 5 Customer Review )</a>
-                </div>
-              </div>
-              <p class="product-desc">Lorem ipsum dolor sit amet, consect adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quisll exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duisol aute irure dolor in reprehenderit.</p>
-              <div class="quick-product-action">
-                <div class="action-top">
-                  <div class="pro-qty">
-                    <input type="text" id="quantity" title="Quantity" value="01" />
-                  </div>
-                  <button class="btn btn-theme">Add to Cart</button>
-                  <a class="btn-wishlist" href="shop-wishlist">Add to Wishlist</a>
-                </div>
-              </div>
-              <div class="widget">
-                <h3 class="title">SKU:</h3>
-                <div class="widget-tags">
-                  <span>Ch-256xl</span>
-                </div>
-              </div>
-              <div class="widget">
-                <h3 class="title">Categories:</h3>
-                <div class="widget-tags">
-                  <a href="blog">Toys.</a>
-                  <a href="blog">Dresss</a>
-                </div>
-              </div>
-              <div class="widget">
-                <h3 class="title">Tag:</h3>
-                <div class="widget-tags">
-                  <a href="blog">Toys,</a>
-                  <a href="blog">Dress</a>
-                </div>
-              </div>
-              <div class="widget">
-                <h3 class="title">Share:</h3>
-                <div class="widget-tags widget-share">
-                  <span class="fa fa-facebook"></span>
-                  <span class="fa fa-dribbble"></span>
-                  <span class="fa fa-pinterest-p"></span>
-                  <span class="fa fa-twitter"></span>
-                  <span class="fa fa-linkedin"></span>
-                </div>
-              </div>
+            <div class="content" id="quick-view-content">
+              <!-- Quick view content will be loaded dynamically -->
             </div>
           </div>
         </div>
@@ -535,14 +481,189 @@
 <!--=== jquery Zoom Min Js ===-->
 <script src="/assets/js/jquery-zoom.min.js"></script>
 
+<!--=== API Config Js ===-->
+<script src="/assets/js/config.js"></script>
 <!--=== Cart & Wishlist Service Js ===-->
 <script src="/assets/js/cart-service.js"></script>
+<!--=== API Service Js ===-->
+<script src="/assets/js/api-service.js"></script>
 <!--=== Custom Js ===-->
 <script src="/assets/js/custom.js"></script>
 <!--=== Wishlist Page Js ===-->
+
+<!-- Toast Notification Styles -->
+<style>
+  .toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    animation: slideInRight 0.3s ease-out;
+    font-size: 14px;
+  }
+  
+  .toast-notification.success {
+    background-color: #4CAF50;
+  }
+  
+  .toast-notification.error {
+    background-color: #f44336;
+  }
+  
+  .toast-notification.info {
+    background-color: #2196F3;
+  }
+  
+  .toast-notification .toast-icon {
+    font-size: 20px;
+  }
+  
+  .toast-notification .toast-message {
+    flex: 1;
+  }
+  
+  .toast-notification .toast-close {
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+  
+  .toast-notification .toast-close:hover {
+    opacity: 1;
+  }
+  
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+  
+  .toast-notification.hide {
+    animation: slideOutRight 0.3s ease-out forwards;
+  }
+  
+  /* Product Quick View Modal - Centered and Scrollable */
+  .product-quick-view-modal {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    padding: 20px !important;
+  }
+  
+  .product-quick-view-modal.active {
+    overflow: hidden !important;
+  }
+  
+  .product-quick-view-inner {
+    margin: 0 !important;
+    max-height: 90vh !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    display: flex !important;
+    align-items: center !important;
+    transform: translate(0, 0) !important;
+  }
+  
+  .product-quick-view-content {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  .product-quick-view-content .row {
+    margin: 0 !important;
+  }
+  
+  .product-quick-view-content .row > div {
+    padding: 0 !important;
+  }
+  
+  .product-quick-view-content .thumb {
+    max-height: 90vh !important;
+    overflow: hidden !important;
+  }
+  
+  .product-quick-view-content .thumb img {
+    object-fit: cover !important;
+    height: 100% !important;
+  }
+  
+  /* Prevent body scroll when modal is open */
+  body.fix {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
+</style>
+
 <script>
 (function($) {
   'use strict';
+  
+  // Toast notification function
+  function showToast(message, type = 'success') {
+    // Remove existing toasts
+    $('.toast-notification').remove();
+    
+    const icon = type === 'success' ? '<i class="ion-checkmark-circled"></i>' : 
+                 type === 'error' ? '<i class="ion-close-circled"></i>' : 
+                 '<i class="ion-information-circled"></i>';
+    const toast = $(`
+      <div class="toast-notification ${type}">
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-message">${message}</span>
+        <span class="toast-close">&times;</span>
+      </div>
+    `);
+    
+    $('body').append(toast);
+    
+    // Auto hide after 3 seconds
+    setTimeout(function() {
+      toast.addClass('hide');
+      setTimeout(function() {
+        toast.remove();
+      }, 300);
+    }, 3000);
+    
+    // Close on click
+    toast.find('.toast-close').on('click', function() {
+      toast.addClass('hide');
+      setTimeout(function() {
+        toast.remove();
+      }, 300);
+    });
+  }
   
   // Format price with LKR currency
   function formatPrice(price) {
@@ -553,52 +674,115 @@
   }
   
   // Render wishlist items
-  function renderWishlist() {
-    const wishlist = WishlistService.getWishlist();
+  async function renderWishlist() {
     const container = $('#wishlist-items-container');
     
-    if (wishlist.length === 0) {
-      container.html('<tr><td colspan="6" class="text-center">Your wishlist is empty. <a href="/">Continue Shopping</a></td></tr>');
+    // Check if user is logged in
+    if (typeof WishlistService === 'undefined' || !WishlistService.isLoggedIn()) {
+      container.html('<tr><td colspan="5" class="text-center">Please <a href="login-register">login</a> to view your wishlist.</td></tr>');
       return;
     }
     
-    container.empty();
-    
-    wishlist.forEach((item) => {
-      const productData = {
-        id: item.id,
-        name: item.name,
-        imageURL: item.imageURL,
-        sellingPrice: item.price,
-        unitPrice: item.price
-      };
+    try {
+      // Show loading state
+      container.html('<tr><td colspan="5" class="text-center">Loading wishlist...</td></tr>');
       
-      const rowHtml = `
-        <tr data-product-id="${item.id}">
-          <td class="product-remove"><a href="javascript:void(0)" class="remove-wishlist-item" data-product-id="${item.id}">×</a></td>
-          <td class="product-thumbnail">
-            <a href="shop-single-product.html?id=${item.id}"><img src="${item.imageURL || 'https://www.holoimage.net/images/no-image.jpg'}" alt="${item.name}"></a>
-          </td>
-          <td class="product-name">
-            <h5><a href="shop-single-product.html?id=${item.id}">${item.name}</a></h5>
-          </td>
-          <td class="product-price"><span class="amount">${formatPrice(item.price)}</span></td>
-          <td class="stock-status">
-            <span><i class="fa fa-check"></i> In Stock</span>
-          </td>
-          <td class="wishlist-cart"><a href="javascript:void(0)" class="add-wishlist-to-cart" data-product='${JSON.stringify(productData)}'>Add to Cart</a></td>
-        </tr>
-      `;
+      const wishlist = await WishlistService.getWishlist();
       
-      container.append(rowHtml);
-    });
+      console.log('Wishlist items received:', wishlist);
+      
+      if (!wishlist || wishlist.length === 0) {
+        container.html('<tr><td colspan="5" class="text-center">Your wishlist is empty. <a href="/">Continue Shopping</a></td></tr>');
+        return;
+      }
+      
+      container.empty();
+      
+      wishlist.forEach((item) => {
+        // Handle different API response formats
+        // The API returns items with: id (wishlist item ID), productId, productName, productPrice
+        const itemId = item.id; // This is the wishlist item ID
+        const productId = item.productId || item.id;
+        const productName = item.productName || item.name || 'Product';
+        const productPrice = item.productPrice || item.price || 0;
+        // Try to get image from product data if available, otherwise use placeholder
+        const imageURL = item.imageURL || item.imageUrl || item.productImageURL || 'https://www.holoimage.net/images/no-image.jpg';
+        
+        const productData = {
+          id: productId,
+          name: productName,
+          imageURL: imageURL,
+          sellingPrice: productPrice,
+          unitPrice: productPrice
+        };
+        
+        const rowHtml = `
+          <tr data-product-id="${productId}" data-item-id="${itemId}">
+            <td class="product-remove"><a href="javascript:void(0)" class="remove-wishlist-item" data-item-id="${itemId}" data-product-id="${productId}">×</a></td>
+            <td class="product-name">
+              <h5>
+                <a href="shop-single-product.html?id=${productId}">${productName}</a>
+                <a href="javascript:void(0)" class="wishlist-quick-view-btn" data-product-id="${productId}" style="margin-left: 10px; color: #f379a7; font-size: 14px;" title="View Details">
+                  <i class="ion-arrow-expand"></i> View Details
+                </a>
+              </h5>
+            </td>
+            <td class="product-price"><span class="amount">${formatPrice(productPrice)}</span></td>
+            <td class="stock-status">
+              <span><i class="fa fa-check"></i> In Stock</span>
+            </td>
+            <td class="wishlist-cart"><a href="javascript:void(0)" class="add-wishlist-to-cart" data-product='${JSON.stringify(productData)}'>Add to Cart</a></td>
+          </tr>
+        `;
+        
+        container.append(rowHtml);
+      });
+    } catch (error) {
+      console.error('Error loading wishlist:', error);
+      container.html('<tr><td colspan="5" class="text-center">Error loading wishlist. Please try again later.</td></tr>');
+    }
   }
   
   // Handle remove from wishlist
-  $(document).on('click', '.remove-wishlist-item', function() {
-    const productId = $(this).data('product-id');
-    WishlistService.removeFromWishlist(productId);
-    renderWishlist();
+  $(document).on('click', '.remove-wishlist-item', async function() {
+    const $this = $(this);
+    const itemId = $this.data('item-id');
+    const productId = $this.data('product-id');
+    
+    if (!itemId && !productId) {
+      showToast('Unable to remove item. Please refresh the page and try again.', 'error');
+      return;
+    }
+    
+    // Disable button
+    $this.prop('disabled', true).text('Removing...');
+    
+    try {
+      let result;
+      if (itemId) {
+        // Remove by item ID (preferred)
+        result = await WishlistService.removeFromWishlist(itemId);
+      } else if (productId) {
+        // Fallback to product ID
+        result = await WishlistService.removeProductFromWishlist(productId);
+      }
+      
+      if (result && result.success) {
+        // Re-render wishlist
+        await renderWishlist();
+        // Update wishlist count
+        if (typeof WishlistService !== 'undefined') {
+          await WishlistService.updateWishlistCount();
+        }
+      } else {
+        showToast(result ? result.message : 'Failed to remove item from wishlist', 'error');
+      }
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      showToast('An error occurred. Please try again.', 'error');
+    } finally {
+      $this.prop('disabled', false).text('×');
+    }
   });
   
   // Handle add to cart from wishlist
@@ -617,16 +801,222 @@
     
     if (productData && typeof CartService !== 'undefined') {
       CartService.addToCart(productData);
-      alert('Product added to cart!');
+      showToast('Product added to cart!', 'success');
       CartService.updateCartCount();
     }
   });
   
+  // Handle quick view from wishlist
+  $(document).on('click', '.wishlist-quick-view-btn', async function(e) {
+    e.preventDefault();
+    const productId = $(this).data('product-id');
+    
+    if (!productId) {
+      showToast('Product ID not found', 'error');
+      return;
+    }
+    
+    try {
+      // Fetch product details
+      if (typeof fetchProductById === 'function') {
+        const product = await fetchProductById(productId);
+        
+        if (product) {
+          showQuickViewModal(product);
+        } else {
+          showToast('Product not found', 'error');
+        }
+      } else {
+        // Fallback: try to get product from wishlist item
+        const $row = $(this).closest('tr');
+        const productName = $row.find('.product-name h5 a').first().text();
+        const productPrice = $row.find('.product-price .amount').text();
+        
+        // Try to extract price
+        let price = 0;
+        const priceMatch = productPrice.replace(/[^\d.]/g, '');
+        if (priceMatch) {
+          price = parseFloat(priceMatch) || 0;
+        }
+        
+        const product = {
+          id: productId,
+          name: productName,
+          imageURL: 'https://www.holoimage.net/images/no-image.jpg',
+          sellingPrice: price,
+          unitPrice: price,
+          description: 'Product details not available. Please visit the product page for more information.'
+        };
+        
+        showQuickViewModal(product);
+      }
+    } catch (error) {
+      console.error('Error loading product details:', error);
+      showToast('Error loading product details', 'error');
+    }
+  });
+  
+  // Function to show quick view modal
+  function showQuickViewModal(product) {
+    const productImage = product.imageURL || product.imageUrl || 'https://www.holoimage.net/images/no-image.jpg';
+    const productName = product.name || 'Product Name';
+    
+    // Get price
+    let productPrice = 0;
+    if (product.sellingPrice !== null && product.sellingPrice !== undefined && product.sellingPrice > 0) {
+      productPrice = product.sellingPrice;
+    } else if (product.unitPrice !== null && product.unitPrice !== undefined && product.unitPrice > 0) {
+      productPrice = product.unitPrice;
+    }
+    
+    const productDescription = product.description || 'No description available.';
+    const formattedPrice = formatPrice(productPrice);
+    
+    // Update modal image
+    $('.product-quick-view-modal .thumb img').attr('src', productImage).attr('alt', productName);
+    
+    // Update modal content
+    const modalContent = `
+      <div class="single-product-info">
+        <h4 class="title">${productName}</h4>
+        <div class="prices">
+          <span class="price">${formattedPrice}</span>
+        </div>
+        <div class="product-rating">
+          <div class="rating">
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+          </div>
+        </div>
+        <p class="product-desc">${productDescription}</p>
+        <div class="quick-product-action">
+          <div class="action-top">
+            <div class="pro-qty">
+              <input type="text" id="modal-quantity" title="Quantity" value="1" min="1" />
+            </div>
+            <button class="btn btn-theme add-to-cart-btn" data-product='${JSON.stringify(product)}'>Add to Cart</button>
+            <a class="btn-wishlist add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(product)}">Add to Wishlist</a>
+          </div>
+        </div>
+        <div class="widget">
+          <h3 class="title">Product ID:</h3>
+          <div class="widget-tags">
+            <span>${product.id}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    $('#quick-view-content').html(modalContent);
+    
+    // Initialize quantity buttons
+    const modalProQty = $('#quick-view-content .pro-qty');
+    if (modalProQty.length > 0 && modalProQty.find('.qty-btn').length === 0) {
+      modalProQty.append('<a href="#" class="inc qty-btn"><i class="fa fa-plus"></i></a>');
+      modalProQty.append('<a href="#" class="dec qty-btn"><i class="fa fa-minus"></i></a>');
+    }
+    
+    // Show modal
+    $('.product-quick-view-modal').addClass('active');
+    $('body').addClass('fix');
+  }
+  
+  // Handle modal close
+  $(document).on('click', '.product-quick-view-modal .btn-close, .canvas-overlay', function() {
+    $('.product-quick-view-modal').removeClass('active');
+    $('body').removeClass('fix');
+  });
+  
+  // Handle add to cart from modal
+  $(document).on('click', '.product-quick-view-modal .add-to-cart-btn', function(e) {
+    e.preventDefault();
+    const productData = JSON.parse($(this).attr('data-product'));
+    
+    // Get quantity from modal input
+    const quantityInput = $('.product-quick-view-modal #modal-quantity');
+    if (quantityInput.length > 0) {
+      const quantity = parseInt(quantityInput.val()) || 1;
+      if (quantity > 0) {
+        productData.quantity = quantity;
+      }
+    }
+    
+    if (window.CartService) {
+      window.CartService.addToCart(productData);
+      showToast('Product added to cart!', 'success');
+      window.CartService.updateCartCount();
+    }
+  });
+  
+  // Handle add to wishlist from modal
+  $(document).on('click', '.product-quick-view-modal .add-to-wishlist-btn', async function(e) {
+    e.preventDefault();
+    const $this = $(this);
+    let productData;
+    
+    try {
+      const productDataStr = $this.attr('data-product');
+      if (!productDataStr) {
+        console.error('No product data found');
+        return;
+      }
+      productData = JSON.parse(productDataStr);
+    } catch (error) {
+      console.error('Error parsing product data:', error);
+      return;
+    }
+    
+    if (productData && typeof window.WishlistService !== 'undefined') {
+      $this.prop('disabled', true);
+      
+      try {
+        const result = await window.WishlistService.addToWishlist(productData);
+        
+        if (result.success) {
+          showToast(result.message || 'Product added to wishlist!', 'success');
+          // Refresh wishlist
+          await renderWishlist();
+          await window.WishlistService.updateWishlistCount();
+        } else {
+          showToast(result.message || 'Failed to add product to wishlist', 'error');
+        }
+      } catch (error) {
+        console.error('Error adding to wishlist:', error);
+        showToast('An error occurred. Please try again.', 'error');
+      } finally {
+        $this.prop('disabled', false);
+      }
+    }
+  });
+  
+  // Handle quantity buttons in modal
+  $(document).on('click', '.product-quick-view-modal .qty-btn', function(e) {
+    e.preventDefault();
+    const $button = $(this);
+    const $input = $button.parent().find('input');
+    const oldValue = parseInt($input.val()) || 1;
+    
+    if ($button.hasClass('inc')) {
+      const newVal = oldValue + 1;
+      $input.val(newVal);
+    } else if ($button.hasClass('dec')) {
+      if (oldValue > 1) {
+        const newVal = oldValue - 1;
+        $input.val(newVal);
+      } else {
+        $input.val(1);
+      }
+    }
+  });
+  
   // Initialize wishlist on page load
-  $(document).ready(function() {
-    renderWishlist();
+  $(document).ready(async function() {
+    await renderWishlist();
     if (typeof WishlistService !== 'undefined') {
-      WishlistService.updateWishlistCount();
+      await WishlistService.updateWishlistCount();
     }
     if (typeof CartService !== 'undefined') {
       CartService.updateCartCount();
