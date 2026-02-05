@@ -629,10 +629,14 @@
     }
     
     /* Prevent body scroll when modal is open */
+    html.fix,
     body.fix {
       overflow: hidden !important;
-      position: fixed !important;
-      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    body.fix {
+      position: relative !important;
     }
     
     /* Toast Notification Styles */
@@ -748,7 +752,7 @@
     function renderProducts(products, containerId) {
       const container = $(containerId);
       if (!container || !container.length) {
-        console.warn('Container not found:', containerId);
+        // Container not found
         return;
       }
       
@@ -892,12 +896,12 @@
         try {
           const productDataStr = $this.attr('data-product');
           if (!productDataStr) {
-            console.error('No product data found');
+            // No product data found
             return;
           }
           productData = JSON.parse(productDataStr);
         } catch (error) {
-          console.error('Error parsing product data:', error);
+          // Error parsing product data
           return;
         }
         
@@ -914,7 +918,7 @@
               showToast(result.message || 'Failed to add product to wishlist', 'error');
             }
           } catch (error) {
-            console.error('Error adding to wishlist:', error);
+            // Error adding to wishlist
             showToast('An error occurred. Please try again.', 'error');
           } finally {
             // Re-enable button
@@ -1395,7 +1399,7 @@
           }
         }
       } catch (error) {
-        console.error('Error loading products:', error);
+        // Error loading products
         const errorMessage = '<div class="col-12"><p class="text-center">Error loading products. Please try again later.</p></div>';
         const containers = ['#products-container', '#products-container-list', '#products-container-two'];
         containers.forEach(containerId => {
@@ -1447,7 +1451,7 @@
           categoriesContainer.html('<li>No categories found</li>');
         }
       } catch (error) {
-        console.error('Error loading categories:', error);
+        // Error loading categories
         const categoriesContainer = $('#product-categories-list');
         if (categoriesContainer && categoriesContainer.length) {
           categoriesContainer.html('<li>Error loading categories</li>');
@@ -1670,7 +1674,7 @@
       
       // Load categories first (they don't depend on product containers)
       loadProductCategories().catch(function(error) {
-        console.error('Error loading categories:', error);
+        // Error loading categories
       });
       
       // Check if product containers exist before loading products
@@ -1680,19 +1684,19 @@
       if (productContainersExist) {
         // Load products if containers are ready
         loadProducts().catch(function(error) {
-          console.error('Error in loadProducts:', error);
+              // Error in loadProducts
         });
       } else {
         // Retry loading products after a short delay if containers aren't ready
         setTimeout(function() {
           if (productContainers.every(id => $(id).length > 0)) {
             loadProducts().catch(function(error) {
-              console.error('Error in loadProducts after retry:', error);
+              // Error in loadProducts after retry
             });
           } else {
             // Still try to load products - displayProducts will handle empty containers
             loadProducts().catch(function(error) {
-              console.error('Error in loadProducts (final attempt):', error);
+              // Error in loadProducts (final attempt)
             });
           }
         }, 500);
@@ -1829,15 +1833,24 @@
           modalProQty.append('<a href="#" class="dec qty-btn"><i class="fa fa-minus"></i></a>');
         }
         
+        // Prevent any scroll behavior - just lock the scroll
+        const scrollPosition = window.pageYOffset || window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        
+        // Store scroll position
+        $('html, body').data('scroll-position', scrollPosition);
+        
+        // Lock scroll by adding fix class to both html and body
+        $('html, body').addClass('fix');
+        
         // Show modal
         $('.product-quick-view-modal').addClass('active');
-        $('body').addClass('fix');
       }
 
       // Handle quick view modal - use event delegation for dynamically created elements
       $(document).on('click', '.quick-view-btn', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation();
         
         const productDataStr = $(this).attr('data-product');
         if (!productDataStr) return;
@@ -1861,14 +1874,25 @@
           
           showQuickViewModal(product);
         } catch (error) {
-          console.error('Error parsing product data:', error);
+          // Error parsing product data
         }
       });
 
       // Close modal handlers (if not already handled by custom.js)
       $(document).on('click', '.product-quick-view-modal .btn-close, .canvas-overlay', function() {
         $('.product-quick-view-modal').removeClass('active');
-        $('body').removeClass('fix');
+        
+        // Remove fix class from both html and body
+        $('html, body').removeClass('fix');
+        
+        // Restore scroll position
+        const scrollPosition = $('html').data('scroll-position') || $('body').data('scroll-position') || 0;
+        
+        // Use requestAnimationFrame to ensure DOM updates before scrolling
+        requestAnimationFrame(function() {
+          window.scrollTo(0, scrollPosition);
+          $('html, body').removeData('scroll-position');
+        });
       });
       
       // Handle quantity buttons in modal (event delegation for dynamically created elements)

@@ -28,7 +28,7 @@ async function fetchCategories() {
       throw new Error('Invalid response format');
     }
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    // Error fetching categories
     return [];
   }
 }
@@ -66,7 +66,7 @@ async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = nul
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error Response:', response.status, errorText);
+      // API Error Response
       throw new Error(`Network response was not ok: ${response.status} ${errorText}`);
     }
 
@@ -87,11 +87,11 @@ async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = nul
         totalCount: data.data.totalCount
       };
     } else {
-      console.error('Invalid response format:', data);
+      // Invalid response format
       throw new Error('Invalid response format');
     }
   } catch (error) {
-    console.error('Error fetching products:', error);
+    // Error fetching products
     return {
       items: [],
       totalCount: 0
@@ -120,7 +120,7 @@ async function fetchProductById(productId) {
     
     return null;
   } catch (error) {
-    console.error('Error fetching product:', error);
+    // Error fetching product
     return null;
   }
 }
@@ -163,7 +163,7 @@ async function registerCustomer(customerData) {
       throw new Error(data.message || data.error?.message || 'Invalid response format');
     }
   } catch (error) {
-    console.error('Error registering customer:', error);
+    // Error registering customer
     return {
       success: false,
       message: error.message || 'Registration failed. Please try again.'
@@ -211,7 +211,7 @@ async function loginCustomer(email, password) {
       throw new Error(data.message || data.error?.message || 'Invalid response format');
     }
   } catch (error) {
-    console.error('Error logging in:', error);
+    // Error logging in
     return {
       success: false,
       message: error.message || 'Login failed. Please check your credentials and try again.'
@@ -231,7 +231,7 @@ function getCurrentUser() {
     const localUserData = localStorage.getItem('loggedInUser');
     return localUserData ? JSON.parse(localUserData) : null;
   } catch (error) {
-    console.error('Error getting current user:', error);
+    // Error getting current user
     return null;
   }
 }
@@ -247,7 +247,7 @@ function getAuthToken() {
     // Fallback to localStorage for backward compatibility (optional)
     return localStorage.getItem('authToken') || null;
   } catch (error) {
-    console.error('Error getting auth token:', error);
+    // Error getting auth token
     return null;
   }
 }
@@ -269,7 +269,7 @@ function saveCurrentUser(userData, token, refreshToken) {
       sessionStorage.setItem('tokenExpiresAt', userData.expiresAt);
     }
   } catch (error) {
-    console.error('Error saving user data:', error);
+    // Error saving user data
   }
 }
 
@@ -290,7 +290,7 @@ function logoutUser() {
     // Clear user-specific cart data if needed
     // Note: You may want to keep the cart for guest users
   } catch (error) {
-    console.error('Error during logout:', error);
+    // Error during logout
   }
 }
 
@@ -301,7 +301,7 @@ function isUserLoggedIn() {
     const user = sessionStorage.getItem('loggedInUser');
     return !!(token && user);
   } catch (error) {
-    console.error('Error checking login status:', error);
+    // Error checking login status
     return false;
   }
 }

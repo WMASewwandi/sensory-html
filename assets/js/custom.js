@@ -123,13 +123,38 @@
 
   // Product Quick View JS
   var quickViewModal = $(".product-quick-view-modal");
-  $(".product-action .action-quick-view").on('click', function() {
+  $(".product-action .action-quick-view").on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    
+    // Prevent any scroll behavior - just lock the scroll
+    const scrollPosition = window.pageYOffset || window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    
+    // Store scroll position
+    $('html, body').data('scroll-position', scrollPosition);
+    
+    // Lock scroll by adding fix class to both html and body
+    $('html, body').addClass('fix');
+    
     quickViewModal.addClass('active');
-    $("body").addClass('fix');
+    
+    return false;
   });
   $(".btn-close, .canvas-overlay").on('click', function() {
     quickViewModal.removeClass('active');
-    $("body").removeClass('fix');
+    
+    // Remove fix class from both html and body
+    $('html, body').removeClass('fix');
+    
+    // Restore scroll position
+    const scrollPosition = $('html').data('scroll-position') || $('body').data('scroll-position') || 0;
+    
+    // Use requestAnimationFrame to ensure DOM updates before scrolling
+    requestAnimationFrame(function() {
+      window.scrollTo(0, scrollPosition);
+      $('html, body').removeData('scroll-position');
+    });
   });
 
   // Format price with LKR currency
@@ -907,7 +932,6 @@
         container.html('<div class="col-12"><p class="text-center">No products found.</p></div>');
       }
     } catch (error) {
-      console.error('Error loading products:', error);
       container.html('<div class="col-12"><p class="text-center">Error loading products. Please try again later.</p></div>');
     }
   }
@@ -921,7 +945,7 @@
         renderCategoryTabs(categories);
       }
     } catch (error) {
-      console.error('Error loading categories:', error);
+      // Error loading categories
     }
   }
 
@@ -1068,7 +1092,7 @@
         }
       }
     } catch (error) {
-      console.error('Error loading trending products:', error);
+      // Error loading trending products
     }
   }
 
@@ -1083,7 +1107,6 @@
       try {
         productData = JSON.parse(productData);
       } catch (e) {
-        console.error('Error parsing product data:', e);
         return;
       }
     }
@@ -1113,7 +1136,6 @@
       try {
         productData = JSON.parse(productData);
       } catch (e) {
-        console.error('Error parsing product data:', e);
         return;
       }
     }
@@ -1137,7 +1159,6 @@
           showToast(result.message || 'Failed to add product to wishlist', 'error');
         }
       } catch (error) {
-        console.error('Error adding to wishlist:', error);
         showToast('An error occurred. Please try again.', 'error');
       } finally {
         // Re-enable button
@@ -1163,7 +1184,7 @@
     // Update wishlist count on page load
     if (typeof WishlistService !== 'undefined') {
       WishlistService.updateWishlistCount().catch(err => {
-        console.error('Error updating wishlist count:', err);
+        // Error updating wishlist count
       });
     }
     

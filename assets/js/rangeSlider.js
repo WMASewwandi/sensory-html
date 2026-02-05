@@ -54,7 +54,7 @@ $(document).ready(function() {
       }
     });
   } catch (error) {
-    console.warn('RangeSlider initialization failed:', error);
+    // RangeSlider initialization failed
   }
 });
 

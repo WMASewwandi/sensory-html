@@ -13,7 +13,7 @@ const CartService = {
       try {
         user = window.getCurrentUser();
       } catch (error) {
-        console.warn('Error calling window.getCurrentUser:', error);
+        // Error calling window.getCurrentUser
       }
     }
     
@@ -25,7 +25,7 @@ const CartService = {
           user = JSON.parse(loggedInUserStr);
         }
       } catch (error) {
-        console.warn('Error parsing loggedInUser from sessionStorage:', error);
+        // Error parsing loggedInUser from sessionStorage
       }
     }
     
@@ -37,7 +37,7 @@ const CartService = {
           user = JSON.parse(loggedInUserStr);
         }
       } catch (error) {
-        console.warn('Error parsing loggedInUser from localStorage:', error);
+        // Error parsing loggedInUser from localStorage
       }
     }
     
@@ -79,7 +79,7 @@ const CartService = {
       
       return validCart;
     } catch (error) {
-      console.error('Error getting cart:', error);
+      // Error getting cart
       return [];
     }
   },
@@ -108,7 +108,7 @@ const CartService = {
       this.updateCartCount();
       return cart;
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      // Error adding to cart
       return [];
     }
   },
@@ -123,7 +123,7 @@ const CartService = {
       this.updateCartCount();
       return updatedCart;
     } catch (error) {
-      console.error('Error removing from cart:', error);
+      // Error removing from cart
       return [];
     }
   },
@@ -146,7 +146,7 @@ const CartService = {
       
       return cart;
     } catch (error) {
-      console.error('Error updating quantity:', error);
+      // Error updating quantity
       return [];
     }
   },
@@ -232,7 +232,7 @@ const CartService = {
         this.updateCartCount();
       }
     } catch (error) {
-      console.error('Error merging cart after login:', error);
+      // Error merging cart after login
     }
   }
 };
@@ -252,7 +252,7 @@ const WishlistService = {
       try {
         user = window.getCurrentUser();
       } catch (error) {
-        console.warn('Error calling window.getCurrentUser:', error);
+        // Error calling window.getCurrentUser
       }
     }
     
@@ -264,7 +264,7 @@ const WishlistService = {
           user = JSON.parse(loggedInUserStr);
         }
       } catch (error) {
-        console.warn('Error parsing loggedInUser from sessionStorage:', error);
+        // Error parsing loggedInUser from sessionStorage
       }
     }
     
@@ -276,7 +276,7 @@ const WishlistService = {
           user = JSON.parse(loggedInUserStr);
         }
       } catch (error) {
-        console.warn('Error parsing loggedInUser from localStorage:', error);
+        // Error parsing loggedInUser from localStorage
       }
     }
     
@@ -311,7 +311,7 @@ const WishlistService = {
 
       // Ensure API_CONFIG is available
       if (typeof API_CONFIG === 'undefined' || !API_CONFIG || !API_CONFIG.BASE_URL) {
-        console.error('API_CONFIG is not defined. Make sure config.js is loaded before cart-service.js');
+        // API_CONFIG is not defined
         this._wishlistCache = [];
         this._wishlistCountCache = 0;
         return [];
@@ -373,12 +373,12 @@ const WishlistService = {
         totalCount = data.length;
       }
       
-      console.log('Parsed wishlist items:', items.length, 'items');
+      // Parsed wishlist items
       this._wishlistCache = items;
       this._wishlistCountCache = totalCount;
       return items;
     } catch (error) {
-      console.error('Error getting wishlist:', error);
+      // Error getting wishlist
       this._wishlistCache = [];
       return [];
     }
@@ -417,7 +417,7 @@ const WishlistService = {
       
       // Ensure API_CONFIG is available
       if (typeof API_CONFIG === 'undefined' || !API_CONFIG || !API_CONFIG.BASE_URL) {
-        console.error('API_CONFIG is not defined. Make sure config.js is loaded before cart-service.js');
+        // API_CONFIG is not defined
         return { success: false, message: 'API configuration not available' };
       }
 
@@ -447,7 +447,7 @@ const WishlistService = {
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || errorData.error?.message || errorData.error || `Server error: ${response.status}`;
-          console.error('Wishlist API error response:', errorData);
+          // Wishlist API error response
         } catch (e) {
           errorMessage = `Server error: ${response.status} ${response.statusText}`;
         }
@@ -470,7 +470,7 @@ const WishlistService = {
       
       return { success: true, message: 'Product added to wishlist successfully', data: data.data };
     } catch (error) {
-      console.error('Error adding to wishlist:', error);
+      // Error adding to wishlist
       return { success: false, message: error.message || 'Failed to add product to wishlist' };
     }
   },
@@ -519,7 +519,7 @@ const WishlistService = {
       
       return { success: true, message: 'Product removed from wishlist' };
     } catch (error) {
-      console.error('Error removing from wishlist:', error);
+      // Error removing from wishlist
       return { success: false, message: error.message || 'Failed to remove product from wishlist' };
     }
   },
@@ -568,7 +568,7 @@ const WishlistService = {
       
       return { success: true, message: 'Product removed from wishlist' };
     } catch (error) {
-      console.error('Error removing product from wishlist:', error);
+      // Error removing product from wishlist
       return { success: false, message: error.message || 'Failed to remove product from wishlist' };
     }
   },
@@ -607,7 +607,7 @@ const WishlistService = {
       const data = await response.json();
       return data.success && data.data === true;
     } catch (error) {
-      console.error('Error checking product in wishlist:', error);
+      // Error checking product in wishlist
       return false;
     }
   },
@@ -636,7 +636,7 @@ const WishlistService = {
 
       // Ensure API_CONFIG is available
       if (typeof API_CONFIG === 'undefined' || !API_CONFIG || !API_CONFIG.BASE_URL) {
-        console.error('API_CONFIG is not defined. Make sure config.js is loaded before cart-service.js');
+        // API_CONFIG is not defined
         return 0;
       }
 
@@ -675,14 +675,14 @@ const WishlistService = {
       
       if (count > 0) {
         this._wishlistCountCache = count;
-        console.log('Wishlist count:', count);
+        // Wishlist count
         return count;
       }
       
-      console.warn('Wishlist count API returned unexpected format:', data);
+      // Wishlist count API returned unexpected format
       return 0;
     } catch (error) {
-      console.error('Error getting wishlist count:', error);
+      // Error getting wishlist count
       return 0;
     }
   },
@@ -727,7 +727,7 @@ const WishlistService = {
       
       return { success: true, message: 'Wishlist cleared successfully' };
     } catch (error) {
-      console.error('Error clearing wishlist:', error);
+      // Error clearing wishlist
       return { success: false, message: error.message || 'Failed to clear wishlist' };
     }
   },
@@ -738,7 +738,7 @@ const WishlistService = {
       const count = await this.getWishlistCount();
       const countNum = parseInt(count) || 0;
       
-      console.log('Updating wishlist count badge to:', countNum);
+      // Updating wishlist count badge
       
       // Update using jQuery
       if (typeof jQuery !== 'undefined') {
@@ -775,7 +775,7 @@ const WishlistService = {
         });
       }
     } catch (error) {
-      console.error('Error updating wishlist count:', error);
+      // Error updating wishlist count
     }
   }
 };
@@ -867,7 +867,7 @@ window.WishlistService = WishlistService;
       try {
         await WishlistService.updateWishlistCount();
       } catch (error) {
-        console.error('Error updating wishlist count on load:', error);
+        // Error updating wishlist count on load
       }
     }
     
