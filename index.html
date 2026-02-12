@@ -1663,9 +1663,22 @@
         });
       });
       
-      $(document).off('click', '.add-to-cart-btn').on('click', '.add-to-cart-btn', function(e) {
+      $(document).off('click', '.add-to-cart-btn').on('click', '.add-to-cart-btn', async function(e) {
         e.preventDefault();
-        const productData = JSON.parse($(this).attr('data-product'));
+        
+        // Check if button is disabled
+        if ($(this).hasClass('disabled')) {
+          showToast('This product is out of stock', 'error');
+          return;
+        }
+        
+        const productDataAttr = $(this).attr('data-product');
+        if (!productDataAttr) {
+          showToast('Product data not found', 'error');
+          return;
+        }
+        
+        const productData = JSON.parse(productDataAttr);
         
         // Get quantity from modal input if in modal
         const quantityInput = $('.product-quick-view-modal #modal-quantity');
@@ -1677,8 +1690,14 @@
         }
         
         if (window.CartService) {
-          window.CartService.addToCart(productData);
-          showToast('Product added to cart!', 'success');
+          // Use stock-checked add to cart
+          const result = await window.CartService.addToCartWithStockCheck(productData);
+          
+          if (result.success) {
+            showToast('Product added to cart!', 'success');
+          } else {
+            showToast(result.message || 'Failed to add to cart', 'error');
+          }
         }
       });
       
@@ -1724,9 +1743,14 @@
         const $button = $(this);
         const $input = $button.parent().find('input');
         const oldValue = parseInt($input.val()) || 1;
+        const maxStock = parseInt($input.attr('data-max-stock')) || 9999;
         
         if ($button.hasClass('inc')) {
           const newVal = oldValue + 1;
+          if (newVal > maxStock) {
+            showToast(`Maximum available quantity is ${maxStock}`, 'warning');
+            return;
+          }
           $input.val(newVal);
         } else if ($button.hasClass('dec')) {
           if (oldValue > 1) {

@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3001;
 
 // Get all HTML files and create routes without .html extension
 const htmlFiles = fs.readdirSync(__dirname)

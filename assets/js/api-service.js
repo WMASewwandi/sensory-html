@@ -125,6 +125,102 @@ async function fetchProductById(productId) {
   }
 }
 
+// Fetch stock levels for products (no auth required - public endpoint)
+async function fetchStockLevels(pageNumber = 1, pageSize = 1000) {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    const response = await fetch(
+      `${API_CONFIG.BASE_URL}/inventory/stock-levels?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      {
+        method: 'GET',
+        headers: headers
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch stock levels');
+    }
+
+    const data = await response.json();
+    
+    if (data.success && data.data && data.data.items) {
+      return data.data.items;
+    }
+    
+    return [];
+  } catch (error) {
+    // Error fetching stock levels
+    return [];
+  }
+}
+
+// Get stock level for a specific product
+async function getProductStockLevel(productId) {
+  try {
+    const stockLevels = await fetchStockLevels();
+    
+    // Sum up stock across all warehouses for this product
+    const productStock = stockLevels
+      .filter(sl => sl.productId === productId)
+      .reduce((total, sl) => total + (sl.availableQuantity || 0), 0);
+    
+    return productStock;
+  } catch (error) {
+    // Error getting product stock level
+    return 0;
+  }
+}
+
+// Cache for stock levels (to avoid multiple API calls)
+let stockLevelCache = null;
+let stockLevelCacheTime = 0;
+const STOCK_CACHE_DURATION = 60000; // 1 minute cache
+
+// Get cached stock levels or fetch new ones
+async function getCachedStockLevels() {
+  const now = Date.now();
+  
+  if (stockLevelCache && (now - stockLevelCacheTime) < STOCK_CACHE_DURATION) {
+    return stockLevelCache;
+  }
+  
+  stockLevelCache = await fetchStockLevels();
+  stockLevelCacheTime = now;
+  
+  return stockLevelCache;
+}
+
+// Get stock map (productId -> availableQuantity)
+async function getStockMap() {
+  const stockLevels = await getCachedStockLevels();
+  const stockMap = new Map();
+  
+  stockLevels.forEach(sl => {
+    // Store with both number and string keys to handle type mismatches
+    const productId = sl.productId;
+    const quantity = sl.availableQuantity || 0;
+    
+    // Add to existing quantity (sum across warehouses)
+    const currentNum = stockMap.get(Number(productId)) || 0;
+    stockMap.set(Number(productId), currentNum + quantity);
+    
+    // Also set string version
+    const currentStr = stockMap.get(String(productId)) || 0;
+    stockMap.set(String(productId), currentStr + quantity);
+  });
+  
+  return stockMap;
+}
+
+// Clear stock cache (call after cart operations that affect stock)
+function clearStockCache() {
+  stockLevelCache = null;
+  stockLevelCacheTime = 0;
+}
+
 // Register new customer
 async function registerCustomer(customerData) {
   try {
@@ -334,4 +430,9 @@ window.saveCurrentUser = saveCurrentUser;
 window.logoutUser = logoutUser;
 window.getAuthHeaders = getAuthHeaders;
 window.isUserLoggedIn = isUserLoggedIn;
+window.fetchStockLevels = fetchStockLevels;
+window.getProductStockLevel = getProductStockLevel;
+window.getStockMap = getStockMap;
+window.getCachedStockLevels = getCachedStockLevels;
+window.clearStockCache = clearStockCache;
 

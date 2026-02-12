@@ -7,7 +7,7 @@ header("Access-Control-Allow-Origin: *");
         $name = strip_tags(trim($_POST["con_name"]));
         $name = str_replace(array("\r","\n"),array(" "," "),$name);
         $email = filter_var(trim($_POST["con_email"]), FILTER_SANITIZE_EMAIL);
-        $phone = trim($_POST["con_phone"]);
+        $user_subject = trim($_POST["con_subject"]);
         $message = trim($_POST["con_message"]);
 
         // Check that data was sent to the mailer.
@@ -19,10 +19,10 @@ header("Access-Control-Allow-Origin: *");
         }
 
         // Set the recipient email address.
-        $recipient = "your@email.here";
+        $recipient = "sensorysl12@gmail.com";
 
         // Set the email subject.
-        $subject = "Sensory - Test Mail From $name";
+        $subject = !empty($user_subject) ? "Sensory Contact: $user_subject" : "Sensory - Contact Form Message from $name";
 
         // Build the email content.
         $email_content = 
@@ -221,28 +221,12 @@ header("Access-Control-Allow-Origin: *");
                                                 </tr>
                                                 <!--== End Separator ==-->
                         
-                                                <!--== Start Phone Field Item ==-->
-                                                <tr>
-                                                    <td width="100%" class="mobile" align="left" valign="middle">
-                                                        <h3>Phone or Mobile:</h3>
-                                                        <hr>
-                                                        <h2>'. $phone .'</h2>
-                                                    </td>
-                                                </tr>
-                                                <!--== End Phone Field Item ==-->
-                                                
-                                                <!--== Start Separator ==-->
-                                                <tr>
-                                                    <td height="30" style="font-size:10px; line-height:10px;">&nbsp;</td>
-                                                </tr>
-                                                <!--== End Separator ==-->
-                                                
                                                 <!--== Start Subject Field Item ==-->
                                                 <tr>
                                                     <td width="100%" class="mobile" align="left" valign="middle">
                                                         <h3>Subject:</h3>
                                                         <hr>
-                                                        <h2>'. $subject .'</h2>
+                                                        <h2>'. (!empty($user_subject) ? $user_subject : 'No Subject') .'</h2>
                                                     </td>
                                                 </tr>
                                                 <!--== End Subject Field Item ==-->
@@ -280,8 +264,8 @@ header("Access-Control-Allow-Origin: *");
                         </tr>
                         
 						<tr>
-							<td align="center" valign="top">
-                                <a href="https://hasthemes.com/" target="_blank"><img width="120" src="https://hasthemes.com/wp-content/uploads/2019/01/1.png" alt="HasThemes"></a>
+							<td align="center" valign="top" style="color: #666; font-size: 12px;">
+                                <p>This message was sent from the Sensory website contact form.</p>
                             </td>
 						</tr>
 
@@ -296,7 +280,7 @@ header("Access-Control-Allow-Origin: *");
         // Build the email headers.
        	$email_headers = "MIME-Version: 1.0" . "\r\n";
         $email_headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $email_headers .= 'From:' . $name . ' ' . 'noreply@yourdomain.com' . "\r\n";
+        $email_headers .= 'From:' . $name . ' <noreply@sensory.lk>' . "\r\n";
         $email_headers .= 'Reply-To:' . $email . "\r\n";
 
         // Send the email.
