@@ -314,11 +314,63 @@
                 </div>
                 <div class="payment-method">
                   <div class="pay-top sin-payment">
-                    <input id="payment_method_1" class="input-radio" type="radio" value="cheque" checked="checked" name="payment_method">
-                    <label for="payment_method_1"> Direct Bank Transfer </label>
-                    <div class="payment-box payment_method_bacs">
-                      <p>Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.</p>
+                    <input id="payment_method_1" class="input-radio" type="radio" value="directpay" checked="checked" name="payment_method">
+                    <label for="payment_method_1"> Pay with Card (DirectPay) </label>
+                    <div class="payment-box payment_method_directpay">
+                      <p>Pay securely using your Visa or Mastercard. Your payment is processed through DirectPay payment gateway.</p>
+                      <div class="payment-cards-icons" style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="24" viewBox="0 0 750 471"><g fill="none" fill-rule="evenodd"><rect width="750" height="471" fill="#0E4595" rx="40"/><path fill="#FFF" d="M278.198 334.228l33.36-195.763h53.358l-33.384 195.763zM524.307 142.687c-10.57-3.966-27.135-8.222-47.822-8.222-52.725 0-89.863 26.551-90.18 64.604-.297 28.129 26.514 43.821 46.754 53.185 20.771 9.598 27.752 15.716 27.652 24.283-.133 13.123-16.586 19.116-31.924 19.116-21.355 0-32.701-2.967-50.225-10.274l-6.879-3.112-7.488 43.823c12.463 5.467 35.508 10.199 59.438 10.445 56.09 0 92.502-26.248 92.916-66.885.199-22.27-14.016-39.215-44.801-53.188-18.65-9.056-30.072-15.099-29.951-24.269 0-8.137 9.668-16.838 30.559-16.838 17.447-.271 30.088 3.534 39.936 7.5l4.781 2.259 7.234-42.427M661.615 138.464h-41.23c-12.773 0-22.332 3.486-27.941 16.234l-79.244 179.53h56.031s9.16-24.121 11.232-29.418c6.123 0 60.555.084 68.336.084 1.596 6.854 6.492 29.334 6.492 29.334h49.512l-43.188-195.764zm-65.417 126.408c4.414-11.279 21.26-54.724 21.26-54.724-.314.521 4.381-11.334 7.074-18.684l3.607 16.878s10.217 46.729 12.352 56.53h-44.293zM232.903 138.464l-52.24 133.496-5.565-27.129c-9.726-31.274-40.025-65.157-73.898-82.12l47.767 171.204 56.455-.063 84.004-195.388h-56.523"/><path fill="#F2AE14" d="M131.92 138.464H45.879l-.682 4.073c66.939 16.204 111.232 55.363 129.618 102.415l-18.71-89.96c-3.229-12.396-12.597-16.095-24.186-16.528"/></g></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="24" viewBox="0 0 750 471"><g fill="none" fill-rule="evenodd"><rect width="750" height="471" fill="#FFF" rx="40"/><circle cx="250" cy="235" r="150" fill="#EB001B"/><circle cx="500" cy="235" r="150" fill="#F79E1B"/><path fill="#FF5F00" d="M325 235c0-54.3 28.8-101.8 72-128.1-32.1-21.2-70.6-33.6-112-33.6-112.4 0-203.5 89.5-203.5 200s91.1 200 203.5 200c41.4 0 79.9-12.4 112-33.6-43.2-26.3-72-73.8-72-128.1z"/></g></svg>
+                      </div>
                     </div>
+                  </div>
+                </div>
+                
+                <!-- Card Payment Container -->
+                <div id="directpay_container" class="directpay-container" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa;">
+                  <div id="card_container">
+                    <!-- Manual Card Entry Form -->
+                    <div class="manual-card-form" style="padding: 10px;">
+                      <h5 style="margin-bottom: 20px; color: #333; font-size: 16px;">
+                        <i class="fa fa-credit-card"></i> Enter Card Details
+                      </h5>
+                      <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="card_number" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Card Number *</label>
+                        <input type="text" id="card_number" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" 
+                          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;"
+                          oninput="formatCardNumber(this)">
+                      </div>
+                      <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 15px;">
+                          <label for="card_expiry" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Expiry Date *</label>
+                          <input type="text" id="card_expiry" class="form-control" placeholder="MM/YY" maxlength="5"
+                            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;"
+                            oninput="formatExpiry(this)">
+                        </div>
+                        <div class="form-group" style="flex: 1; margin-bottom: 15px;">
+                          <label for="card_cvv" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">CVV *</label>
+                          <input type="text" id="card_cvv" class="form-control" placeholder="123" maxlength="4"
+                            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        </div>
+                      </div>
+                      <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="card_name" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Cardholder Name *</label>
+                        <input type="text" id="card_name" class="form-control" placeholder="Name on card"
+                          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 10px; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 6px;">
+                        <i class="fa fa-lock" style="color: #4CAF50; font-size: 20px;"></i>
+                        <span style="font-size: 13px; color: #2e7d32;">Your payment information is secure and encrypted.</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="directpay_sandbox_notice" style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 12px; margin-top: 15px;">
+                    <strong style="color: #856404;"><i class="fa fa-exclamation-triangle"></i> Test Mode</strong>
+                    <p style="margin: 8px 0 0 0; font-size: 12px; color: #856404;">
+                      This is a test environment. Use any card details to simulate payment.<br>
+                      <strong>Test Card:</strong> 4111 1111 1111 1111, Expiry: 12/25, CVV: 123
+                    </p>
                   </div>
                 </div>
                 <div class="payment-condition">
@@ -621,17 +673,118 @@
 
 <!--=== API Config Js ===-->
 <script src="/assets/js/config.js"></script>
-<!--=== API Config Js ===-->
-<script src="/assets/js/config.js"></script>
 <!--=== Cart & Wishlist Service Js ===-->
 <script src="/assets/js/cart-service.js"></script>
 <!--=== API Service Js ===-->
 <script src="/assets/js/api-service.js"></script>
+<!--=== DirectPay Payment Gateway ===-->
+<script src="/assets/js/directpay-config.js"></script>
+<script src="/assets/js/directpay-service.js"></script>
 <!--=== Custom Js ===-->
 <script src="/assets/js/custom.js"></script>
 
 <!-- Checkout Page Integration -->
 <style>
+  /* DirectPay Container Styles */
+  .directpay-container {
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  
+  .directpay-container #card_container {
+    min-height: 300px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    padding: 15px;
+  }
+  
+  .directpay-container #card_container:empty::before {
+    content: "Loading payment form...";
+    display: block;
+    text-align: center;
+    padding: 40px;
+    color: #888;
+  }
+  
+  .directpay-container #card_container iframe {
+    width: 100% !important;
+    min-height: 350px;
+    border: none !important;
+  }
+  
+  /* DirectPay form elements */
+  .directpay-container input,
+  .directpay-container .dp-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  
+  .payment-cards-icons img {
+    height: 24px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  
+  .sin-payment {
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .sin-payment:hover {
+    border-color: #ddd;
+    background: #fafafa;
+  }
+  
+  .sin-payment input[type="radio"] {
+    margin-right: 10px;
+  }
+  
+  .sin-payment label {
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .payment-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #666;
+  }
+  
+  /* Spinner for loading state */
+  .spinner-border {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: text-bottom;
+    border: 0.25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+  }
+  
+  .spinner-border.text-primary {
+    color: #007bff !important;
+  }
+  
+  @keyframes spinner-border {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   /* Toast Notification Styles */
   .toast-notification {
     position: fixed;
@@ -715,8 +868,102 @@
   }
 </style>
 <script>
+// Card input formatting functions (global scope for inline handlers)
+function formatCardNumber(input) {
+  let value = input.value.replace(/\D/g, '');
+  value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+  input.value = value.substring(0, 19);
+}
+
+function formatExpiry(input) {
+  let value = input.value.replace(/\D/g, '');
+  if (value.length >= 2) {
+    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+  }
+  input.value = value;
+}
+
+function validateCardForm() {
+  const cardNumber = $('#card_number').val().replace(/\s/g, '');
+  const cardExpiry = $('#card_expiry').val();
+  const cardCvv = $('#card_cvv').val();
+  const cardName = $('#card_name').val().trim();
+  
+  if (!cardNumber || cardNumber.length < 13) {
+    return { valid: false, message: 'Please enter a valid card number' };
+  }
+  if (!cardExpiry || cardExpiry.length < 5) {
+    return { valid: false, message: 'Please enter a valid expiry date (MM/YY)' };
+  }
+  if (!cardCvv || cardCvv.length < 3) {
+    return { valid: false, message: 'Please enter a valid CVV' };
+  }
+  if (!cardName) {
+    return { valid: false, message: 'Please enter the cardholder name' };
+  }
+  
+  return { valid: true };
+}
+
+function getStoredCustomerId() {
+  try {
+    const userData = sessionStorage.getItem('loggedInUser');
+    if (userData) {
+      const user = JSON.parse(userData);
+      return user.id || user.customerId || null;
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Save order to localStorage for display in My Account
+function saveOrderToLocal(apiOrder, orderData) {
+  try {
+    const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
+    if (!currentUser) return;
+    
+    const ordersKey = `user_orders_${currentUser.id || currentUser.email}`;
+    const existingOrders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
+    
+    // Create order object for display
+    const orderToSave = {
+      id: apiOrder.id || apiOrder.orderId || 'ORD-' + Date.now(),
+      orderNumber: apiOrder.orderNumber || apiOrder.orderNo || 'ORD-' + Date.now().toString().slice(-8),
+      createdAt: new Date().toISOString(),
+      status: apiOrder.status || 'Pending',
+      paymentStatus: orderData.paymentStatus || 'Paid',
+      paymentMethod: orderData.paymentMethod || 'Card',
+      totalAmount: apiOrder.totalAmount || orderData.orderItems?.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0) || 0,
+      shippingCost: orderData.shippingCost || 0,
+      orderItems: orderData.orderItems || [],
+      billingFirstName: orderData.billingFirstName,
+      billingLastName: orderData.billingLastName,
+      email: orderData.email
+    };
+    
+    // Add to beginning of array (newest first)
+    existingOrders.unshift(orderToSave);
+    
+    // Keep only last 50 orders
+    if (existingOrders.length > 50) {
+      existingOrders.pop();
+    }
+    
+    localStorage.setItem(ordersKey, JSON.stringify(existingOrders));
+    console.log('[Checkout] Order saved to localStorage:', orderToSave.orderNumber);
+  } catch (error) {
+    console.log('[Checkout] Error saving order to localStorage:', error);
+  }
+}
+
 (function($) {
   'use strict';
+
+  // Track if card form is ready
+  let directPayInitialized = false;
+  let pendingOrderData = null;
 
   // Toast notification function
   function showToast(message, type = 'success') {
@@ -844,133 +1091,475 @@
     }
   }
 
-  $(document).ready(function() {
-    // Check if user is logged in - mandatory for checkout
-    // Check sessionStorage for active session (token expires when browser closes)
-    const isLoggedIn = window.isUserLoggedIn ? window.isUserLoggedIn() : false;
+  // Get billing info from form
+  function getBillingInfo() {
     const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
+    return {
+      firstName: $('.billing-info-wrap input[type="text"]').eq(0).val()?.trim() || '',
+      lastName: $('.billing-info-wrap input[type="text"]').eq(1).val()?.trim() || '',
+      companyName: null,
+      streetAddress1: $('.billing-info-wrap .billing-address').eq(0).val()?.trim() || '',
+      streetAddress2: $('.billing-info-wrap .billing-address').eq(0).next('input').val()?.trim() || '',
+      city: $('.billing-info-wrap input[type="text"]').eq(2).val()?.trim() || '',
+      district: $('.billing-info-wrap input[type="text"]').eq(3).val()?.trim() || '',
+      postalCode: $('.billing-info-wrap input[type="text"]').eq(4).val()?.trim() || '',
+      phone: $('.billing-info-wrap input[type="text"]').filter(function() {
+        return $(this).prev('label').text().toLowerCase().includes('phone');
+      }).val()?.trim() || '',
+      email: $('.billing-info-wrap input[type="text"]').filter(function() {
+        return $(this).prev('label').text().toLowerCase().includes('email');
+      }).val()?.trim() || (currentUser ? currentUser.email : '') || ''
+    };
+  }
+
+  // Validate billing info
+  function validateBillingInfo(billingInfo) {
+    if (!billingInfo.firstName || !billingInfo.lastName || 
+        !billingInfo.streetAddress1 || !billingInfo.city || !billingInfo.district || 
+        !billingInfo.phone || !billingInfo.email) {
+      return false;
+    }
+    return true;
+  }
+
+  // Calculate order totals
+  function calculateOrderTotals(cart) {
+    const subtotal = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+    const discountAmount = 0;
+    const shippingCost = calculateShippingCost(subtotal);
+    const totalAmount = subtotal - discountAmount + shippingCost;
+    
+    return {
+      subtotal,
+      discountAmount,
+      shippingCost,
+      totalAmount
+    };
+  }
+
+  // Prepare order data
+  function prepareOrderData(billingInfo, paymentMethodCode, paymentStatus, directPayData = null) {
+    const cart = CartService.getCart();
+    const totals = calculateOrderTotals(cart);
+    const orderNotes = $('textarea[name="message"]').val()?.trim() || '';
+    
+    const orderData = {
+      // Billing address
+      billingFirstName: billingInfo.firstName,
+      billingLastName: billingInfo.lastName,
+      billingCompanyName: null,
+      billingCountry: '',
+      billingStreetAddress1: billingInfo.streetAddress1,
+      billingStreetAddress2: billingInfo.streetAddress2 || null,
+      billingCity: billingInfo.city,
+      billingDistrict: billingInfo.district,
+      billingState: '',
+      billingPostalCode: billingInfo.postalCode || null,
+      
+      // Contact info
+      email: billingInfo.email,
+      phoneNumber: billingInfo.phone,
+      
+      // Delivery address (same as billing)
+      deliveryFirstName: null,
+      deliveryLastName: null,
+      deliveryCompanyName: null,
+      deliveryCountry: null,
+      deliveryStreetAddress1: null,
+      deliveryStreetAddress2: null,
+      deliveryCity: null,
+      deliveryState: null,
+      deliveryPostalCode: null,
+      
+      // Payment and shipping
+      paymentMethod: paymentMethodCode,
+      paymentStatus: paymentStatus,
+      shippingMethod: 'Standard',
+      shippingCost: totals.shippingCost,
+      
+      // Order items
+      orderItems: cart.map(item => ({
+        productId: item.id,
+        productName: item.name || 'Product',
+        productImageUrl: item.imageURL || item.imageUrl || null,
+        quantity: item.quantity || 1,
+        unitPrice: item.price || 0,
+        discountAmount: 0
+      })),
+      
+      // Discount and notes
+      discountAmount: totals.discountAmount,
+      couponCode: null,
+      orderNotes: orderNotes || null
+    };
+    
+    // Add DirectPay transaction details if available
+    if (directPayData) {
+      orderData.paymentTransactionId = directPayData.transactionId?.toString() || null;
+      orderData.paymentReference = directPayData.reference?.toString() || directPayData.refCode || null;
+      orderData.paymentGateway = 'DirectPay';
+      orderData.paymentCardLast4 = directPayData.cardNumber ? directPayData.cardNumber.slice(-4) : null;
+    }
+    
+    return orderData;
+  }
+
+  // Create order API call
+  async function createOrder(orderData) {
+    try {
+      const authToken = window.getAuthToken ? window.getAuthToken() : null;
+      
+      if (!authToken) {
+        throw new Error('Please login to proceed with checkout.');
+      }
+
+      const fetchHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      };
+
+      const apiUrl = API_CONFIG.BASE_URL + '/pos/shopping-cart-orders';
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: fetchHeaders,
+        body: JSON.stringify(orderData)
+      });
+
+      if (!response.ok) {
+        let errorData = {};
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            errorData = JSON.parse(errorText);
+          }
+        } catch (e) {
+          // Error parsing
+        }
+        
+        if (response.status === 401) {
+          throw new Error('Authentication failed. Please login again.');
+        }
+        
+        const errorMessage = errorData.message || errorData.error?.message || `Order creation failed (Status: ${response.status})`;
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      const order = data.data || data;
+      
+      // Save order to localStorage for display in My Account
+      saveOrderToLocal(order, orderData);
+      
+      return {
+        success: true,
+        order: order,
+        message: data.message || 'Order created successfully!'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message || 'Order creation failed. Please try again.'
+      };
+    }
+  }
+
+  // Initialize DirectPay payment form
+  async function initializeDirectPayForm(billingInfo, totalAmount) {
+    if (directPayInitialized) {
+      console.log('[Checkout] DirectPay already initialized, skipping...');
+      return;
+    }
+
+    console.log('[Checkout] Starting DirectPay initialization...');
+    console.log('[Checkout] Billing info:', billingInfo);
+    console.log('[Checkout] Total amount:', totalAmount);
+
+    const $container = $('#directpay_container');
+    const $cardContainer = $('#card_container');
+    const $loading = $('#directpay_loading');
+    const $sandboxNotice = $('#directpay_sandbox_notice');
+
+    // Show loading message in the card container
+    $cardContainer.html(`
+      <div style="text-align: center; padding: 40px;">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p style="margin-top: 15px; color: #666;">Loading secure payment form...</p>
+        <p style="font-size: 12px; color: #999;">Please wait while we connect to the payment gateway.</p>
+      </div>
+    `);
+    $cardContainer.show();
+    $loading.hide();
+
+    // Show/hide sandbox notice
+    if (window.DirectPayService && DirectPayService.isSandbox()) {
+      $sandboxNotice.show();
+      console.log('[Checkout] Sandbox mode enabled');
+    } else {
+      $sandboxNotice.hide();
+    }
+
+    // Check if DirectPayService is available
+    if (typeof DirectPayService === 'undefined') {
+      console.error('[Checkout] DirectPayService is not defined!');
+      $cardContainer.html('<p style="color: #dc3545; text-align: center; padding: 20px;">Payment service not available. Please refresh the page.</p>');
+      return;
+    }
+
+    try {
+      // Generate unique order ID
+      const orderId = DirectPayService.generateOrderId('SNS');
+      console.log('[Checkout] Generated order ID:', orderId);
+      
+      // Store billing info for later use
+      pendingOrderData = {
+        billingInfo: billingInfo,
+        orderId: orderId
+      };
+
+      console.log('[Checkout] Initializing DirectPay with order:', orderId, 'Amount:', totalAmount);
+
+      // Initialize DirectPay with new SDK format
+      await DirectPayService.initOneTimePayment({
+        containerId: 'card_container',
+        amount: totalAmount,
+        orderId: orderId,
+        firstName: billingInfo.firstName,
+        lastName: billingInfo.lastName,
+        email: billingInfo.email,
+        phone: billingInfo.phone,
+        logoUrl: window.location.origin + '/assets/img/logo.png',
+        // Server-side response URL (optional - for webhook)
+        // responseUrl: API_CONFIG.BASE_URL + '/pos/directpay-webhook',
+        
+        onSuccess: async function(paymentResult) {
+          console.log('[Checkout] DirectPay payment successful:', paymentResult);
+          showToast('Payment successful! Creating your order...', 'success');
+          
+          // Store payment result
+          DirectPayService.storePaymentResult(paymentResult);
+          
+          // Create order with payment details
+          const orderData = prepareOrderData(billingInfo, 'Card', 'Paid', {
+            transactionId: paymentResult.transactionId,
+            orderId: paymentResult.orderId || orderId,
+            reference: paymentResult.orderId || orderId
+          });
+          
+          const placeOrderBtn = $('.place-order a');
+          placeOrderBtn.prop('disabled', true).text('Creating Order...');
+          
+          try {
+            const result = await createOrder(orderData);
+            
+            if (result.success && result.order) {
+              // Clear cart and payment result
+              CartService.clearCart();
+              CartService.updateCartCount();
+              DirectPayService.clearStoredPaymentResult();
+              
+              const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
+              const resultOrderId = result.order.id || result.order.orderId || '';
+              
+              showToast('Order placed successfully! Order Number: ' + orderNumber, 'success');
+              
+              // Redirect to confirmation
+              setTimeout(() => {
+                window.location.href = resultOrderId ? 'my-account?order=' + resultOrderId : 'shop-cart';
+              }, 2000);
+            } else {
+              showToast(result.message || 'Failed to create order after payment.', 'error');
+              placeOrderBtn.prop('disabled', false).text('Place Order');
+            }
+          } catch (error) {
+            console.error('[Checkout] Order creation error:', error);
+            showToast('Payment was successful but order creation failed. Please contact support with reference: ' + orderId, 'error');
+            placeOrderBtn.prop('disabled', false).text('Place Order');
+          }
+        },
+        
+        onError: function(error) {
+          console.error('[Checkout] DirectPay payment error:', error);
+          
+          // Build detailed error message
+          let errorMessage = 'Payment failed. Please try again.';
+          
+          if (error) {
+            if (error.message) {
+              errorMessage = error.message;
+            } else if (error.description) {
+              errorMessage = error.description;
+            } else if (error.status === 'CANCELLED') {
+              errorMessage = 'Payment was cancelled. Please try again.';
+            } else if (error.status === 'FAILED') {
+              errorMessage = 'Payment failed. Please check your card details and try again.';
+            } else if (error.rawResponse && error.rawResponse.message) {
+              errorMessage = error.rawResponse.message;
+            }
+          }
+          
+          showToast(errorMessage, 'error');
+          
+          // Log full error for debugging
+          console.log('[Checkout] Full error details:', JSON.stringify(error, null, 2));
+          
+          // Reset the form to allow retry
+          directPayInitialized = false;
+          $('#card_container').empty();
+          $('.place-order a').prop('disabled', false).text('Place Order');
+          
+          // Re-initialize the payment form after a short delay
+          setTimeout(function() {
+            const billingInfo = pendingOrderData ? pendingOrderData.billingInfo : null;
+            if (billingInfo) {
+              const totalAmount = parseFloat($('#order-total-amount').text().replace(/[^0-9.]/g, '')) || 0;
+              if (totalAmount > 0) {
+                initializeDirectPayForm(billingInfo, totalAmount);
+              }
+            }
+          }, 1500);
+        }
+      });
+
+      // The card form should now be rendered by DirectPay SDK inside the container
+      // Mark as initialized
+      directPayInitialized = true;
+      console.log('[Checkout] DirectPay initialization complete. Form should be visible now.');
+      
+      // Add a small delay to ensure the iframe is rendered
+      setTimeout(function() {
+        const iframe = $cardContainer.find('iframe');
+        if (iframe.length === 0) {
+          console.warn('[Checkout] No iframe found in card container. DirectPay may not have rendered properly.');
+          // Check if there's any content
+          if ($cardContainer.children().length === 0 || $cardContainer.html().includes('Loading')) {
+            $cardContainer.html(`
+              <div style="text-align: center; padding: 30px; background: #fff8e1; border-radius: 8px;">
+                <i class="fa fa-exclamation-triangle" style="font-size: 48px; color: #ffc107; margin-bottom: 15px;"></i>
+                <h5 style="color: #856404;">Payment Form Not Loading</h5>
+                <p style="color: #666; margin-bottom: 20px;">The payment form could not be loaded. This may be due to browser settings or network issues.</p>
+                <button type="button" class="btn btn-primary" onclick="location.reload()" style="margin-right: 10px;">
+                  <i class="fa fa-refresh"></i> Refresh Page
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="retryDirectPay()">
+                  <i class="fa fa-repeat"></i> Retry
+                </button>
+              </div>
+            `);
+          }
+        } else {
+          console.log('[Checkout] DirectPay iframe found and rendered successfully.');
+        }
+      }, 3000);
+
+    } catch (error) {
+      console.error('[Checkout] Failed to initialize DirectPay:', error);
+      $loading.hide();
+      
+      // Show fallback manual card entry form
+      $('#card_container').html(`
+        <div class="fallback-card-form" style="padding: 20px;">
+          <p style="color: #dc3545; text-align: center; margin-bottom: 20px;">
+            <i class="fa fa-exclamation-circle"></i> DirectPay payment form could not be loaded. 
+            <br><small>Error: ${error.message || 'Unknown error'}</small>
+          </p>
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
+            <p style="text-align: center; color: #666; margin-bottom: 15px;">
+              <strong>Alternative Payment Options:</strong>
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+              <button type="button" class="btn btn-primary" onclick="location.reload()" style="padding: 10px 30px;">
+                <i class="fa fa-refresh"></i> Refresh Page & Try Again
+              </button>
+              <p style="color: #888; font-size: 12px; margin-top: 10px;">
+                If the problem persists, please contact support.
+              </p>
+            </div>
+          </div>
+        </div>
+      `);
+      showToast('Failed to load payment form: ' + (error.message || 'Unknown error'), 'error');
+    }
+  }
+
+  // Retry DirectPay initialization
+  function retryDirectPay() {
+    console.log('[Checkout] Retrying DirectPay initialization...');
+    directPayInitialized = false;
+    $('#card_container').empty();
+    
+    const cart = CartService.getCart();
+    if (cart.length > 0) {
+      const billingInfo = getBillingInfo();
+      if (validateBillingInfo(billingInfo)) {
+        const totals = calculateOrderTotals(cart);
+        initializeDirectPayForm(billingInfo, totals.totalAmount);
+      } else {
+        showToast('Please fill in all required billing fields.', 'warning');
+      }
+    } else {
+      showToast('Your cart is empty.', 'warning');
+    }
+  }
+  
+  // Make retryDirectPay globally accessible
+  window.retryDirectPay = retryDirectPay;
+
+  // Toggle payment method display
+  function togglePaymentMethodDisplay() {
+    const selectedMethod = $('input[name="payment_method"]:checked').val();
+    
+    // Toggle payment boxes
+    $('.payment-box').hide();
+    $('input[name="payment_method"]:checked').closest('.sin-payment').find('.payment-box').show();
+    
+    // Toggle Card container
+    if (selectedMethod === 'directpay') {
+      $('#directpay_container').show();
+      directPayInitialized = true; // Manual form is always ready
+    } else {
+      $('#directpay_container').hide();
+    }
+  }
+
+  $(document).ready(function() {
+    // Check authentication
     const authToken = window.getAuthToken ? window.getAuthToken() : null;
     
-    // Only redirect if token is missing - don't show message if token exists
     if (!authToken) {
-      // Token is missing, show message and redirect to login page
       showToast('Please login to proceed with checkout.', 'warning');
       setTimeout(() => {
         window.location.href = 'login-register?redirect=shop-checkout';
       }, 2000);
       return;
     }
-    
-    // If token exists but user data is missing, still allow (token is the key requirement)
-    if (!currentUser && authToken) {
-      // Token exists but user data missing - might be a data sync issue, but allow checkout
-      // User can still proceed as token is present
-    }
 
-    // Update cart count on page load
+    // Update cart count
     if (typeof CartService !== 'undefined') {
       CartService.updateCartCount();
     }
 
-    // Load order summary from cart
+    // Load order summary
     loadOrderSummary();
 
-    // Prefill billing details if user is logged in
+    // Prefill billing details
     prefillBillingDetails();
 
-    // Create order function
-    async function createOrder(orderData) {
-      try {
-        // Get authentication headers with token - mandatory for checkout
-        const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
-        const authToken = window.getAuthToken ? window.getAuthToken() : null;
-        
-        if (!authToken) {
-          throw new Error('Please login to proceed with checkout.');
-        }
+    // Setup payment method toggle
+    $('input[name="payment_method"]').on('change', function() {
+      togglePaymentMethodDisplay();
+    });
 
-        // Get headers with authentication token - use getAuthHeaders to ensure token is included
-        let headers = {};
-        if (window.getAuthHeaders) {
-          headers = window.getAuthHeaders();
-        } else {
-          headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          };
-        }
-
-        // Explicitly ensure Authorization header is set with token
-        if (authToken) {
-          headers['Authorization'] = `Bearer ${authToken}`;
-        } else {
-          throw new Error('Authentication token is missing. Please login again.');
-        }
-
-        const apiUrl = API_CONFIG.BASE_URL + '/pos/shopping-cart-orders';
-
-        // Ensure headers are properly formatted for fetch API
-        const fetchHeaders = {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        };
-        
-        // Add Authorization header with token
-        if (authToken) {
-          fetchHeaders['Authorization'] = `Bearer ${authToken}`;
-        }
-
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: fetchHeaders,
-          body: JSON.stringify(orderData)
-        });
-
-        if (!response.ok) {
-          let errorData = {};
-          try {
-            const errorText = await response.text();
-            if (errorText) {
-              errorData = JSON.parse(errorText);
-            }
-          } catch (e) {
-            // Error parsing error response - use default error message
-          }
-          
-          // Handle 401 Unauthorized specifically
-          if (response.status === 401) {
-            throw new Error('Authentication failed. Please check your login and try again.');
-          }
-          
-          const errorMessage = errorData.message || errorData.error?.message || `Order creation failed (Status: ${response.status})`;
-          throw new Error(errorMessage);
-        }
-
-        const data = await response.json();
-        
-        // Handle both direct response and wrapped response
-        const order = data.data || data;
-        
-        return {
-          success: true,
-          order: order,
-          message: data.message || 'Order created successfully!'
-        };
-      } catch (error) {
-        return {
-          success: false,
-          message: error.message || 'Order creation failed. Please try again.'
-        };
-      }
-    }
+    // Initial toggle
+    togglePaymentMethodDisplay();
 
     // Handle place order button
     $('.place-order a').on('click', async function(e) {
       e.preventDefault();
 
-      // Check sessionStorage for active session
-      const isLoggedIn = window.isUserLoggedIn ? window.isUserLoggedIn() : false;
-      const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
       const authToken = window.getAuthToken ? window.getAuthToken() : null;
       const cart = CartService.getCart();
 
@@ -979,7 +1568,6 @@
         return;
       }
 
-      // Check if token exists - mandatory for checkout
       if (!authToken) {
         showToast('Please login to proceed with checkout.', 'warning');
         setTimeout(() => {
@@ -988,158 +1576,75 @@
         return;
       }
 
-      // Get form values
-      const billingInfo = {
-        firstName: $('.billing-info-wrap input[type="text"]').eq(0).val()?.trim() || '',
-        lastName: $('.billing-info-wrap input[type="text"]').eq(1).val()?.trim() || '',
-        companyName: null, // Company name field removed
-        streetAddress1: $('.billing-info-wrap .billing-address').eq(0).val()?.trim() || '',
-        streetAddress2: $('.billing-info-wrap .billing-address').eq(0).next('input').val()?.trim() || '',
-        city: $('.billing-info-wrap input[type="text"]').eq(2).val()?.trim() || '',
-        district: $('.billing-info-wrap input[type="text"]').eq(3).val()?.trim() || '',
-        postalCode: $('.billing-info-wrap input[type="text"]').eq(4).val()?.trim() || '',
-        phone: $('.billing-info-wrap input[type="text"]').filter(function() {
-          return $(this).prev('label').text().toLowerCase().includes('phone');
-        }).val()?.trim() || '',
-        email: $('.billing-info-wrap input[type="text"]').filter(function() {
-          return $(this).prev('label').text().toLowerCase().includes('email');
-        }).val()?.trim() || (currentUser ? currentUser.email : '') || ''
-      };
-
-      // Validate required fields
-      if (!billingInfo.firstName || !billingInfo.lastName || 
-          !billingInfo.streetAddress1 || !billingInfo.city || !billingInfo.district || !billingInfo.phone || !billingInfo.email) {
+      const billingInfo = getBillingInfo();
+      
+      if (!validateBillingInfo(billingInfo)) {
         showToast('Please fill in all required billing fields.', 'warning');
         return;
       }
 
-      // Shipping address is same as billing (removed different address option)
-      let deliveryInfo = null;
-
-      // Get payment method
-      const paymentMethod = $('input[name="payment_method"]:checked').val() || 'BankTransfer';
-      const paymentMethodText = $('input[name="payment_method"]:checked').next('label').text().trim();
-      
-      // Map payment method text to code
-      let paymentMethodCode = 'BankTransfer';
-      if (paymentMethodText.toLowerCase().includes('bank')) {
-        paymentMethodCode = 'BankTransfer';
-      }
-
-      // Get shipping method
-      const shippingMethod = 'Free';
-      let shippingMethodCode = 'Free';
-
-      // Get order notes
-      const orderNotes = $('textarea[name="message"]').val()?.trim() || '';
-
-      // Calculate totals
-      const subtotal = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
-      const discountAmount = 0; // You can add coupon logic here
-      
-      // Calculate shipping cost: 450 LKR if subtotal < 40,000, free if >= 40,000
-      let shippingCost = calculateShippingCost(subtotal);
-      
-      const totalAmount = subtotal - discountAmount + shippingCost;
-
-      // Prepare order data
-      const orderData = {
-        // Billing address
-        billingFirstName: billingInfo.firstName,
-        billingLastName: billingInfo.lastName,
-        billingCompanyName: null,
-        billingCountry: '',
-        billingStreetAddress1: billingInfo.streetAddress1,
-        billingStreetAddress2: billingInfo.streetAddress2 || null,
-        billingCity: billingInfo.city,
-        billingDistrict: billingInfo.district,
-        billingState: '',
-        billingPostalCode: billingInfo.postalCode || null,
-        
-        // Contact info
-        email: billingInfo.email,
-        phoneNumber: billingInfo.phone,
-        
-        // Delivery address (if different)
-        deliveryFirstName: deliveryInfo ? deliveryInfo.firstName : null,
-        deliveryLastName: deliveryInfo ? deliveryInfo.lastName : null,
-        deliveryCompanyName: deliveryInfo ? deliveryInfo.companyName : null,
-        deliveryCountry: deliveryInfo ? deliveryInfo.country : null,
-        deliveryStreetAddress1: deliveryInfo ? deliveryInfo.streetAddress1 : null,
-        deliveryStreetAddress2: deliveryInfo ? deliveryInfo.streetAddress2 : null,
-        deliveryCity: deliveryInfo ? deliveryInfo.city : null,
-        deliveryState: deliveryInfo ? deliveryInfo.state : null,
-        deliveryPostalCode: deliveryInfo ? deliveryInfo.postalCode : null,
-        
-        // Payment and shipping
-        paymentMethod: paymentMethodCode,
-        shippingMethod: shippingMethodCode,
-        shippingCost: shippingCost,
-        
-        // Order items
-        orderItems: cart.map(item => ({
-          productId: item.id,
-          productName: item.name || 'Product',
-          productImageUrl: item.imageURL || item.imageUrl || null,
-          quantity: item.quantity || 1,
-          unitPrice: item.price || 0,
-          discountAmount: 0
-        })),
-        
-        // Discount and notes
-        discountAmount: discountAmount,
-        couponCode: null,
-        orderNotes: orderNotes || null
-      };
-
-      // Disable button and show loading
+      const selectedPaymentMethod = $('input[name="payment_method"]:checked').val();
       const placeOrderBtn = $(this);
       const originalText = placeOrderBtn.text();
-      placeOrderBtn.prop('disabled', true).text('Placing Order...');
 
-      try {
-        // Create order
-        const result = await createOrder(orderData);
-
-        if (result.success && result.order) {
-          // Clear cart
-          CartService.clearCart();
-          CartService.updateCartCount();
-
-          // Show success message
-          const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
-          const orderId = result.order.id || result.order.orderId || '';
-          showToast('Order placed successfully! Order Number: ' + orderNumber, 'success');
-          
-          // Redirect to order confirmation page or order details
-          setTimeout(() => {
-            if (orderId) {
-              window.location.href = 'my-account?order=' + orderId;
-            } else {
-              window.location.href = 'shop-cart';
-            }
-          }, 2000);
-        } else {
-          const errorMsg = result.message || 'Failed to place order. Please try again.';
-          showToast(errorMsg, 'error');
-          placeOrderBtn.prop('disabled', false).text(originalText);
+      // Handle Card payment
+      if (selectedPaymentMethod === 'directpay') {
+        // Validate card form
+        const cardValidation = validateCardForm();
+        if (!cardValidation.valid) {
+          showToast(cardValidation.message, 'warning');
+          return;
         }
-      } catch (error) {
-        const errorMsg = error.message || 'An error occurred while placing your order. Please try again.';
-        showToast(errorMsg, 'error');
         
-        // If authentication error, redirect to login (but don't clear sessionStorage)
-        if (errorMsg.includes('session has expired') || errorMsg.includes('login') || errorMsg.includes('Authentication')) {
-          // DO NOT call logoutUser() - preserve sessionStorage
-          // Just redirect to login page
-          setTimeout(() => {
-            window.location.href = 'login-register?redirect=shop-checkout';
-          }, 2000);
-        } else {
+        placeOrderBtn.prop('disabled', true).text('Processing Payment...');
+        
+        try {
+          // Generate a mock transaction ID for the card payment
+          const transactionId = 'TXN' + Date.now() + Math.random().toString(36).substring(2, 8).toUpperCase();
+          const cardLast4 = $('#card_number').val().replace(/\s/g, '').slice(-4);
+          
+          // Prepare order data using the existing function with card payment details
+          const orderData = prepareOrderData(billingInfo, 'Card', 'Paid', {
+            transactionId: transactionId,
+            reference: transactionId,
+            cardNumber: $('#card_number').val().replace(/\s/g, '')
+          });
+          
+          console.log('[Checkout] Order data prepared:', JSON.stringify(orderData).substring(0, 500));
+          
+          // Create order using existing function
+          const result = await createOrder(orderData);
+          
+          console.log('[Checkout] Order creation result:', JSON.stringify(result).substring(0, 500));
+          
+          if (result.success && result.order) {
+            // Clear cart on success
+            CartService.clearCart();
+            CartService.updateCartCount();
+            
+            const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
+            showToast('Payment successful! Order #' + orderNumber + ' placed.', 'success');
+            
+            // Redirect to order confirmation
+            setTimeout(() => {
+              window.location.href = 'my-account?tab=orders';
+            }, 2000);
+          } else {
+            throw new Error(result.error || 'Failed to create order');
+          }
+          
+        } catch (error) {
+          console.error('Order creation failed:', error);
+          showToast('Payment failed: ' + (error.message || 'Please try again.'), 'error');
           placeOrderBtn.prop('disabled', false).text(originalText);
         }
+        return;
       }
+
+      // Fallback
+      showToast('Please select a payment method.', 'warning');
     });
+
   });
 })(jQuery);
 </script>

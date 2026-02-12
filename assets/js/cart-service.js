@@ -84,32 +84,101 @@ const CartService = {
     }
   },
 
-  // Add product to cart
-  addToCart: function(product) {
+  // Add product to cart (sync version - use addToCartWithStockCheck for stock validation)
+  addToCart: function(product, skipStockCheck = false) {
     try {
       const cart = this.getCart();
       const quantity = parseInt(product.quantity) || 1;
       const existingItem = cart.find(item => item.id === product.id);
       
+      // Check max stock if provided
+      if (product.maxStock !== undefined && product.maxStock !== null) {
+        const currentQty = existingItem ? existingItem.quantity : 0;
+        const newTotalQty = currentQty + quantity;
+        
+        if (product.maxStock <= 0) {
+          return { success: false, message: 'This product is out of stock', cart: cart };
+        }
+        
+        if (newTotalQty > product.maxStock) {
+          const canAdd = product.maxStock - currentQty;
+          if (canAdd <= 0) {
+            return { success: false, message: `You already have the maximum available quantity (${product.maxStock}) in your cart`, cart: cart };
+          }
+          return { success: false, message: `Only ${canAdd} more can be added. Maximum available: ${product.maxStock}`, cart: cart };
+        }
+      }
+      
       if (existingItem) {
         existingItem.quantity += quantity;
+        // Store max stock for future reference
+        if (product.maxStock !== undefined) {
+          existingItem.maxStock = product.maxStock;
+        }
       } else {
-        cart.push({
+        const newItem = {
           id: product.id,
           name: product.name,
           imageURL: product.imageURL || product.imageUrl,
           price: product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0),
           quantity: quantity
-        });
+        };
+        // Store max stock for future reference
+        if (product.maxStock !== undefined) {
+          newItem.maxStock = product.maxStock;
+        }
+        cart.push(newItem);
       }
       
       const cartKey = this.getCartKey();
       localStorage.setItem(cartKey, JSON.stringify(cart));
       this.updateCartCount();
-      return cart;
+      return { success: true, cart: cart };
     } catch (error) {
       // Error adding to cart
-      return [];
+      return { success: false, message: 'Failed to add to cart', cart: [] };
+    }
+  },
+
+  // Add product to cart with stock validation (async version)
+  addToCartWithStockCheck: async function(product) {
+    try {
+      const quantity = parseInt(product.quantity) || 1;
+      
+      // Get stock level from API
+      if (typeof window.getStockMap === 'function') {
+        const stockMap = await window.getStockMap();
+        const availableStock = stockMap.get(product.id) || 0;
+        
+        // Check if product is in stock
+        if (availableStock <= 0) {
+          return { success: false, message: 'This product is out of stock' };
+        }
+        
+        // Check current cart quantity
+        const cart = this.getCart();
+        const existingItem = cart.find(item => item.id === product.id);
+        const currentQty = existingItem ? existingItem.quantity : 0;
+        const newTotalQty = currentQty + quantity;
+        
+        // Validate against available stock
+        if (newTotalQty > availableStock) {
+          const canAdd = availableStock - currentQty;
+          if (canAdd <= 0) {
+            return { success: false, message: `You already have the maximum available quantity (${availableStock}) in your cart` };
+          }
+          return { success: false, message: `Only ${canAdd} more can be added. Available stock: ${availableStock}` };
+        }
+        
+        // Add maxStock to product for the sync addToCart
+        product.maxStock = availableStock;
+      }
+      
+      // Call the sync version
+      return this.addToCart(product);
+    } catch (error) {
+      // Error with stock check, fall back to regular add
+      return this.addToCart(product);
     }
   },
 
@@ -129,7 +198,7 @@ const CartService = {
   },
 
   // Update product quantity in cart
-  updateQuantity: function(productId, quantity) {
+  updateQuantity: function(productId, quantity, maxStock = null) {
     try {
       const cart = this.getCart();
       const item = cart.find(item => item.id === productId);
@@ -138,16 +207,48 @@ const CartService = {
         if (quantity <= 0) {
           return this.removeFromCart(productId);
         }
+        
+        // Check max stock limit
+        const stockLimit = maxStock !== null ? maxStock : (item.maxStock || null);
+        if (stockLimit !== null && quantity > stockLimit) {
+          return { success: false, message: `Maximum available quantity is ${stockLimit}`, cart: cart };
+        }
+        
         item.quantity = quantity;
+        if (stockLimit !== null) {
+          item.maxStock = stockLimit;
+        }
+        
         const cartKey = this.getCartKey();
         localStorage.setItem(cartKey, JSON.stringify(cart));
         this.updateCartCount();
       }
       
-      return cart;
+      return { success: true, cart: cart };
     } catch (error) {
       // Error updating quantity
-      return [];
+      return { success: false, cart: [] };
+    }
+  },
+
+  // Update product quantity with stock validation (async version)
+  updateQuantityWithStockCheck: async function(productId, quantity) {
+    try {
+      // Get stock level from API
+      if (typeof window.getStockMap === 'function') {
+        const stockMap = await window.getStockMap();
+        const availableStock = stockMap.get(productId) || 0;
+        
+        if (quantity > availableStock) {
+          return { success: false, message: `Maximum available quantity is ${availableStock}` };
+        }
+        
+        return this.updateQuantity(productId, quantity, availableStock);
+      }
+      
+      return this.updateQuantity(productId, quantity);
+    } catch (error) {
+      return this.updateQuantity(productId, quantity);
     }
   },
 

@@ -564,40 +564,39 @@
   $('.qty-btn').on('click', function(e) {
     e.preventDefault();
     var $button = $(this);
-    var oldValue = $button.parent().find('input').val();
+    var $input = $button.parent().find('input');
+    var oldValue = parseInt($input.val()) || 1;
+    var maxStock = parseInt($input.attr('data-max-stock')) || parseInt($input.attr('max')) || 9999;
+    var newVal = oldValue;
+    
     if ($button.hasClass('inc')) {
-      var newVal = parseFloat(oldValue) + 1;
+      newVal = oldValue + 1;
+      // Check max stock limit
+      if (newVal > maxStock) {
+        // Show warning if showToast function exists
+        if (typeof showToast === 'function') {
+          showToast('Maximum available quantity is ' + maxStock, 'warning');
+        } else {
+          alert('Maximum available quantity is ' + maxStock);
+        }
+        return; // Don't update the value
+      }
     } else {
-      // Don't allow decrementing below zero
+      // Don't allow decrementing below 1
       if (oldValue > 1) {
-        var newVal = parseFloat(oldValue) - 1;
+        newVal = oldValue - 1;
       } else {
         newVal = 1;
       }
     }
-    $button.parent().find('input').val(newVal);
+    $input.val(newVal);
   });
 
-  // Product Qty
+  // Product Qty Style 2
   var proQty2 = $(".pro-qty-style2");
   proQty2.append('<a href="#" class="inc qty-btn"><i class="fa fa-plus"></i></a>');
   proQty2.append('<a href="#" class= "dec qty-btn"><i class="fa fa-window-minimize"></i></a>');
-  $('.qty-btn').on('click', function(e) {
-    e.preventDefault();
-    var $button2 = $(this);
-    var oldValue2 = $button2.parent().find('input').val();
-    if ($button2.hasClass('inc')) {
-      var newVal2 = parseFloat(oldValue2) + 1;
-    } else {
-      // Don't allow decrementing below zero
-      if (oldValue2 > 1) {
-        var newVal2 = parseFloat(oldValue2) - 1;
-      } else {
-        newVal2 = 1;
-      }
-    }
-    $button2.parent().find('input').val(newVal2);
-  });
+  // Note: The click handler above already handles all .qty-btn elements with stock validation
 
   //Checkout Page Checkbox Accordion
   $("#create_pwd").on("change", function() {

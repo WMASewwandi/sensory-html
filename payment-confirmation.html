@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/">
+
+    <title>Payment Confirmation - Sensory - Kids Toys Store</title>
+
+    <!--== Favicon ==-->
+    <link rel="shortcut icon" href="/assets/img/favicon.ico" type="image/x-icon" />
+
+    <!--== Google Fonts ==-->
+    <link href="https://fonts.googleapis.com/css?family=Fredoka+One:400" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!--== Bootstrap CSS ==-->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <!--== Font-awesome Icons CSS ==-->
+    <link href="/assets/css/font-awesome.min.css" rel="stylesheet"/>
+    <!--== Pe Icon 7 Min Icons CSS ==-->
+    <link href="/assets/css/pe-icon-7-stroke.min.css" rel="stylesheet"/>
+    <!--== Ionicons CSS ==-->
+    <link href="/assets/css/ionicons.css" rel="stylesheet"/>
+    <!--== Animate CSS ==-->
+    <link href="/assets/css/animate.css" rel="stylesheet"/>
+    <!--== Aos CSS ==-->
+    <link href="/assets/css/aos.css" rel="stylesheet"/>
+    <!--== Main Style CSS ==-->
+    <link href="/assets/css/style.css" rel="stylesheet" />
+
+    <style>
+        .confirmation-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .confirmation-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 50px;
+        }
+        
+        .confirmation-icon.success {
+            background: #d4edda;
+            color: #28a745;
+        }
+        
+        .confirmation-icon.error {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+        
+        .confirmation-icon.pending {
+            background: #fff3cd;
+            color: #ffc107;
+        }
+        
+        .confirmation-title {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .confirmation-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .order-details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .order-details h4 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .order-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .order-detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .order-detail-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .confirmation-actions {
+            margin-top: 30px;
+        }
+        
+        .confirmation-actions .btn {
+            margin: 5px;
+            padding: 12px 30px;
+        }
+        
+        .btn-theme {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-theme:hover {
+            background: #ee5a5a;
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-outline:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+
+<!--wrapper start-->
+<div class="wrapper page-shop-wrapper">
+
+  <!--== Start Preloader Content ==-->
+  <div class="preloader-wrap" style="display: none;">
+    <div class="preloader">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!--== End Preloader Content ==-->
+
+  <!--== Start Header Wrapper ==-->
+  <header class="header-wrapper">
+    <div class="header-top">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-12 col-sm-5 col-md-4 col-lg-6">
+            <div class="header-info-left">
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-7 col-md-8 col-lg-6 sm-pl-0 xs-pl-15 header-top-right">
+            <div class="header-info">
+              <a href="tel://+94761487787"><i class="fa fa-phone"></i> +94761487787</a>
+              <a href="mailto:sensorysl12@gmail.com"><i class="fa fa-envelope"></i> sensorysl12@gmail.com</a>
+              <a href="login-register"><i class="fa fa-user"></i> Account</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="header-middle">
+      <div class="container">
+        <div class="row row-gutter-0 align-items-center">
+          <div class="col-12">
+            <div class="header-align">
+              <div class="header-align-left">
+                <div class="header-logo-area">
+                  <a href="/">
+                    <img class="logo-main" src="/assets/img/logo.png" alt="Logo" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!--== End Header Wrapper ==-->
+  
+  <main class="main-content">
+    <!--== Start Page Title Area ==-->
+    <section class="page-title-area">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-12 m-auto">
+            <div class="page-title-content text-center">
+              <h2 class="title">Payment Status</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!--== End Page Title Area ==-->
+
+    <!--== Start Confirmation Area ==-->
+    <section class="product-area">
+      <div class="container">
+        <div class="confirmation-wrapper" id="confirmation-content">
+          <!-- Loading state -->
+          <div id="loading-state">
+            <div class="loading-spinner"></div>
+            <h3>Processing your payment...</h3>
+            <p>Please wait while we confirm your transaction.</p>
+          </div>
+          
+          <!-- Success state (hidden by default) -->
+          <div id="success-state" style="display: none;">
+            <div class="confirmation-icon success">
+              <i class="fa fa-check"></i>
+            </div>
+            <h2 class="confirmation-title">Payment Successful!</h2>
+            <p class="confirmation-message">Thank you for your purchase. Your payment has been processed successfully.</p>
+            
+            <div class="order-details">
+              <h4><i class="fa fa-file-text-o"></i> Transaction Details</h4>
+              <div class="order-detail-row">
+                <span class="order-detail-label">Transaction ID</span>
+                <span class="order-detail-value" id="txn-id">-</span>
+              </div>
+              <div class="order-detail-row">
+                <span class="order-detail-label">Reference</span>
+                <span class="order-detail-value" id="txn-ref">-</span>
+              </div>
+              <div class="order-detail-row">
+                <span class="order-detail-label">Amount</span>
+                <span class="order-detail-value" id="txn-amount">-</span>
+              </div>
+              <div class="order-detail-row">
+                <span class="order-detail-label">Card</span>
+                <span class="order-detail-value" id="txn-card">-</span>
+              </div>
+              <div class="order-detail-row">
+                <span class="order-detail-label">Date & Time</span>
+                <span class="order-detail-value" id="txn-datetime">-</span>
+              </div>
+              <div class="order-detail-row">
+                <span class="order-detail-label">Status</span>
+                <span class="order-detail-value" style="color: #28a745;">Paid</span>
+              </div>
+            </div>
+            
+            <div class="confirmation-actions">
+              <a href="my-account" class="btn btn-theme">View My Orders</a>
+              <a href="shop" class="btn btn-outline">Continue Shopping</a>
+            </div>
+          </div>
+          
+          <!-- Error state (hidden by default) -->
+          <div id="error-state" style="display: none;">
+            <div class="confirmation-icon error">
+              <i class="fa fa-times"></i>
+            </div>
+            <h2 class="confirmation-title">Payment Failed</h2>
+            <p class="confirmation-message" id="error-message">Your payment could not be processed. Please try again.</p>
+            
+            <div class="order-details" id="error-details" style="display: none;">
+              <h4><i class="fa fa-exclamation-circle"></i> Error Details</h4>
+              <div class="order-detail-row">
+                <span class="order-detail-label">Reference</span>
+                <span class="order-detail-value" id="error-ref">-</span>
+              </div>
+              <div class="order-detail-row">
+                <span class="order-detail-label">Reason</span>
+                <span class="order-detail-value" id="error-reason">-</span>
+              </div>
+            </div>
+            
+            <div class="confirmation-actions">
+              <a href="shop-checkout" class="btn btn-theme">Try Again</a>
+              <a href="contact" class="btn btn-outline">Contact Support</a>
+            </div>
+          </div>
+          
+          <!-- Pending state (hidden by default) -->
+          <div id="pending-state" style="display: none;">
+            <div class="confirmation-icon pending">
+              <i class="fa fa-clock-o"></i>
+            </div>
+            <h2 class="confirmation-title">Payment Pending</h2>
+            <p class="confirmation-message">Your order has been placed and is awaiting payment confirmation.</p>
+            
+            <div class="order-details">
+              <h4><i class="fa fa-info-circle"></i> Next Steps</h4>
+              <p style="margin: 0; color: #666;">
+                Please complete your bank transfer using the details provided. 
+                Your order will be processed once we receive and verify the payment.
+              </p>
+            </div>
+            
+            <div class="confirmation-actions">
+              <a href="my-account" class="btn btn-theme">View My Orders</a>
+              <a href="shop" class="btn btn-outline">Continue Shopping</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!--== End Confirmation Area ==-->
+  </main>
+
+  <!--== Start Footer Area Wrapper ==-->
+  <footer class="footer-area default-style">
+    <div class="footer-bottom">
+      <div class="container">
+        <div class="footer-bottom-content">
+          <div class="row text-center">
+            <div class="col-sm-12">
+              <div class="widget-copyright">
+                <p><i class="fa fa-copyright"></i> 2025 <span>Sensory. </span> All Rights Reserved</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!--== End Footer Area Wrapper ==-->
+
+</div>
+
+<!--=======================Javascript============================-->
+<script src="/assets/js/jquery-main.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/directpay-config.js"></script>
+<script src="/assets/js/directpay-service.js"></script>
+
+<script>
+(function($) {
+  'use strict';
+  
+  // Format currency
+  function formatCurrency(amount) {
+    return 'LKR ' + parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  
+  // Show success state
+  function showSuccess(paymentData) {
+    $('#loading-state').hide();
+    $('#error-state').hide();
+    $('#pending-state').hide();
+    
+    $('#txn-id').text(paymentData.transactionId || '-');
+    $('#txn-ref').text(paymentData.reference || paymentData.refCode || '-');
+    $('#txn-amount').text(formatCurrency(paymentData.amount || 0));
+    $('#txn-card').text(paymentData.cardNumber || 'xxxx-xxxx-xxxx-xxxx');
+    $('#txn-datetime').text(paymentData.dateTime || new Date().toLocaleString());
+    
+    $('#success-state').fadeIn();
+  }
+  
+  // Show error state
+  function showError(errorData) {
+    $('#loading-state').hide();
+    $('#success-state').hide();
+    $('#pending-state').hide();
+    
+    $('#error-message').text(errorData.message || 'Your payment could not be processed. Please try again.');
+    
+    if (errorData.refCode || errorData.description) {
+      $('#error-ref').text(errorData.refCode || '-');
+      $('#error-reason').text(errorData.description || errorData.message || '-');
+      $('#error-details').show();
+    }
+    
+    $('#error-state').fadeIn();
+  }
+  
+  // Show pending state (for bank transfers)
+  function showPending() {
+    $('#loading-state').hide();
+    $('#success-state').hide();
+    $('#error-state').hide();
+    $('#pending-state').fadeIn();
+  }
+  
+  $(document).ready(function() {
+    // Check URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const orderId = urlParams.get('order');
+    
+    // Check for stored payment result
+    const storedPayment = DirectPayService.getStoredPaymentResult();
+    
+    if (storedPayment) {
+      // Clear stored result
+      DirectPayService.clearStoredPaymentResult();
+      
+      if (storedPayment.success) {
+        showSuccess(storedPayment);
+      } else {
+        showError(storedPayment);
+      }
+    } else if (status === 'success') {
+      showSuccess({
+        transactionId: urlParams.get('txn') || '-',
+        reference: urlParams.get('ref') || '-',
+        amount: urlParams.get('amount') || '0',
+        cardNumber: 'xxxx-xxxx-xxxx-xxxx'
+      });
+    } else if (status === 'error' || status === 'failed') {
+      showError({
+        message: urlParams.get('message') || 'Payment failed',
+        refCode: urlParams.get('ref'),
+        description: urlParams.get('reason')
+      });
+    } else if (status === 'pending') {
+      showPending();
+    } else {
+      // No status, check if redirected without params
+      setTimeout(function() {
+        // If still on loading after 3 seconds, show error
+        if ($('#loading-state').is(':visible')) {
+          showError({
+            message: 'No payment information found. Please return to checkout.',
+            refCode: null
+          });
+        }
+      }, 3000);
+    }
+  });
+})(jQuery);
+</script>
+
+</body>
+</html>

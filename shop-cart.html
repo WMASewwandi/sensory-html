@@ -603,6 +603,35 @@
     return 'LKR ' + parseFloat(price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
   
+  // Toast notification function
+  function showToast(message, type = 'success') {
+    // Remove existing toasts
+    $('.toast-notification').remove();
+    
+    const icon = type === 'success' ? '<i class="ion-checkmark-circled"></i>' : 
+                 type === 'error' ? '<i class="ion-close-circled"></i>' : 
+                 '<i class="ion-information-circled"></i>';
+    const toast = $(`
+      <div class="toast-notification ${type}" style="position:fixed;top:20px;right:20px;padding:15px 20px;color:#fff;border-radius:4px;z-index:9999;display:flex;align-items:center;gap:12px;min-width:300px;font-size:14px;background-color:${type === 'success' ? '#4CAF50' : type === 'error' ? '#dc3545' : '#ffc107'};${type === 'warning' ? 'color:#000;' : ''}">
+        <span class="toast-icon" style="font-size:20px;">${icon}</span>
+        <span class="toast-message" style="flex:1;">${message}</span>
+        <span class="toast-close" style="cursor:pointer;font-size:18px;opacity:0.8;">&times;</span>
+      </div>
+    `);
+    
+    $('body').append(toast);
+    
+    // Auto hide after 3 seconds
+    setTimeout(function() {
+      toast.fadeOut(300, function() { $(this).remove(); });
+    }, 3000);
+    
+    // Close on click
+    toast.find('.toast-close').on('click', function() {
+      toast.fadeOut(300, function() { $(this).remove(); });
+    });
+  }
+  
   // Get cart directly from localStorage as fallback
   function getCartDirectly() {
     try {
@@ -673,7 +702,7 @@
   }
   
   // Render cart items
-  function renderCart() {
+  async function renderCart() {
     try {
       let cart = [];
       
@@ -685,6 +714,16 @@
         // Fallback: get cart directly from localStorage
         console.warn('CartService not available, using direct localStorage access');
         cart = getCartDirectly();
+      }
+      
+      // Fetch stock levels
+      let stockMap = new Map();
+      try {
+        if (typeof window.getStockMap === 'function') {
+          stockMap = await window.getStockMap();
+        }
+      } catch (stockError) {
+        console.warn('Failed to fetch stock levels:', stockError);
       }
       
       const container = $('#cart-items-container');
@@ -706,7 +745,7 @@
       }
       
       if (!cart || !Array.isArray(cart) || cart.length === 0) {
-        container.html('<tr><td colspan="6" class="text-center">Your cart is empty. <a href="shop">Continue Shopping</a></td></tr>');
+        container.html('<tr><td colspan="7" class="text-center">Your cart is empty. <a href="shop">Continue Shopping</a></td></tr>');
         if (subtotalEl.length) subtotalEl.text('LKR 0.00');
         if (totalEl.length) totalEl.text('LKR 0.00');
         return;
@@ -714,6 +753,7 @@
       
       container.empty();
       let subtotal = 0;
+      let hasStockIssues = false;
       
       cart.forEach((item) => {
         if (!item || !item.id) {
@@ -730,26 +770,49 @@
         const imageUrl = item.imageURL || item.imageUrl || 'https://www.holoimage.net/images/no-image.jpg';
         const productName = item.name || 'Product';
         
+        // Get stock level for this item
+        const availableStock = stockMap.get(item.id) || item.maxStock || 9999;
+        const isOutOfStock = availableStock <= 0;
+        const isOverStock = itemQuantity > availableStock;
+        
+        if (isOutOfStock || isOverStock) {
+          hasStockIssues = true;
+        }
+        
+        // Stock status indicator
+        let stockStatusHtml = '';
+        if (isOutOfStock) {
+          stockStatusHtml = '<span class="text-danger"><small>Out of Stock</small></span>';
+        } else if (isOverStock) {
+          stockStatusHtml = `<span class="text-warning"><small>Only ${availableStock} available</small></span>`;
+        } else if (availableStock <= 5) {
+          stockStatusHtml = `<span class="text-warning"><small>Only ${availableStock} left</small></span>`;
+        } else {
+          stockStatusHtml = `<span class="text-success"><small>In Stock (${availableStock})</small></span>`;
+        }
+        
         console.log('Rendering cart item:', {
           id: item.id,
           name: productName,
           price: itemPrice,
           quantity: itemQuantity,
-          total: itemTotal
+          total: itemTotal,
+          availableStock: availableStock
         });
         
         const rowHtml = `
-          <tr data-product-id="${item.id}">
+          <tr data-product-id="${item.id}" class="${isOutOfStock || isOverStock ? 'table-warning' : ''}">
             <td class="product-thumbnail">
               <a  href="javascript:void(0)"><img src="${imageUrl}" alt="${productName}" onerror="this.src='https://www.holoimage.net/images/no-image.jpg'"></a>
             </td>
             <td class="product-name">
               <h5><a href="shop-single-product.html?id=${item.id}">${productName}</a></h5>
+              ${stockStatusHtml}
             </td>
             <td class="product-price"><span class="amount">${formatPrice(itemPrice)}</span></td>
             <td class="cart-quality">
               <div class="product-details-quality">
-                <input type="number" class="input-text qty text cart-qty-input" step="1" min="1" max="100" name="quantity" value="${itemQuantity}" title="Qty" data-product-id="${item.id}">
+                <input type="number" class="input-text qty text cart-qty-input" step="1" min="1" max="${availableStock}" name="quantity" value="${itemQuantity}" title="Qty" data-product-id="${item.id}" ${isOutOfStock ? 'disabled' : ''}>
               </div>
             </td>
             <td class="product-total"><span class="item-total">${formatPrice(itemTotal)}</span></td>
@@ -763,6 +826,16 @@
       if (subtotalEl.length) subtotalEl.text(formatPrice(subtotal));
       if (totalEl.length) totalEl.text(formatPrice(subtotal));
       
+      // Show warning if there are stock issues
+      if (hasStockIssues) {
+        const warningHtml = '<div class="alert alert-warning mt-3" id="stock-warning"><strong>Warning:</strong> Some items in your cart have stock issues. Please adjust quantities or remove unavailable items before checkout.</div>';
+        if (!$('#stock-warning').length) {
+          container.closest('table').after(warningHtml);
+        }
+      } else {
+        $('#stock-warning').remove();
+      }
+      
       console.log('Cart rendered successfully. Items:', cart.length, 'Subtotal:', subtotal);
     } catch (error) {
       console.error('Error rendering cart:', error);
@@ -770,11 +843,41 @@
     }
   }
   
-  // Handle quantity change
-  $(document).on('change', '.cart-qty-input', function() {
-    const productId = $(this).data('product-id');
-    const quantity = parseInt($(this).val()) || 1;
-    CartService.updateQuantity(productId, quantity);
+  // Handle quantity change with stock validation
+  $(document).on('change', '.cart-qty-input', async function() {
+    const $input = $(this);
+    const productId = $input.data('product-id');
+    let quantity = parseInt($input.val()) || 1;
+    
+    // Validate against max stock
+    const maxStock = parseInt($input.attr('max')) || 9999;
+    if (quantity > maxStock) {
+      quantity = maxStock;
+      $input.val(quantity);
+      showToast(`Maximum available quantity is ${maxStock}`, 'warning');
+    }
+    
+    if (quantity < 1) {
+      quantity = 1;
+      $input.val(quantity);
+    }
+    
+    // Use stock-validated update if available
+    if (typeof CartService.updateQuantityWithStockCheck === 'function') {
+      const result = await CartService.updateQuantityWithStockCheck(productId, quantity);
+      if (!result.success) {
+        showToast(result.message || 'Failed to update quantity', 'error');
+        // Revert to previous value if failed
+        const cart = CartService.getCart();
+        const item = cart.find(i => i.id === productId);
+        if (item) {
+          $input.val(item.quantity);
+        }
+      }
+    } else {
+      CartService.updateQuantity(productId, quantity);
+    }
+    
     renderCart();
     CartService.updateCartCount();
     

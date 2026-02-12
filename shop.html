@@ -223,14 +223,14 @@
                   </nav>
                 </div>
                 <div class="product-sorting-menu product-sorting">
-                  <span class="current">Sort By : <span> Default <i class="fa fa-angle-down"></i></span></span>
+                  <span class="current">Sort By : <span id="current-sort-label"> Default <i class="fa fa-angle-down"></i></span></span>
                   <ul>
-                    <li class="active"><a href="shop" class="active">Sort by Default</a></li>
-                    <li><a href="shop">Sort by Popularity</a></li>
-                    <li><a href="shop">Sort by Rated</a></li>
-                    <li><a href="shop">Sort by Latest</a></li>
-                    <li><a href="shop">Sort by Price: <i class="lastudioicon-arrow-up"></i></a></li>
-                    <li><a href="shop">Sort by Price: <i class="lastudioicon-arrow-down"></i></a></li>
+                    <li class="active" data-sort="default"><a href="javascript:void(0)" onclick="applySortOrder('default')" class="active">Sort by Default</a></li>
+                    <li data-sort="popularity"><a href="javascript:void(0)" onclick="applySortOrder('popularity')">Sort by Popularity</a></li>
+                    <li data-sort="rated"><a href="javascript:void(0)" onclick="applySortOrder('rated')">Sort by Rated</a></li>
+                    <li data-sort="latest"><a href="javascript:void(0)" onclick="applySortOrder('latest')">Sort by Latest</a></li>
+                    <li data-sort="price-low"><a href="javascript:void(0)" onclick="applySortOrder('price-low')">Sort by Price: Low to High <i class="fa fa-arrow-up"></i></a></li>
+                    <li data-sort="price-high"><a href="javascript:void(0)" onclick="applySortOrder('price-high')">Sort by Price: High to Low <i class="fa fa-arrow-down"></i></a></li>
                   </ul>
                 </div>
               </div>
@@ -304,7 +304,35 @@
                           <label for="price-max-input" style="display: block; margin-bottom: 5px; font-weight: 500;">Max Amount (LKR)</label>
                           <input type="number" id="price-max-input" class="form-control" placeholder="Enter max amount" step="1" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         </div>
-                        <button type="button" id="apply-price-filter" class="btn btn-theme" style="width: 100%; padding: 10px; margin-top: 5px;">Apply Filter</button>
+                        <div style="display: flex; gap: 10px;">
+                          <button type="button" id="apply-price-filter" class="btn btn-theme" style="flex: 1; padding: 10px;">Apply</button>
+                          <button type="button" id="reset-price-filter" class="btn btn-outline-secondary" onclick="window.resetPriceFilter && window.resetPriceFilter()" style="flex: 1; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; color: #333; cursor: pointer;">Reset</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="widget-item">
+                <div class="widget-filter">
+                  <div class="widget-title">
+                    <h3 class="title">Availability</h3>
+                  </div>
+                  <div class="widget-body">
+                    <div class="widget-availability-filter">
+                      <div class="form-check" style="margin-bottom: 10px;">
+                        <input class="form-check-input" type="checkbox" id="show-in-stock" checked style="cursor: pointer;">
+                        <label class="form-check-label" for="show-in-stock" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                          <span style="width: 10px; height: 10px; background: #4CAF50; border-radius: 50%; display: inline-block;"></span>
+                          In Stock <span id="in-stock-count" style="color: #888; font-size: 12px;">(0)</span>
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show-out-of-stock" checked style="cursor: pointer;">
+                        <label class="form-check-label" for="show-out-of-stock" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                          <span style="width: 10px; height: 10px; background: #f44336; border-radius: 50%; display: inline-block;"></span>
+                          Out of Stock <span id="out-of-stock-count" style="color: #888; font-size: 12px;">(0)</span>
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -710,6 +738,87 @@
     .toast-notification.hide {
       animation: slideOutRight 0.3s ease-out forwards;
     }
+    
+    /* Stock badge styles */
+    .stock-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      z-index: 10;
+      text-transform: uppercase;
+    }
+    
+    .stock-badge.out-of-stock {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    
+    .stock-badge.low-stock {
+      background-color: #ffc107;
+      color: #000;
+    }
+    
+    .product-item.out-of-stock-item .product-thumb img {
+      opacity: 0.6;
+    }
+    
+    .product-item .product-thumb {
+      position: relative;
+    }
+    
+    .add-to-cart-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    
+    .stock-info {
+      color: #28a745;
+      margin-top: 5px;
+    }
+    
+    .stock-info small {
+      font-size: 12px;
+    }
+    
+    .toast-notification.error {
+      background-color: #dc3545;
+    }
+    
+    .toast-notification.warning {
+      background-color: #ffc107;
+      color: #000;
+    }
+    
+    /* Quick view modal stock indicator */
+    .modal-stock-info {
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    
+    .modal-stock-info.in-stock {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .modal-stock-info.out-of-stock {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .modal-stock-info.low-stock {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
   </style>
   <script>
   (function($) {
@@ -759,7 +868,38 @@
       container.empty();
       
       if (!products || products.length === 0) {
-        container.html('<div class="col-12"><p class="text-center">No products found.</p></div>');
+        // Check what filters are active to provide a helpful message
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchKeyword = urlParams.get('search') || '';
+        const categoryId = urlParams.get('category');
+        const hasPriceFilter = (priceRange.min > 0 || (priceRange.max > 0 && priceRange.max < 999999999));
+        
+        let noResultsMessage = 'No products found.';
+        let suggestions = [];
+        
+        if (searchKeyword) {
+          noResultsMessage = `No products found matching "<strong>${searchKeyword}</strong>".`;
+          suggestions.push('Try different keywords');
+          suggestions.push('Check your spelling');
+        }
+        if (categoryId) {
+          suggestions.push('Try selecting a different category');
+        }
+        if (hasPriceFilter) {
+          suggestions.push('Try adjusting the price range');
+        }
+        if (suggestions.length > 0) {
+          noResultsMessage += '<br><small style="color: #666;">Suggestions: ' + suggestions.join(', ') + '</small>';
+        }
+        
+        container.html(`
+          <div class="col-12">
+            <div style="text-align: center; padding: 40px 20px; background: #f8f9fa; border-radius: 8px; margin: 20px 0;">
+              <i class="pe-7s-search" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 15px;"></i>
+              <p style="margin: 0; font-size: 16px;">${noResultsMessage}</p>
+            </div>
+          </div>
+        `);
         return;
       }
       
@@ -769,6 +909,10 @@
         const productImage = (product.imageURL && product.imageURL.trim() !== '') ? product.imageURL : defaultImage;
         const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
         const formattedPrice = formatPrice(productPrice);
+        
+        // Get stock for this product (try both number and string keys)
+        const productStock = stockMap.get(product.id) || stockMap.get(String(product.id)) || stockMap.get(Number(product.id)) || 0;
+        const isOutOfStock = productStock <= 0;
         
         // Store minimal product data for cart/wishlist (include all price fields and images)
         const productData = {
@@ -780,7 +924,8 @@
           imageUrls: product.imageUrls || [],
           sellingPrice: product.sellingPrice || 0,
           unitPrice: product.unitPrice || 0,
-          description: product.description || ''
+          description: product.description || '',
+          maxStock: productStock
         };
         
         // Determine column class based on container - 3 products per row
@@ -792,15 +937,26 @@
         }
         
         let productHtml = '';
+        // Stock status badge HTML
+        const stockBadgeHtml = isOutOfStock 
+          ? '<span class="stock-badge out-of-stock">Out of Stock</span>' 
+          : (productStock <= 5 ? `<span class="stock-badge low-stock">Only ${productStock} left</span>` : '');
+        
+        // Hide cart button completely if out of stock
+        const cartButtonHtml = isOutOfStock 
+          ? '' // No cart button for out of stock items
+          : `<a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>`;
+        
         if (containerId === '#products-container-list') {
           // List view
           productHtml = `
             <div class="${colClass}">
-              <div class="product-item">
+              <div class="product-item ${isOutOfStock ? 'out-of-stock-item' : ''}">
                 <div class="product-thumb">
+                  ${stockBadgeHtml}
                   <img src="${productImage}" alt="${product.name}">
                   <div class="product-action">
-                    <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
+                    ${cartButtonHtml}
                     <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-arrow-expand"></i></a>
                     <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-heart"></i></a>
                   </div>
@@ -818,6 +974,7 @@
                     <span class="price">${formattedPrice}</span>
                   </div>
                   ${product.description ? `<p>${product.description}</p>` : ''}
+                  ${!isOutOfStock && productStock > 0 ? `<p class="stock-info"><small>In Stock: ${productStock} available</small></p>` : ''}
                 </div>
               </div>
             </div>
@@ -826,11 +983,12 @@
           // Grid view
           productHtml = `
             <div class="${colClass}">
-              <div class="product-item">
+              <div class="product-item ${isOutOfStock ? 'out-of-stock-item' : ''}">
                 <div class="product-thumb">
+                  ${stockBadgeHtml}
                   <img src="${productImage}" alt="${product.name}">
                   <div class="product-action">
-                    <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
+                    ${cartButtonHtml}
                     <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-arrow-expand"></i></a>
                     <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-heart"></i></a>
                   </div>
@@ -869,9 +1027,22 @@
     
     // Attach event handlers for cart and wishlist
     function attachEventHandlers() {
-      $(document).off('click', '.add-to-cart-btn').on('click', '.add-to-cart-btn', function(e) {
+      $(document).off('click', '.add-to-cart-btn').on('click', '.add-to-cart-btn', async function(e) {
         e.preventDefault();
-        const productData = JSON.parse($(this).attr('data-product'));
+        
+        // Check if button is disabled
+        if ($(this).hasClass('disabled')) {
+          showToast('This product is out of stock', 'error');
+          return;
+        }
+        
+        const productDataAttr = $(this).attr('data-product');
+        if (!productDataAttr) {
+          showToast('Product data not found', 'error');
+          return;
+        }
+        
+        const productData = JSON.parse(productDataAttr);
         
         // Get quantity from modal input if in modal
         const quantityInput = $('.product-quick-view-modal #modal-quantity');
@@ -883,8 +1054,14 @@
         }
         
         if (window.CartService) {
-          window.CartService.addToCart(productData);
-          showToast('Product added to cart!', 'success');
+          // Use stock-checked add to cart
+          const result = await window.CartService.addToCartWithStockCheck(productData);
+          
+          if (result.success) {
+            showToast('Product added to cart!', 'success');
+          } else {
+            showToast(result.message || 'Failed to add to cart', 'error');
+          }
         }
       });
       
@@ -939,6 +1116,9 @@
     let minPrice = 0;
     let maxPrice = 0;
     let priceRange = { min: 0, max: 0 };
+    let stockMap = new Map(); // Map of productId -> availableQuantity
+    let stockFilter = { showInStock: true, showOutOfStock: true }; // Stock availability filter
+    let currentSortOrder = 'default'; // Current sort order
     
     // Render pagination
     function renderPagination(totalItems) {
@@ -988,33 +1168,8 @@
     
     // Filter products by price range
     function filterProductsByPrice(products) {
-      // If price range is not set or is at default (0,0), return all products
+      // If price range is not set (0,0), return all products (no filter active)
       if (priceRange.min === 0 && priceRange.max === 0) {
-        return products;
-      }
-      
-      // If price range hasn't been properly initialized yet, return all products
-      if (!priceRange.min && !priceRange.max) {
-        return products;
-      }
-      
-      // Check if price filter is at full range (default values)
-      // Only skip filtering if min is 100 and max equals the calculated maxPrice
-      // This allows users to set custom ranges that will actually filter
-      const isDefaultMin = priceRange.min === 100;
-      let isDefaultMax = false;
-      
-      if (maxPrice > 0) {
-        // If we have a calculated maxPrice, only skip filtering if max equals it
-        isDefaultMax = priceRange.max === maxPrice;
-      } else {
-        // If no maxPrice calculated yet, skip filtering if max is 1000 (default)
-        isDefaultMax = priceRange.max === 1000;
-      }
-      
-      // If at full/default range, show all products (no filtering)
-      // Otherwise, filter by the selected price range
-      if (isDefaultMin && isDefaultMax) {
         return products;
       }
       
@@ -1025,8 +1180,172 @@
         if (productPrice === 0) {
           return true;
         }
-        // Product price must be within the selected range
-        return productPrice >= priceRange.min && productPrice <= priceRange.max;
+        // Check min price if set
+        if (priceRange.min > 0 && productPrice < priceRange.min) {
+          return false;
+        }
+        // Check max price if set (and not the "no limit" value)
+        if (priceRange.max > 0 && priceRange.max < 999999999 && productPrice > priceRange.max) {
+          return false;
+        }
+        return true;
+      });
+    }
+    
+    // Filter products by stock availability
+    function filterProductsByStock(products) {
+      // If both are checked (or both unchecked), show all
+      if ((stockFilter.showInStock && stockFilter.showOutOfStock) || 
+          (!stockFilter.showInStock && !stockFilter.showOutOfStock)) {
+        return products;
+      }
+      
+      return products.filter(product => {
+        // Try both number and string versions of product ID
+        const productId = product.id;
+        const productStock = stockMap.get(productId) || stockMap.get(String(productId)) || stockMap.get(Number(productId)) || 0;
+        const isOutOfStock = productStock <= 0;
+        
+        if (stockFilter.showInStock && !stockFilter.showOutOfStock) {
+          // Only show in-stock items
+          return !isOutOfStock;
+        }
+        if (stockFilter.showOutOfStock && !stockFilter.showInStock) {
+          // Only show out-of-stock items
+          return isOutOfStock;
+        }
+        return true;
+      });
+    }
+    
+    // Update stock counts in the availability filter
+    function updateStockCounts() {
+      let inStockCount = 0;
+      let outOfStockCount = 0;
+      
+      // Count based on current products (after search/category/price filter, but before stock filter)
+      const productsToCount = filterProductsByPrice(allProducts);
+      
+      productsToCount.forEach(product => {
+        // Try both number and string versions of product ID
+        const productId = product.id;
+        let productStock = stockMap.get(productId) || stockMap.get(String(productId)) || stockMap.get(Number(productId)) || 0;
+        
+        if (productStock > 0) {
+          inStockCount++;
+        } else {
+          outOfStockCount++;
+        }
+      });
+      
+      $('#in-stock-count').text(`(${inStockCount})`);
+      $('#out-of-stock-count').text(`(${outOfStockCount})`);
+    }
+    
+    // Apply sort order and re-render products (without losing filters)
+    function applySortOrder(sortOrder) {
+      currentSortOrder = sortOrder;
+      
+      // Update the sort dropdown label
+      const sortLabels = {
+        'default': 'Default',
+        'popularity': 'Popularity',
+        'rated': 'Rated',
+        'latest': 'Latest',
+        'price-low': 'Price: Low to High',
+        'price-high': 'Price: High to Low'
+      };
+      $('#current-sort-label').html(` ${sortLabels[sortOrder] || 'Default'} <i class="fa fa-angle-down"></i>`);
+      
+      // Update active state in dropdown
+      $('.product-sorting-menu ul li').removeClass('active');
+      $(`.product-sorting-menu ul li[data-sort="${sortOrder}"]`).addClass('active');
+      
+      // Re-display products with the new sort order (this preserves all filters)
+      displayProducts(allProducts);
+    }
+    
+    // Sort products by the current sort order
+    function sortProductsArray(products) {
+      if (!products || products.length === 0) return products;
+      
+      const sortedProducts = [...products]; // Create a copy to avoid mutating original
+      
+      switch (currentSortOrder) {
+        case 'price-low':
+          sortedProducts.sort((a, b) => {
+            const priceA = a.sellingPrice || a.unitPrice || 0;
+            const priceB = b.sellingPrice || b.unitPrice || 0;
+            return priceA - priceB;
+          });
+          break;
+        case 'price-high':
+          sortedProducts.sort((a, b) => {
+            const priceA = a.sellingPrice || a.unitPrice || 0;
+            const priceB = b.sellingPrice || b.unitPrice || 0;
+            return priceB - priceA;
+          });
+          break;
+        case 'latest':
+          sortedProducts.sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.creationTime || 0);
+            const dateB = new Date(b.createdAt || b.creationTime || 0);
+            return dateB - dateA;
+          });
+          break;
+        case 'rated':
+          sortedProducts.sort((a, b) => {
+            const ratingA = a.rating || a.averageRating || 0;
+            const ratingB = b.rating || b.averageRating || 0;
+            return ratingB - ratingA;
+          });
+          break;
+        case 'popularity':
+          sortedProducts.sort((a, b) => {
+            const popA = a.salesCount || a.orderCount || 0;
+            const popB = b.salesCount || b.orderCount || 0;
+            return popB - popA;
+          });
+          break;
+        case 'default':
+        default:
+          // Keep original order (by name or API default)
+          break;
+      }
+      
+      return sortedProducts;
+    }
+    
+    // Update category counts based on current filters (without reloading from API)
+    function updateCategoryCounts() {
+      // Get the currently filtered products (after all filters except category)
+      let productsForCounting = allProducts;
+      
+      // Apply price filter
+      productsForCounting = filterProductsByPrice(productsForCounting);
+      
+      // Apply stock filter
+      productsForCounting = filterProductsByStock(productsForCounting);
+      
+      // Calculate total for "All Categories"
+      const totalFilteredCount = productsForCounting.length;
+      $('#all-categories-count').text(`(${totalFilteredCount})`);
+      
+      // Update each category count (skip "all" as it's already updated above)
+      $('#product-categories-list li[data-category-id]').each(function() {
+        const categoryId = $(this).attr('data-category-id');
+        
+        // Skip the "all" category
+        if (categoryId === 'all') {
+          return;
+        }
+        
+        const count = productsForCounting.filter(product => {
+          const productCatId = String(product.categoryId || '');
+          return productCatId === categoryId;
+        }).length;
+        
+        $(this).find('.category-count').text(`(${count})`);
       });
     }
     
@@ -1043,14 +1362,20 @@
         return;
       }
       
-      // When searching, always show all search results (don't apply price filter)
-      if (searchKeyword && searchKeyword.trim() !== '') {
-        // When searching, show all search results without price filtering
-        filteredProducts = allProducts;
-      } else {
-        // Only apply price filter when not searching
-        filteredProducts = filterProductsByPrice(allProducts);
-      }
+      // Apply price filter to all products (including search results)
+      let tempFiltered = filterProductsByPrice(allProducts);
+      
+      // Apply stock filter
+      filteredProducts = filterProductsByStock(tempFiltered);
+      
+      // Apply sort order
+      filteredProducts = sortProductsArray(filteredProducts);
+      
+      // Update stock counts in the sidebar
+      updateStockCounts();
+      
+      // Update category counts based on current filters
+      updateCategoryCounts();
       
       // If no filtered products, that's okay - we'll show "No products found" message
       // Don't automatically show all products if filter results are empty
@@ -1077,6 +1402,9 @@
       
       // Update active filters display
       updateActiveFiltersDisplay();
+      
+      // Update category counts to reflect current filters
+      loadProductCategories();
     }
     
     // Update active filters display
@@ -1090,9 +1418,23 @@
       
       activeFiltersList.empty();
       let hasFilters = false;
+      let filterCount = 0;
+      
+      // Check for active search
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchKeyword = urlParams.get('search') || '';
+      if (searchKeyword && searchKeyword.trim() !== '') {
+        activeFiltersList.append(`
+          <span class="active-filter-badge" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background-color: #fff; border: 1px solid #f379a7; border-radius: 12px; font-size: 12px;">
+            <span>Search: "${searchKeyword}"</span>
+            <button type="button" class="clear-filter-btn" data-filter="search" style="background: none; border: none; color: #f379a7; cursor: pointer; font-size: 14px; padding: 0; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; line-height: 1;">&times;</button>
+          </span>
+        `);
+        hasFilters = true;
+        filterCount++;
+      }
       
       // Check for active category
-      const urlParams = new URLSearchParams(window.location.search);
       const categoryId = urlParams.get('category');
       if (categoryId) {
         // Find category name
@@ -1104,24 +1446,61 @@
           </span>
         `);
         hasFilters = true;
+        filterCount++;
       }
       
-      // Check for active price filter (if not at full range)
-      // Only show price filter badge if it's different from default full range
-      const isDefaultMin = priceRange.min === 100;
-      const isDefaultMax = priceRange.max === maxPrice || (maxPrice === 0 && priceRange.max === 1000);
-      const isFullRange = isDefaultMin && isDefaultMax;
+      // Check for active price filter (only if user has set values)
+      const hasPriceFilter = (priceRange.min > 0 || (priceRange.max > 0 && priceRange.max < 999999999));
       
-      if (!isFullRange && priceRange.min > 0 && priceRange.max > 0 && priceRange.max > priceRange.min) {
-        const minFormatted = formatPrice(priceRange.min);
-        const maxFormatted = formatPrice(priceRange.max);
+      if (hasPriceFilter) {
+        // Build price label based on what's set
+        let priceLabel = 'Price: ';
+        if (priceRange.min > 0 && priceRange.max > 0 && priceRange.max < 999999999) {
+          priceLabel += formatPrice(priceRange.min) + ' - ' + formatPrice(priceRange.max);
+        } else if (priceRange.min > 0) {
+          priceLabel += 'Min ' + formatPrice(priceRange.min);
+        } else if (priceRange.max > 0 && priceRange.max < 999999999) {
+          priceLabel += 'Max ' + formatPrice(priceRange.max);
+        }
+        
         activeFiltersList.append(`
-          <span class="active-filter-badge" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background-color: #fff; border: 1px solid #2196F3; border-radius: 12px; font-size: 12px;">
-            <span>Price: ${minFormatted} - ${maxFormatted}</span>
-            <button type="button" class="clear-filter-btn" data-filter="price" style="background: none; border: none; color: #2196F3; cursor: pointer; font-size: 14px; padding: 0; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; line-height: 1;">&times;</button>
+          <span class="active-filter-badge" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background-color: #fff; border: 1px solid #4CAF50; border-radius: 12px; font-size: 12px;">
+            <span>${priceLabel}</span>
+            <button type="button" class="clear-filter-btn" data-filter="price" style="background: none; border: none; color: #4CAF50; cursor: pointer; font-size: 14px; padding: 0; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; line-height: 1;">&times;</button>
           </span>
         `);
         hasFilters = true;
+        filterCount++;
+      }
+      
+      // Check for active stock filter (when not showing all)
+      const hasStockFilter = !(stockFilter.showInStock && stockFilter.showOutOfStock);
+      
+      if (hasStockFilter) {
+        let stockLabel = 'Stock: ';
+        if (stockFilter.showInStock && !stockFilter.showOutOfStock) {
+          stockLabel += 'In Stock Only';
+        } else if (!stockFilter.showInStock && stockFilter.showOutOfStock) {
+          stockLabel += 'Out of Stock Only';
+        } else {
+          stockLabel += 'None Selected';
+        }
+        
+        activeFiltersList.append(`
+          <span class="active-filter-badge" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background-color: #fff; border: 1px solid #FF9800; border-radius: 12px; font-size: 12px;">
+            <span>${stockLabel}</span>
+            <button type="button" class="clear-filter-btn" data-filter="stock" style="background: none; border: none; color: #FF9800; cursor: pointer; font-size: 14px; padding: 0; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; line-height: 1;">&times;</button>
+          </span>
+        `);
+        hasFilters = true;
+        filterCount++;
+      }
+      
+      // Add "Clear All" button if more than one filter is active
+      if (filterCount > 1) {
+        activeFiltersList.append(`
+          <button type="button" class="clear-all-filters-btn" style="background: #dc3545; border: none; color: #fff; cursor: pointer; font-size: 12px; padding: 4px 10px; border-radius: 12px; margin-left: 5px;">Clear All</button>
+        `);
       }
       
       // Show/hide active filters container
@@ -1135,7 +1514,19 @@
       $('.clear-filter-btn').off('click').on('click', function() {
         const filterType = $(this).data('filter');
         
-        if (filterType === 'category') {
+        if (filterType === 'search') {
+          // Remove search from URL
+          const urlParams = new URLSearchParams(window.location.search);
+          urlParams.delete('search');
+          const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+          window.history.pushState({}, '', newUrl);
+          // Clear search inputs
+          $('#search').val('');
+          $('#search-input').val('');
+          $('#search-results-message').hide();
+          currentPage = 1;
+          loadProducts();
+        } else if (filterType === 'category') {
           // Remove category from URL
           const urlParams = new URLSearchParams(window.location.search);
           urlParams.delete('category');
@@ -1144,34 +1535,68 @@
           currentPage = 1;
           loadProducts();
         } else if (filterType === 'price') {
-          // Reset price filter to full range
-          const minInput = $('#price-min-input');
-          const maxInput = $('#price-max-input');
-          minInput.val(100);
-          maxInput.val(maxPrice > 0 ? maxPrice : 1000);
-          priceRange.min = 100;
-          priceRange.max = maxPrice > 0 ? maxPrice : 1000;
-          currentPage = 1;
-          displayProducts();
+          // Clear price filter
+          resetPriceFilter();
+        } else if (filterType === 'stock') {
+          // Clear stock filter
+          resetStockFilter();
         }
+      });
+      
+      // Handle clear all filters button
+      $('.clear-all-filters-btn').off('click').on('click', function() {
+        // Clear all filters
+        const newUrl = window.location.pathname;
+        window.history.pushState({}, '', newUrl);
+        // Clear search inputs
+        $('#search').val('');
+        $('#search-input').val('');
+        $('#search-results-message').hide();
+        // Clear price filter
+        const minInput = $('#price-min-input');
+        const maxInput = $('#price-max-input');
+        minInput.val('');
+        maxInput.val('');
+        priceRange.min = 0;
+        priceRange.max = 0;
+        // Clear stock filter
+        stockFilter.showInStock = true;
+        stockFilter.showOutOfStock = true;
+        $('#show-in-stock').prop('checked', true);
+        $('#show-out-of-stock').prop('checked', true);
+        currentPage = 1;
+        loadProducts();
       });
     }
     
     // Update product count display
     function updateProductCount() {
-      // Use filteredProducts.length for the "of" count (products after price filter)
-      // But ensure we show accurate pagination info
-      const total = filteredProducts.length > 0 ? filteredProducts.length : (totalProductsCount > 0 ? totalProductsCount : 0);
-      const start = Math.min((currentPage - 1) * itemsPerPage + 1, total);
-      const end = Math.min(currentPage * itemsPerPage, total);
+      // Use filteredProducts.length for accurate display after all filters applied
+      const filteredTotal = filteredProducts.length;
+      const start = filteredTotal > 0 ? Math.min((currentPage - 1) * itemsPerPage + 1, filteredTotal) : 0;
+      const end = Math.min(currentPage * itemsPerPage, filteredTotal);
       
-      // Show accurate count - use totalProductsCount if it's available, otherwise use filtered count
-      const displayTotal = totalProductsCount > 0 ? totalProductsCount : total;
+      // Check if any filters are active
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasSearch = urlParams.get('search') && urlParams.get('search').trim() !== '';
+      const hasCategory = urlParams.get('category');
+      const hasPriceFilter = (priceRange.min > 0 || (priceRange.max > 0 && priceRange.max < 999999999));
+      const hasAnyFilter = hasSearch || hasCategory || hasPriceFilter;
       
-      if (total > 0) {
-        $('.count-result').html(`<span>${start}-${end} </span> Product Found of <span> ${displayTotal}</span>`);
+      if (filteredTotal > 0) {
+        if (hasAnyFilter) {
+          // Show filtered count when filters are active
+          $('.count-result').html(`<span>${start}-${end}</span> of <span>${filteredTotal}</span> Products (filtered)`);
+        } else {
+          // Show total count when no filters
+          $('.count-result').html(`<span>${start}-${end}</span> of <span>${filteredTotal}</span> Products`);
+        }
       } else {
-        $('.count-result').html(`<span>0 </span> Product Found of <span> 0</span>`);
+        if (hasAnyFilter) {
+          $('.count-result').html(`<span>0</span> Products Found (no matches for current filters)`);
+        } else {
+          $('.count-result').html(`<span>0</span> Products Found`);
+        }
       }
     }
     
@@ -1211,6 +1636,16 @@
         // Fetch products with search keyword (API should filter by keyword)
         // Fetch more products to get accurate counts - use 1000 to get all products for counting
         const result = await window.fetchProducts(0, 1000, categoryId, searchKeyword);
+        
+        // Fetch stock levels in parallel
+        try {
+          if (typeof window.getStockMap === 'function') {
+            stockMap = await window.getStockMap();
+          }
+        } catch (stockError) {
+          // Failed to fetch stock levels, continue without stock info
+          stockMap = new Map();
+        }
         
         // Store total count from API before filtering
         totalProductsCount = (result && result.totalCount) ? result.totalCount : 0;
@@ -1317,45 +1752,13 @@
             maxPrice = 1000;
           }
             
-            // Reset price range to show all products initially (set to full range)
-            // This ensures products aren't filtered out on initial load
-            // Min is always 100, max is the calculated maxPrice
+            // Initialize price filter event handlers (only once)
             if (!window.priceSliderInitialized) {
-              priceRange.min = 100; // Always start at LKR 100
-              priceRange.max = maxPrice;
-              
-              // Initialize price filter input fields
-              if (!window.priceSliderInitialized) {
-                initializePriceFilter();
-                window.priceSliderInitialized = true;
-              } else {
-                // Update input fields with new max value if it changed
-                const maxInput = $('#price-max-input');
-                if (maxInput.length) {
-                  maxInput.attr('max', maxPrice);
-                  // Only update max value if current value is higher than new max
-                  const currentMax = parseFloat(maxInput.val()) || maxPrice;
-                  if (currentMax > maxPrice) {
-                    maxInput.val(maxPrice);
-                  }
-                }
-              }
-            } else {
-              // Update price filter input fields with new max value
-              const maxInput = $('#price-max-input');
-              
-              if (maxInput.length) {
-                // Only update max value if current value is higher than new max
-                const currentMax = parseFloat(maxInput.val());
-                if (!isNaN(currentMax) && currentMax > maxPrice && maxPrice > 0) {
-                  maxInput.val(maxPrice);
-                  priceRange.max = maxPrice;
-                } else if (isNaN(currentMax) || currentMax === 0) {
-                  // If field is empty, set to new max
-                  maxInput.val(maxPrice);
-                }
-              }
+              initializePriceFilter();
+              initializeStockFilter();
+              window.priceSliderInitialized = true;
             }
+            // Note: priceRange stays at 0,0 (no filter) until user explicitly applies a filter
           
           // Display products for current page (this will show search results)
           displayProducts();
@@ -1433,10 +1836,58 @@
           try {
             const allProductsResult = await window.fetchProducts(0, 1000, null, '');
             if (allProductsResult && allProductsResult.items) {
-              // Calculate product count for each category
+              // Get current filters
+              const urlParams = new URLSearchParams(window.location.search);
+              const searchKeyword = urlParams.get('search') || '';
+              
+              // Filter products based on current search and price filter
+              let productsForCounting = allProductsResult.items;
+              
+              // Apply search filter if active
+              if (searchKeyword && searchKeyword.trim() !== '') {
+                const searchTerm = searchKeyword.toLowerCase().trim();
+                productsForCounting = productsForCounting.filter(product => {
+                  const name = (product.name || '').toLowerCase();
+                  const description = (product.description || '').toLowerCase();
+                  const code = (product.code || '').toLowerCase();
+                  return name.includes(searchTerm) || description.includes(searchTerm) || code.includes(searchTerm);
+                });
+              }
+              
+              // Apply price filter if active (only if user has set values)
+              const hasPriceFilter = (priceRange.min > 0 || (priceRange.max > 0 && priceRange.max < 999999999));
+              
+              if (hasPriceFilter) {
+                productsForCounting = productsForCounting.filter(product => {
+                  const productPrice = product.sellingPrice > 0 ? product.sellingPrice : (product.unitPrice > 0 ? product.unitPrice : 0);
+                  if (productPrice === 0) return true;
+                  if (priceRange.min > 0 && productPrice < priceRange.min) return false;
+                  if (priceRange.max > 0 && priceRange.max < 999999999 && productPrice > priceRange.max) return false;
+                  return true;
+                });
+              }
+              
+              // Apply stock filter if active
+              const hasStockFilter = !(stockFilter.showInStock && stockFilter.showOutOfStock);
+              if (hasStockFilter) {
+                productsForCounting = productsForCounting.filter(product => {
+                  const productStock = stockMap.get(product.id) || stockMap.get(String(product.id)) || stockMap.get(Number(product.id)) || 0;
+                  const isOutOfStock = productStock <= 0;
+                  
+                  if (stockFilter.showInStock && !stockFilter.showOutOfStock) {
+                    return !isOutOfStock;
+                  }
+                  if (stockFilter.showOutOfStock && !stockFilter.showInStock) {
+                    return isOutOfStock;
+                  }
+                  return true;
+                });
+              }
+              
+              // Calculate product count for each category based on filtered products
               categories.forEach(category => {
                 const categoryId = String(category.id || '');
-                category.productCount = allProductsResult.items.filter(product => {
+                category.productCount = productsForCounting.filter(product => {
                   const productCatId = String(product.categoryId || '');
                   return productCatId === categoryId;
                 }).length;
@@ -1459,88 +1910,201 @@
       }
     }
     
+    // Reset ALL filters function (globally accessible)
+    function resetPriceFilter() {
+      // Reset price filter
+      const minInput = $('#price-min-input');
+      const maxInput = $('#price-max-input');
+      minInput.val('');
+      maxInput.val('');
+      priceRange.min = 0;
+      priceRange.max = 0;
+      
+      // Reset stock filter
+      stockFilter.showInStock = true;
+      stockFilter.showOutOfStock = true;
+      $('#show-in-stock').prop('checked', true);
+      $('#show-out-of-stock').prop('checked', true);
+      
+      // Reset sort order
+      currentSortOrder = 'default';
+      $('#current-sort-label').html(' Default <i class="fa fa-angle-down"></i>');
+      $('.product-sorting-menu ul li').removeClass('active');
+      $('.product-sorting-menu ul li[data-sort="default"]').addClass('active');
+      
+      // Update category UI - deselect all, select "All"
+      $('#product-categories-list li').removeClass('active');
+      $('#product-categories-list li a').css('color', '');
+      $('#product-categories-list li:first-child').addClass('active');
+      $('#product-categories-list li:first-child a').css('color', '#f379a7');
+      
+      // Reset page
+      currentPage = 1;
+      
+      // Clear URL parameters and redirect to clean shop page
+      window.location.href = window.location.pathname;
+    }
+    
+    // Make resetPriceFilter available globally
+    window.resetPriceFilter = resetPriceFilter;
+    
+    // Make applySortOrder available globally
+    window.applySortOrder = applySortOrder;
+    
     // Initialize price filter input fields
     function initializePriceFilter() {
       const minInput = $('#price-min-input');
       const maxInput = $('#price-max-input');
-      const applyButton = $('#apply-price-filter');
       
       if (!minInput.length || !maxInput.length) {
         return;
       }
       
-      // Set initial values - min is always 100, max is calculated maxPrice
-      const initialMin = 100;
-      const initialMax = maxPrice > 0 ? maxPrice : 1000;
+      // Leave input fields empty - no default values
+      // Price filter only applies when user explicitly sets values
+      minInput.val('');
+      maxInput.val('');
       
-      // Set initial input values (users can clear and change these freely)
-      minInput.val(initialMin);
-      maxInput.val(initialMax);
+      // Set price range to 0 (no filter active)
+      priceRange.min = 0;
+      priceRange.max = 0;
       
-      // Set initial price range (shows all products initially)
-      priceRange.min = initialMin;
-      priceRange.max = initialMax;
-      
-      // Handle apply button click
-      applyButton.on('click', function() {
+      // Use event delegation for button clicks (works even if bound multiple times)
+      $(document).off('click', '#apply-price-filter').on('click', '#apply-price-filter', function() {
         applyPriceFilter();
       });
       
-      // Handle Enter key on input fields
-      minInput.on('keypress', function(e) {
+      $(document).off('click', '#reset-price-filter').on('click', '#reset-price-filter', function() {
+        resetPriceFilter();
+      });
+      
+      // Handle Enter key on input fields using event delegation
+      $(document).off('keypress', '#price-min-input').on('keypress', '#price-min-input', function(e) {
         if (e.which === 13) { // Enter key
           e.preventDefault();
           applyPriceFilter();
         }
       });
       
-      maxInput.on('keypress', function(e) {
+      $(document).off('keypress', '#price-max-input').on('keypress', '#price-max-input', function(e) {
         if (e.which === 13) { // Enter key
           e.preventDefault();
           applyPriceFilter();
         }
       });
-      
-      // No real-time validation - allow users to clear and type freely
-      // Validation only happens when applying the filter
     }
+    
+    // Initialize stock filter checkboxes
+    function initializeStockFilter() {
+      // Read initial state from URL if present
+      const urlParams = new URLSearchParams(window.location.search);
+      const stockParam = urlParams.get('stock');
+      
+      if (stockParam === 'in-stock') {
+        stockFilter.showInStock = true;
+        stockFilter.showOutOfStock = false;
+        $('#show-in-stock').prop('checked', true);
+        $('#show-out-of-stock').prop('checked', false);
+      } else if (stockParam === 'out-of-stock') {
+        stockFilter.showInStock = false;
+        stockFilter.showOutOfStock = true;
+        $('#show-in-stock').prop('checked', false);
+        $('#show-out-of-stock').prop('checked', true);
+      } else {
+        // Default: show all
+        stockFilter.showInStock = true;
+        stockFilter.showOutOfStock = true;
+        $('#show-in-stock').prop('checked', true);
+        $('#show-out-of-stock').prop('checked', true);
+      }
+      
+      // Handle checkbox changes using event delegation
+      $(document).off('change', '#show-in-stock').on('change', '#show-in-stock', function() {
+        stockFilter.showInStock = $(this).is(':checked');
+        updateStockFilterUrl();
+        currentPage = 1;
+        displayProducts();
+        updateActiveFiltersDisplay();
+      });
+      
+      $(document).off('change', '#show-out-of-stock').on('change', '#show-out-of-stock', function() {
+        stockFilter.showOutOfStock = $(this).is(':checked');
+        updateStockFilterUrl();
+        currentPage = 1;
+        displayProducts();
+        updateActiveFiltersDisplay();
+      });
+    }
+    
+    // Update URL with stock filter parameter
+    function updateStockFilterUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      if (stockFilter.showInStock && !stockFilter.showOutOfStock) {
+        urlParams.set('stock', 'in-stock');
+      } else if (!stockFilter.showInStock && stockFilter.showOutOfStock) {
+        urlParams.set('stock', 'out-of-stock');
+      } else {
+        // Both or neither - remove stock param
+        urlParams.delete('stock');
+      }
+      
+      const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+      window.history.pushState({}, '', newUrl);
+    }
+    
+    // Reset stock filter
+    function resetStockFilter() {
+      stockFilter.showInStock = true;
+      stockFilter.showOutOfStock = true;
+      $('#show-in-stock').prop('checked', true);
+      $('#show-out-of-stock').prop('checked', true);
+      updateStockFilterUrl();
+      currentPage = 1;
+      displayProducts();
+      updateActiveFiltersDisplay();
+    }
+    
+    // Make resetStockFilter available globally
+    window.resetStockFilter = resetStockFilter;
     
     // Apply price filter from input fields
     function applyPriceFilter() {
       const minInput = $('#price-min-input');
       const maxInput = $('#price-max-input');
       
-      // Get values from inputs - allow empty values (will use defaults)
+      // Get values from inputs
       let minVal = parseFloat(minInput.val());
       let maxVal = parseFloat(maxInput.val());
       
-      // If min is empty or invalid, use 100 as default
-      if (isNaN(minVal) || minVal < 100) {
-        minVal = 100;
-        minInput.val(minVal);
+      // If both are empty, clear the filter
+      if (isNaN(minVal) && isNaN(maxVal)) {
+        priceRange.min = 0;
+        priceRange.max = 0;
+        currentPage = 1;
+        displayProducts();
+        return;
       }
       
-      // If max is empty or invalid, use maxPrice as default
-      if (isNaN(maxVal) || maxVal < minVal) {
-        maxVal = maxPrice > 0 ? maxPrice : 1000;
+      // If min is empty, use 0
+      if (isNaN(minVal) || minVal < 0) {
+        minVal = 0;
+      }
+      
+      // If max is empty, use a very high value (no upper limit)
+      if (isNaN(maxVal) || maxVal <= 0) {
+        maxVal = 999999999;
+      }
+      
+      // Ensure max is greater than min
+      if (maxVal < minVal) {
+        maxVal = minVal;
         maxInput.val(maxVal);
       }
       
-      // Ensure values are within valid range
-      const validMin = Math.max(100, minVal);
-      const validMax = Math.max(validMin, Math.min(maxVal, maxPrice > 0 ? maxPrice : 10000));
-      
-      // Update input values if they were adjusted
-      if (minVal !== validMin) {
-        minInput.val(validMin);
-      }
-      if (maxVal !== validMax) {
-        maxInput.val(validMax);
-      }
-      
       // Update price range for filtering
-      priceRange.min = validMin;
-      priceRange.max = validMax;
+      priceRange.min = minVal;
+      priceRange.max = maxVal;
       
       // Reset to first page and filter products
       currentPage = 1;
@@ -1561,6 +2125,36 @@
       const currentCategoryId = urlParams.get('category');
       const searchKeyword = urlParams.get('search') || '';
       
+      // Calculate total product count for "All Categories"
+      const totalProductCount = categories.reduce((sum, cat) => sum + (cat.productCount || 0), 0);
+      
+      // Add "All Categories" option first
+      const allCategoriesParams = new URLSearchParams();
+      if (searchKeyword) {
+        allCategoriesParams.set('search', searchKeyword);
+      }
+      const allCategoriesLink = `shop${allCategoriesParams.toString() ? '?' + allCategoriesParams.toString() : ''}`;
+      const allCategoriesActive = !currentCategoryId ? 'active' : '';
+      const allCategoriesItem = $(`
+        <li data-category-id="all"><a href="${allCategoriesLink}" class="${allCategoriesActive}" style="font-weight: ${!currentCategoryId ? '600' : '500'};">All Categories <span id="all-categories-count" class="category-count">(${totalProductCount})</span></a></li>
+      `);
+      
+      allCategoriesItem.find('a').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const urlToNavigate = $(this).attr('href');
+        window.history.pushState({}, '', urlToNavigate);
+        currentPage = 1;
+        loadProducts();
+        
+        $('#product-categories-list li a').removeClass('active');
+        $(this).addClass('active');
+        return false;
+      });
+      
+      categoriesList.append(allCategoriesItem);
+      
       categories.forEach(category => {
         // Preserve search parameter when clicking categories
         const newParams = new URLSearchParams();
@@ -1575,7 +2169,7 @@
         const isActive = currentCategoryId && String(category.id) === String(currentCategoryId);
         const activeClass = isActive ? 'active' : '';
         const listItem = $(`
-          <li><a href="${categoryLink}" class="${activeClass}">${category.name} <span>(${category.productCount || 0})</span></a></li>
+          <li data-category-id="${category.id}"><a href="${categoryLink}" class="${activeClass}">${category.name} <span class="category-count">(${category.productCount || 0})</span></a></li>
         `);
         
         // Prevent default navigation and handle with JavaScript to avoid scroll to top
@@ -1658,6 +2252,12 @@
         $('#search-input').val('');
         $('#search-results-message').hide();
       }
+      
+      // Clear price filter inputs on page load (no default values)
+      $('#price-min-input').val('');
+      $('#price-max-input').val('');
+      priceRange.min = 0;
+      priceRange.max = 0;
       
       // Prevent default price slider initialization from rangeSlider.js
       // We'll initialize it after products are loaded with correct min/max values
@@ -1795,6 +2395,23 @@
           thumbnailsContainer.hide();
         }
         
+        // Get stock level for this product (try both number and string keys)
+        const productStock = product.maxStock !== undefined ? product.maxStock : (stockMap.get(product.id) || stockMap.get(String(product.id)) || stockMap.get(Number(product.id)) || 0);
+        const isOutOfStock = productStock <= 0;
+        
+        // Stock info HTML
+        let stockInfoHtml = '';
+        if (isOutOfStock) {
+          stockInfoHtml = '<div class="modal-stock-info out-of-stock"><i class="ion-close-circled"></i> Out of Stock</div>';
+        } else if (productStock <= 5) {
+          stockInfoHtml = `<div class="modal-stock-info low-stock"><i class="ion-alert-circled"></i> Only ${productStock} left in stock - order soon!</div>`;
+        } else {
+          stockInfoHtml = `<div class="modal-stock-info in-stock"><i class="ion-checkmark-circled"></i> In Stock (${productStock} available)</div>`;
+        }
+        
+        // Update product with maxStock for cart
+        product.maxStock = productStock;
+        
         // Update modal content
         const modalContent = `
           <div class="single-product-info">
@@ -1811,14 +2428,17 @@
                 <span class="fa fa-star"></span>
               </div>
             </div>
+            ${stockInfoHtml}
             <p class="product-desc">${productDescription}</p>
             <div class="quick-product-action">
               <div class="action-top">
+                ${isOutOfStock ? '' : `
                 <div class="pro-qty">
-                  <input type="text" id="modal-quantity" title="Quantity" value="1" min="1" />
+                  <input type="text" id="modal-quantity" title="Quantity" value="1" min="1" max="${productStock}" data-max-stock="${productStock}" />
                 </div>
                 <button class="btn btn-theme add-to-cart-btn" data-product='${JSON.stringify(product)}'>Add to Cart</button>
-                <a class="btn-wishlist add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(product)}">Add to Wishlist</a>
+                `}
+                <a class="btn-wishlist add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(product)}'>Add to Wishlist</a>
               </div>
             </div>
           </div>
@@ -1901,10 +2521,15 @@
         const $button = $(this);
         const $input = $button.parent().find('input');
         const oldValue = parseInt($input.val()) || 1;
+        const maxStock = parseInt($input.attr('data-max-stock')) || 9999;
         
         if ($button.hasClass('inc')) {
           const newVal = oldValue + 1;
-          $input.val(newVal);
+          if (newVal <= maxStock) {
+            $input.val(newVal);
+          } else {
+            showToast(`Maximum available quantity is ${maxStock}`, 'warning');
+          }
         } else if ($button.hasClass('dec')) {
           if (oldValue > 1) {
             const newVal = oldValue - 1;
@@ -1912,6 +2537,51 @@
           } else {
             $input.val(1);
           }
+        }
+      });
+      
+      // Handle direct input change for quantity (both change and input events)
+      $(document).on('change input', '.product-quick-view-modal #modal-quantity', function(e) {
+        const $input = $(this);
+        const maxStock = parseInt($input.attr('data-max-stock')) || parseInt($input.attr('max')) || 9999;
+        let value = parseInt($input.val()) || 1;
+        
+        if (value < 1) {
+          value = 1;
+          $input.val(value);
+        } else if (value > maxStock) {
+          value = maxStock;
+          $input.val(value);
+          if (e.type === 'change') {
+            showToast(`Maximum available quantity is ${maxStock}`, 'warning');
+          }
+        }
+      });
+      
+      // Also handle blur to ensure final value is valid
+      $(document).on('blur', '.product-quick-view-modal #modal-quantity', function() {
+        const $input = $(this);
+        const maxStock = parseInt($input.attr('data-max-stock')) || parseInt($input.attr('max')) || 9999;
+        let value = parseInt($input.val()) || 1;
+        
+        if (value < 1) value = 1;
+        if (value > maxStock) {
+          value = maxStock;
+          showToast(`Maximum available quantity is ${maxStock}`, 'warning');
+        }
+        $input.val(value);
+      });
+      
+      // Handle keyup to validate while typing
+      $(document).on('keyup', '.product-quick-view-modal #modal-quantity', function(e) {
+        const $input = $(this);
+        const maxStock = parseInt($input.attr('data-max-stock')) || parseInt($input.attr('max')) || 9999;
+        let value = parseInt($input.val());
+        
+        // Only validate if it's a number
+        if (!isNaN(value) && value > maxStock) {
+          $input.val(maxStock);
+          showToast(`Maximum available quantity is ${maxStock}`, 'warning');
         }
       });
     }
