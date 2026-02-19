@@ -47,23 +47,78 @@
     $(this).css('background-image', 'url(' + $(this).data("bg-img") + ')');
   });
 
-  // Off Canvas JS
+  // Off Canvas JS - use delegation so menu icon works on all pages (e.g. shop?category=25) even if DOM is updated later
   var canvasWrapper = $(".off-canvas-wrapper");
-  $(".btn-menu").on('click', function() {
-    canvasWrapper.addClass('active');
+  $(document).off('click.btn-menu').on('click.btn-menu', '.btn-menu', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(".off-canvas-wrapper").addClass('active');
   });
-  $(".close-action > .btn-close, .off-canvas-overlay").on('click', function() {
-    canvasWrapper.removeClass('active');
+  $(document).off('click.offcanvas-close').on('click.offcanvas-close', '.off-canvas-wrapper .close-action .btn-close, .off-canvas-wrapper .off-canvas-overlay', function() {
+    $(".off-canvas-wrapper").removeClass('active');
   });
 
-  //Responsive Slicknav JS
-  $('.main-menu').slicknav({
-    appendTo: '.res-mobile-menu',
-    closeOnClick: true,
-    removeClasses: true,
-    closedSymbol: '<i class="fa fa-angle-down"></i>',
-    openedSymbol: '<i class="fa fa-angle-up"></i>'
-  });
+  // Build main navigation: Home + up to 5 main categories, then init Slicknav (mobile)
+  (function initMainNav() {
+    var $menu = $('.main-menu');
+    if (!$menu.length) return;
+
+    function buildNav(categories) {
+      var list = categories || [];
+      var mainCategories = list.slice(0, 5);
+      var $first = $menu.find('li:first');
+      $menu.find('li').not($first).remove();
+      mainCategories.forEach(function(cat) {
+        var name = $('<div>').text(cat.name).html();
+        $menu.append('<li class="has-submenu nav-category-item"><a href="shop?category=' + encodeURIComponent(cat.id) + '">' + name + ' <i class="fa fa-chevron-down nav-category-chevron" aria-hidden="true"></i></a></li>');
+      });
+      // Set active state from current URL
+      var path = window.location.pathname || '';
+      var params = new URLSearchParams(window.location.search || '');
+      var categoryId = params.get('category');
+      $menu.find('li').removeClass('active');
+      if (!path || path === '/' || path.toLowerCase().endsWith('index.html')) {
+        $first.addClass('active');
+      } else if (categoryId) {
+        $menu.find('a[href*="category=' + encodeURIComponent(categoryId) + '"]').parent('li').addClass('active');
+        if (!$menu.find('li.active').length) $first.addClass('active');
+      } else {
+        $first.addClass('active');
+      }
+    }
+
+    function initSlicknav() {
+      var $menu = $('.main-menu');
+      var $target = $('.res-mobile-menu');
+      if (!$menu.length || !$target.length) return;
+      // If Slicknav was already inited, remove it so we can create a fresh one (e.g. after categories load)
+      if ($menu.data('plugin_slicknav')) {
+        $target.empty();
+        $menu.removeData('plugin_slicknav');
+      }
+      $menu.slicknav({
+        appendTo: '.res-mobile-menu',
+        closeOnClick: true,
+        removeClasses: true,
+        closedSymbol: '<i class="fa fa-angle-down"></i>',
+        openedSymbol: '<i class="fa fa-angle-up"></i>'
+      });
+    }
+
+    // Always init immediately so mobile menu works on every page (with at least Home)
+    buildNav([]);
+    initSlicknav();
+
+    if (typeof window.fetchCategories === 'function') {
+      window.fetchCategories().then(function(cats) {
+        buildNav(cats || []);
+        initSlicknav();
+      }).catch(function() {
+        buildNav([]);
+        initSlicknav();
+      });
+    }
+  })();
 
   // Search Box JS
   var searchwrapper = $(".search-box-wrapper");
@@ -266,8 +321,8 @@
 
   // Swipper JS
 
-  // Home Two Slider
-  var swiper = new Swiper('.home-slider-container', {
+  // Home Slider (multi-slide with pagination)
+  var homeSwiper = new Swiper('.home-slider-container', {
     slidesPerView: 1,
     loop: true,
     spaceBetween: 0,
@@ -275,6 +330,23 @@
     fadeEffect: {
       crossFade: true,
     },
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
+    pagination: {
+      el: '.home-slider-container .swiper-pagination',
+      clickable: true,
+    },
+    on: {
+      init: function() {
+        // Apply background images to all slides (including Swiper's loop clones) so every slide shows its image
+        $('.home-slider-container [data-bg-img]').each(function() {
+          var url = $(this).attr('data-bg-img');
+          if (url) $(this).css('background-image', 'url(' + url + ')');
+        });
+      }
+    }
   });
 
   // Gallery Trends Slider
