@@ -141,23 +141,9 @@
           </div>
           <div class="col-lg-8 sticky-md-none">
             <div class="header-navigation-area d-none d-md-block">
-              <ul class="main-menu nav position-relative">
-                <li class="active"><a class="ml--2" href="/">Home</a></li>
-                <li><a href="about">About</a></li>
-                <!-- <li class="has-submenu"><a href="index">Pages</a>
-                  <ul class="submenu-nav">
-                    <li><a href="shop-cart">Cart page</a></li>
-                    <li><a href="shop-checkout">Checkout</a></li>
-                    <li><a href="my-account">My Account</a></li>
-                    <li><a href="shop-wishlist">Wishlist</a></li>
-                    <li><a href="shop-compare">Compare</a></li>
-                    <li><a href="login-register">Login / Register</a></li>
-                    <li><a href="coming-soon">Coming soon</a></li>
-                    <li><a href="page-not-found">404</a></li>
-                  </ul>
-                </li> -->
-                <li><a href="shop">Shop</a></li>
-                <li><a href="contact">Contact</a></li>
+              <ul class="main-menu nav position-relative" id="main-nav-menu">
+                <li><a class="ml--2" href="/">Home</a></li>
+                <!-- Main category links are injected by JS (up to 5 categories) -->
               </ul>
             </div>
           </div>
@@ -202,18 +188,18 @@
       <div class="home-slider-content">
         <div class="swiper-container home-slider-container">
           <div class="swiper-wrapper">
+            <!-- Slide 1 -->
             <div class="swiper-slide">
-              <!-- Start Slide Item -->
               <div class="home-slider-item">
-                <div class="thumb-one bg-img" data-bg-img="/assets/img/slider/31.jpg"></div>
+                <div class="thumb-one bg-img" data-bg-img="/assets/img/slider/31.jpg" style="background-image: url('/assets/img/slider/31.jpg');"></div>
                 <div class="slider-content-area">
                   <div class="container">
                     <div class="row">
                       <div class="col-sm-6">
                         <div class="content">
                           <div class="inner-content">
-                            <h2>Best Kids Store & Online Shop</h2>
-                            <p>Give The Gift Of Your Children Everyday</p>
+                            <h2>Making Every Childhood Moment Magical.</h2>
+                            <p>Curated educational toys and accessories delivered straight to your door, islandwide.</p>
                             <a href="shop" class="btn-theme">Shop This Now</a>
                           </div>
                         </div>
@@ -221,15 +207,82 @@
                     </div>
                   </div>
                   <img class="thumb-two" src="/assets/img/new/441.png" alt="Image">
-                  <!-- <img class="thumb-three" src="/assets/img/slider/3.png" alt="Image">
-                  <img class="thumb-four" src="/assets/img/photos/3.png" alt="Image"> -->
                 </div>
                 <div class="shape-top bg-img" data-bg-img="/assets/img/photos/1.png"></div>
                 <div class="shape-bottom bg-img" data-bg-img="/assets/img/photos/2.png"></div>
               </div>
-              <!-- End Slide Item -->
+            </div>
+            <!-- Slide 2 -->
+            <div class="swiper-slide">
+              <div class="home-slider-item">
+                <div class="thumb-one bg-img" data-bg-img="/assets/img/new/slide2.jpeg" style="background-image: url('/assets/img/new/slide2.jpeg');"></div>
+                <div class="slider-content-area">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <div class="content">
+                          <div class="inner-content">
+                            <h2>Thoughtful Gifts for Their Brightest Beginnings</h2>
+                            <p>Curated educational toys and accessories delivered straight to your door, islandwide.</p>
+                            <a href="shop" class="btn-theme">Shop This Now</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="shape-top bg-img" data-bg-img="/assets/img/photos/1.png"></div>
+                <div class="shape-bottom bg-img" data-bg-img="/assets/img/photos/2.png"></div>
+              </div>
+            </div>
+            <!-- Slide 3 (content right-aligned) -->
+            <div class="swiper-slide">
+              <div class="home-slider-item">
+                <div class="thumb-one bg-img" data-bg-img="/assets/img/new/slide3.jpeg" style="background-image: url('/assets/img/new/slide3.jpeg');"></div>
+                <div class="slider-content-area">
+                  <div class="container">
+                    <div class="row justify-content-end">
+                      <div class="col-sm-6">
+                        <div class="content text-end">
+                          <div class="inner-content">
+                            <h2>Where Little Smiles Find Their Favourite Things</h2>
+                            <p>Curated educational toys and accessories delivered straight to your door, islandwide.</p>
+                            <a href="shop" class="btn-theme">Shop This Now</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="shape-top bg-img" data-bg-img="/assets/img/photos/1.png"></div>
+                <div class="shape-bottom bg-img" data-bg-img="/assets/img/photos/2.png"></div>
+              </div>
+            </div>
+            <!-- Slide 4 -->
+            <div class="swiper-slide">
+              <div class="home-slider-item">
+                <div class="thumb-one bg-img" data-bg-img="/assets/img/new/slide4.jpeg" style="background-image: url('/assets/img/new/slide4.jpeg');"></div>
+                <div class="slider-content-area">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <div class="content">
+                          <div class="inner-content">
+                            <h2>Awaken Their Senses, Inspire Their World.</h2>
+                            <p>Curated educational toys and accessories delivered straight to your door, islandwide.</p>
+                            <a href="shop" class="btn-theme">Shop This Now</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="shape-top bg-img" data-bg-img="/assets/img/photos/1.png"></div>
+                <div class="shape-bottom bg-img" data-bg-img="/assets/img/photos/2.png"></div>
+              </div>
             </div>
           </div>
+          <div class="swiper-pagination"></div>
         </div>
       </div>
     </section>

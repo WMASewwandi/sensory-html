@@ -2503,28 +2503,54 @@ table p {
   }
 }
 .header-area.header-default .header-navigation-area .main-menu {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: center;
   left: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 .header-area.header-default .header-navigation-area .main-menu > li {
   margin: 0;
   padding: 0;
+  display: inline-block;
+  white-space: nowrap;
 }
 .header-area.header-default .header-navigation-area .main-menu > li > a {
-  color: #000;
+  color: #333;
   font-weight: 500;
   font-size: 14px;
-  padding: 0;
-  margin: 0 30px;
-  text-transform: uppercase;
+  padding: 0 10px;
+  margin: 0 14px;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.header-area.header-default .header-navigation-area .main-menu > li.active > a {
+  color: #1ab5a3;
+}
+.header-area.header-default .header-navigation-area .main-menu .nav-category-item > a:after {
+  display: none;
+}
+.header-area.header-default .header-navigation-area .main-menu .nav-category-chevron {
+  font-size: 10px;
+  margin-left: 5px;
+  opacity: 0.85;
+  vertical-align: middle;
 }
 @media only screen and (max-width: 1199px) {
   .header-area.header-default .header-navigation-area .main-menu > li > a {
-    margin: 0 17px;
+    margin: 0 10px;
   }
 }
 .header-area.header-default .header-navigation-area .main-menu > li > a:hover {
   color: #f379a7;
+}
+.header-area.header-default .header-navigation-area .main-menu > li.active > a:hover {
+  color: #1ab5a3;
 }
 .header-area.header-default .header-navigation-area .main-menu .has-submenu > a:after {
   color: #000;
@@ -2550,6 +2576,11 @@ table p {
 }
 .header-area.header-default .header-navigation-area .main-menu .has-submenu:hover > a:after {
   color: #f379a7;
+}
+/* Single arrow only: hide theme's :after chevron for nav categories (we use inline icon) */
+.header-area.header-default .header-navigation-area .main-menu .nav-category-item.has-submenu > a:after {
+  display: none !important;
+  content: none !important;
 }
 .header-area.header-default .header-action-area {
   align-items: center;
