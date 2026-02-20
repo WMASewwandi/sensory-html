@@ -163,6 +163,14 @@
           width: 7%;
         }
       }
+      &.slide-2 {
+        .slider-content-area .content .inner-content {
+          h2,
+          p {
+            color: #fff;
+          }
+        }
+      }
       &.item-two {
         .bg-thumb {
           @media #{$xs-device} {

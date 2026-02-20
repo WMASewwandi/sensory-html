@@ -140,11 +140,19 @@
             </div>
           </div>
           <div class="col-lg-8 sticky-md-none">
-            <div class="header-navigation-area d-none d-md-block">
-              <ul class="main-menu nav position-relative" id="main-nav-menu">
-                <li><a class="ml--2" href="/">Home</a></li>
-                <!-- Main category links are injected by JS (up to 5 categories) -->
-              </ul>
+            <div class="header-nav-scroll-wrap">
+              <button type="button" class="nav-scroll-btn nav-scroll-left" aria-label="Scroll menu left">
+                <i class="fa fa-angle-left"></i>
+              </button>
+              <div class="header-navigation-area d-none d-md-block">
+                <ul class="main-menu nav position-relative" id="main-nav-menu">
+                  <li><a class="ml--2" href="/">Home</a></li>
+                  <!-- Main category links are injected by JS (up to 5 categories) -->
+                </ul>
+              </div>
+              <button type="button" class="nav-scroll-btn nav-scroll-right" aria-label="Scroll menu right">
+                <i class="fa fa-angle-right"></i>
+              </button>
             </div>
           </div>
           <div class="col-8 col-sm-6 col-lg-2">
@@ -214,7 +222,7 @@
             </div>
             <!-- Slide 2 -->
             <div class="swiper-slide">
-              <div class="home-slider-item">
+              <div class="home-slider-item slide-2">
                 <div class="thumb-one bg-img" data-bg-img="/assets/img/new/slide2.jpeg" style="background-image: url('/assets/img/new/slide2.jpeg');"></div>
                 <div class="slider-content-area">
                   <div class="container">
@@ -1058,10 +1066,10 @@
   <!--== Start Product Quick View ==-->
   <aside class="product-quick-view-modal">
     <div class="product-quick-view-inner">
+      <button type="button" class="btn-close product-quick-view-close">
+        <span class="pe-7s-close"><i class="lastudioicon-e-remove"></i></span>
+      </button>
       <div class="product-quick-view-content">
-        <button type="button" class="btn-close">
-          <span class="pe-7s-close"><i class="lastudioicon-e-remove"></i></span>
-        </button>
         <div class="row row-gutter-0">
           <div class="col-lg-6 col-md-6 col-12">
             <div class="thumb">
@@ -1217,12 +1225,14 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    overflow: hidden !important;
+    overflow-x: visible !important;
+    overflow-y: auto !important;
     padding: 20px !important;
   }
   
   .product-quick-view-modal.active {
-    overflow: hidden !important;
+    overflow-x: visible !important;
+    overflow-y: auto !important;
   }
   
   .product-quick-view-inner {
@@ -1233,12 +1243,13 @@
     display: flex !important;
     align-items: center !important;
     transform: translate(0, 0) !important;
+    overflow: visible !important;
   }
   
   .product-quick-view-content {
     max-height: 90vh !important;
     overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow-x: visible !important;
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;

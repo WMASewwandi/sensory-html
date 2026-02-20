@@ -142,11 +142,19 @@
             </div>
           </div>
           <div class="col-lg-8 sticky-md-none">
-            <div class="header-navigation-area d-none d-md-block">
-              <ul class="main-menu nav position-relative" id="main-nav-menu">
-                <li><a class="ml--2" href="/">Home</a></li>
-                <!-- Main category links are injected by JS (up to 5 categories) -->
-              </ul>
+            <div class="header-nav-scroll-wrap">
+              <button type="button" class="nav-scroll-btn nav-scroll-left" aria-label="Scroll menu left">
+                <i class="fa fa-angle-left"></i>
+              </button>
+              <div class="header-navigation-area d-none d-md-block">
+                <ul class="main-menu nav position-relative" id="main-nav-menu">
+                  <li><a class="ml--2" href="/">Home</a></li>
+                  <!-- Main category links are injected by JS (up to 5 categories) -->
+                </ul>
+              </div>
+              <button type="button" class="nav-scroll-btn nav-scroll-right" aria-label="Scroll menu right">
+                <i class="fa fa-angle-right"></i>
+              </button>
             </div>
           </div>
           <div class="col-8 col-sm-6 col-lg-2">
@@ -413,10 +421,10 @@
   <!--== Start Product Quick View ==-->
   <aside class="product-quick-view-modal">
     <div class="product-quick-view-inner">
+      <button type="button" class="btn-close product-quick-view-close">
+        <span class="pe-7s-close"><i class="lastudioicon-e-remove"></i></span>
+      </button>
       <div class="product-quick-view-content">
-        <button type="button" class="btn-close">
-          <span class="pe-7s-close"><i class="lastudioicon-e-remove"></i></span>
-        </button>
         <div class="row row-gutter-0">
           <div class="col-lg-6 col-md-6 col-12">
             <div class="thumb">
