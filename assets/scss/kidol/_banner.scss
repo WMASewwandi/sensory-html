@@ -78,13 +78,20 @@
         min-height: 520px;
       }
       @media #{$xs-device} {
-        min-height: auto;
-        padding: 80px 0 60px;
+        min-height: 60vh;
+        padding: 50px 20px 40px;
       }
       .bg-img {
-        height: 100%;
         position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
         width: 100%;
+        background-repeat: no-repeat !important;
+        background-size: cover !important;
+        @media #{$xs-device} {
+          background-position: center center;
+        }
       }
       .home-slider-overlay {
         position: absolute;
@@ -192,10 +199,12 @@
       }
       .shape-bottom {
         position: absolute;
+        top: auto;
         bottom: 0;
+        left: 0;
         width: 100%;
         height: 155px;
-        z-index: 2;
+        z-index: 3;
         pointer-events: none;
         @media #{$sm-device} {
           height: 90px;
