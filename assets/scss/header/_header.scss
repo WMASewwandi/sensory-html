@@ -36,7 +36,7 @@
     }
     .header-navigation-area {
       .main-menu {
-        justify-content: center;
+        justify-content: flex-start;
         left: 14px;
         & > li {
           margin: 0;
@@ -432,8 +432,46 @@
   }
 
   &.sticky-header {
+    .header-nav-scroll-wrap {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 4px;
+    }
+    .header-navigation-area {
+      min-width: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
     .nav-scroll-btn {
-      display: none;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 50%;
+      background: #fff;
+      color: #333;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+      &:hover:not(:disabled) {
+        background: $theme-color;
+        color: $white;
+        border-color: $theme-color;
+      }
+      &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
     }
     &.sticky {
       animation: 300ms ease-in-out 0s normal none 1 running fadeInDown;
@@ -456,7 +494,6 @@
         flex-shrink: 0;
         display: flex;
         align-items: center;
-        align-items: center;
         justify-content: center;
         width: 32px;
         height: 32px;
@@ -467,7 +504,7 @@
         color: #333;
         cursor: pointer;
         transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-        &:hover {
+        &:hover:not(:disabled) {
           background: $theme-color;
           color: $white;
           border-color: $theme-color;

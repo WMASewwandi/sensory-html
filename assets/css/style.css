@@ -2506,7 +2506,7 @@ table p {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   left: 14px;
   list-style: none;
   margin: 0;
@@ -2522,8 +2522,8 @@ table p {
   color: #333;
   font-weight: 500;
   font-size: 14px;
-  padding: 0 10px;
-  margin: 0 14px;
+  padding: 0 8px;
+  margin: 0 10px;
   text-transform: none;
   display: inline-flex;
   align-items: center;
@@ -2543,7 +2543,8 @@ table p {
 }
 @media only screen and (max-width: 1199px) {
   .header-area.header-default .header-navigation-area .main-menu > li > a {
-    margin: 0 10px;
+    margin: 0 8px;
+    padding: 0 6px;
   }
 }
 .header-area.header-default .header-navigation-area .main-menu > li > a:hover {
@@ -2574,8 +2575,66 @@ table p {
 .header-area.header-default .header-navigation-area .main-menu .has-submenu:hover > a {
   color: #f379a7;
 }
-.header-area.header-default .header-navigation-area .main-menu .has-submenu:hover > a:after {
+.header-area.header-default .header-navigation-area .main-menu .has-submenu:hover > a:after,
+.header-area.header-default .header-navigation-area .main-menu .has-submenu.nav-dropdown-open > a:after {
   color: #f379a7;
+}
+/* Subnav is controlled by JS so repeated clicks do not leave it pinned at top-left */
+.header-area.header-default .header-navigation-area .main-menu .has-submenu.nav-dropdown-open > .submenu-nav {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.header-area.header-default .header-navigation-area .main-menu .has-submenu:not(.nav-dropdown-open) > .submenu-nav {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.header-area.header-default .header-navigation-area .main-menu .has-submenu:hover > a,
+.header-area.header-default .header-navigation-area .main-menu .has-submenu.nav-dropdown-open > a {
+  color: #f379a7;
+}
+.header-area.header-default .header-navigation-area.nav-has-dropdown-open {
+  overflow: visible !important;
+}
+/* Prevent subnav from overlapping arrows: right-align when it would overflow */
+.header-area .header-navigation-area .main-menu .has-submenu.dropdown-align-right .submenu-nav {
+  left: auto;
+  right: 0;
+}
+/* Subnav UI: light card style */
+.header-area.header-default .header-navigation-area .main-menu .has-submenu .submenu-nav {
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 8px 0;
+  margin-top: 0;
+  min-width: 220px;
+  max-width: min(280px, calc(100vw - 120px));
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1100;
+  pointer-events: none;
+}
+.header-area.header-default .header-navigation-area .main-menu .has-submenu .submenu-nav:before {
+  display: none;
+}
+.header-area.header-default .header-navigation-area .main-menu .has-submenu .submenu-nav > li a {
+  color: #333;
+  padding: 10px 20px;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+.header-area.header-default .header-navigation-area .main-menu .has-submenu .submenu-nav > li a:hover {
+  color: #f379a7;
+  background: rgba(243, 121, 167, 0.08);
+  text-decoration: none;
+}
+.header-area.header-default .header-navigation-area .main-menu .has-submenu .submenu-nav > li.active > a {
+  color: #f379a7;
+  background: rgba(243, 121, 167, 0.08);
 }
 /* Single arrow only: hide theme's :after chevron for nav categories (we use inline icon) */
 .header-area.header-default .header-navigation-area .main-menu .nav-category-item.has-submenu > a:after {
@@ -2964,8 +3023,88 @@ table p {
     display: none !important;
   }
 }
-.header-area.sticky-header .nav-scroll-btn {
+/* When page is at top (not sticky): full-width navbar; sticky navbar unchanged */
+.header-area.sticky-header:not(.sticky) {
+  width: 100%;
+}
+.header-area.sticky-header:not(.sticky) .container {
+  max-width: 100%;
+  width: 100%;
+}
+@media only screen and (min-width: 1200px) {
+  .header-area.sticky-header:not(.sticky) .container {
+    max-width: 100%;
+  }
+}
+.header-area.sticky-header:not(.sticky) .row.row-gutter-0 > .sticky-md-none {
+  flex: 1 1 0;
+  min-width: 0;
+}
+/* Nav scroll: wrap and arrows always visible when header has sticky-header */
+.header-area.sticky-header .header-nav-scroll-wrap {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 4px;
+}
+.header-area.sticky-header .header-navigation-area {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.header-area.sticky-header .header-navigation-area.nav-has-dropdown-open {
+  overflow: visible !important;
+}
+.header-area.sticky-header .header-navigation-area::-webkit-scrollbar {
   display: none;
+}
+.header-area.header-default .header-navigation-area .main-menu > li.has-submenu {
+  position: relative;
+}
+.header-area.sticky-header .header-nav-scroll-wrap,
+.header-area.sticky-header .header-navigation-area {
+  position: relative;
+}
+.header-area.sticky-header .nav-scroll-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  position: relative;
+  z-index: 3;
+}
+.header-area.sticky-header .header-logo-area,
+.header-area.sticky-header .header-action-area {
+  position: relative;
+  z-index: 3;
+  background: #fff;
+}
+.header-area.sticky-header .header-logo-area {
+  padding-right: 12px;
+}
+.header-area.sticky-header .header-action-area {
+  padding-left: 12px;
+}
+.header-area.sticky-header .nav-scroll-btn:hover:not(:disabled) {
+  background: #1ab5a3;
+  color: #fff;
+  border-color: #1ab5a3;
+}
+.header-area.sticky-header .nav-scroll-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .header-area.sticky-header.sticky .header-nav-scroll-wrap {
   display: flex;
@@ -2988,7 +3127,7 @@ table p {
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
-.header-area.sticky-header.sticky .nav-scroll-btn:hover {
+.header-area.sticky-header.sticky .nav-scroll-btn:hover:not(:disabled) {
   background: #1ab5a3;
   color: #fff;
   border-color: #1ab5a3;
@@ -3005,6 +3144,9 @@ table p {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+.header-area.sticky-header.sticky .header-navigation-area.nav-has-dropdown-open {
+  overflow: visible !important;
+}
 .header-area.sticky-header.sticky .header-navigation-area::-webkit-scrollbar {
   display: none;
 }
@@ -3019,6 +3161,48 @@ table p {
 .header-area.sticky-header.sticky .sticky-md-none {
   min-width: 0;
   overflow: hidden;
+}
+.header-area.sticky-header.sticky .sticky-md-none.nav-has-dropdown-open {
+  overflow: visible !important;
+}
+.header-area.sticky-header.sticky .header-navigation-area .main-menu .has-submenu .submenu-nav {
+  z-index: 1001;
+}
+.header-area.sticky-header.sticky .header-navigation-area .main-menu .has-submenu.nav-dropdown-open > .submenu-nav {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.header-area.sticky-header.sticky .header-navigation-area .main-menu .has-submenu:not(.nav-dropdown-open) > .submenu-nav {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.header-area.sticky-header.sticky .header-navigation-area .main-menu .has-submenu .submenu-nav {
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 8px 0;
+  margin-top: 0;
+  min-width: 220px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1100;
+  pointer-events: none;
+}
+.header-area.sticky-header.sticky .header-navigation-area .main-menu .has-submenu .submenu-nav:before {
+  display: none;
+}
+.header-area.sticky-header.sticky .header-navigation-area .main-menu .has-submenu .submenu-nav > li a {
+  color: #333;
+  padding: 10px 20px;
+}
+.header-area.sticky-header.sticky .header-navigation-area .main-menu .has-submenu .submenu-nav > li a:hover {
+  color: #f379a7;
+  background: rgba(243, 121, 167, 0.08);
+  text-decoration: none;
 }
 @media only screen and (max-width: 991px) {
   .header-area.sticky-header.sticky .sticky-md-none {
@@ -7349,6 +7533,20 @@ table p {
 .category-area.product-category1-area .category-items1 .category-item .thumb {
   background-color: #fcdcea;
   min-height: 240px;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+}
+.category-area.product-category1-area .category-items1 .category-item .thumb:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(87, 106, 108, 0.85);
+  z-index: 1;
   transition: all 0.3s ease-in-out;
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
@@ -7367,6 +7565,9 @@ table p {
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb:hover {
   background-color: #e4f6fe;
+}
+.category-area.product-category1-area .category-items1 .category-item .thumb:hover:before {
+  background-color: rgba(87, 106, 108, 0.78);
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb img {
   position: absolute;
@@ -7416,13 +7617,15 @@ table p {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  width: 100%;
+  z-index: 2;
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb .content .contact-info {
   margin-top: 33px;
   margin-left: 31px;
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb .content .contact-info .title {
-  color: #000;
+  color: #fff;
   font-size: 30px;
 }
 @media only screen and (max-width: 575px) {
@@ -7431,7 +7634,7 @@ table p {
   }
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb .content .contact-info .price {
-  color: #000;
+  color: #fff;
   font-size: 24px;
 }
 @media only screen and (max-width: 575px) {
@@ -7440,7 +7643,7 @@ table p {
   }
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb .content .btn-link {
-  color: #000;
+  color: #fff;
   font-family: "Fredoka One", cursive;
   font-weight: 400;
   font-size: 16px;
@@ -7454,6 +7657,7 @@ table p {
   -o-transition: all 0.3s ease-in-out;
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb .content .btn-link:hover {
+  color: #fff;
   text-decoration: underline;
 }
 .category-area.product-category2-area {
