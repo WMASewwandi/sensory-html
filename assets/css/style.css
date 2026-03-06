@@ -4058,11 +4058,152 @@ table p {
   background-color: #b8dcb6;
   overflow: hidden;
   position: relative;
+  min-height: 737px;
+}
+@media (max-width: 1399px) {
+  .home-slider-area.slider-default .home-slider-item {
+    min-height: 840px;
+  }
+}
+@media (max-width: 1199px) {
+  .home-slider-area.slider-default .home-slider-item {
+    min-height: 680px;
+  }
+}
+@media (max-width: 991px) {
+  .home-slider-area.slider-default .home-slider-item {
+    min-height: 620px;
+  }
+}
+@media (max-width: 767px) {
+  .home-slider-area.slider-default .home-slider-item {
+    min-height: 520px;
+  }
+}
+@media (max-width: 575px) {
+  .home-slider-area.slider-default .home-slider-item {
+    min-height: auto;
+    padding: 80px 0 60px;
+  }
 }
 .home-slider-area.slider-default .home-slider-item .bg-img {
   height: 100%;
   position: absolute;
   width: 100%;
+}
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background-color: rgba(135, 182, 188, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content {
+  text-align: center;
+  max-width: 800px;
+  padding: 2rem;
+  opacity: 0;
+}
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content.slide-content-animate {
+  animation-delay: 0.3s;
+  animation-duration: 1.25s;
+  animation-fill-mode: both;
+  animation-name: fadeInUp;
+}
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content h2,
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content p,
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content .btn-theme {
+  color: #fff;
+}
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content h2 {
+  font-size: 72px;
+  font-weight: 400;
+  line-height: 1.16;
+  margin-bottom: 14px;
+}
+@media only screen and (max-width: 1199px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content h2 {
+    font-size: 54px;
+    line-height: 1.2;
+  }
+}
+@media only screen and (max-width: 991px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content h2 {
+    font-size: 46px;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content h2 {
+    font-size: 33px;
+  }
+}
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content p {
+  font-family: "Fredoka One", cursive;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.875;
+  margin-bottom: 40px;
+}
+@media only screen and (max-width: 1199px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content p {
+    line-height: 1.4;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+@media only screen and (max-width: 991px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content p {
+    max-width: 380px;
+    margin-bottom: 30px;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content p {
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
+}
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content .btn-theme {
+  border-color: #fff;
+  height: 60px;
+  line-height: 59px;
+  font-family: "Fredoka One", cursive;
+  font-weight: 400;
+  font-size: 16px;
+  padding: 0 44px;
+}
+@media only screen and (max-width: 1199px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content .btn-theme {
+    font-size: 16px;
+  }
+}
+@media only screen and (max-width: 991px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content .btn-theme {
+    font-size: 15px;
+    height: auto;
+    padding: 0 32px;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content .btn-theme {
+    font-size: 13px;
+    line-height: 1;
+    padding: 16px 25px;
+  }
+}
+@media only screen and (max-width: 479.98px) {
+  .home-slider-area.slider-default .home-slider-item .home-slider-overlay-content .btn-theme {
+    font-size: 13px;
+    line-height: 1;
+    padding: 10px 25px;
+  }
+}
+.home-slider-area.slider-default .home-slider-item .home-slider-overlay-content .btn-theme:hover {
+  color: #333;
+  background-color: #fff;
 }
 .home-slider-area.slider-default .home-slider-item .shape-top {
   position: absolute;

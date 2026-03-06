@@ -64,10 +64,123 @@
       background-color: #b8dcb6;
       overflow: hidden;
       position: relative;
+      min-height: 737px;
+      @media (max-width: 1399px) {
+        min-height: 840px;
+      }
+      @media #{$lg-device} {
+        min-height: 680px;
+      }
+      @media #{$md-device} {
+        min-height: 620px;
+      }
+      @media #{$sm-device} {
+        min-height: 520px;
+      }
+      @media #{$xs-device} {
+        min-height: auto;
+        padding: 80px 0 60px;
+      }
       .bg-img {
         height: 100%;
         position: absolute;
         width: 100%;
+      }
+      .home-slider-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        background-color: rgba(135, 182, 188, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .home-slider-overlay-content {
+        text-align: center;
+        max-width: 800px;
+        padding: 2rem;
+        opacity: 0;
+        &.slide-content-animate {
+          -webkit-animation-delay: .3s;
+          animation-delay: .3s;
+          -webkit-animation-duration: 1.25s;
+          animation-duration: 1.25s;
+          -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+          -webkit-animation-name: fadeInUp;
+          animation-name: fadeInUp;
+        }
+        h2, p, .btn-theme {
+          color: #fff;
+        }
+        h2 {
+          font-size: 72px;
+          font-weight: 400;
+          line-height: 1.16;
+          margin-bottom: 14px;
+          @media #{$lg-device} {
+            font-size: 54px;
+            line-height: 1.2;
+          }
+          @media #{$md-device} {
+            font-size: 46px;
+          }
+          @media #{$sm-device} {
+            font-size: 33px;
+          }
+        }
+        p {
+          font-family: $font-current-theme2;
+          font-size: 24px;
+          font-weight: 400;
+          line-height: 1.875;
+          margin-bottom: 40px;
+          @media #{$lg-device} {
+            line-height: 1.4;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+          }
+          @media #{$md-device} {
+            max-width: 380px;
+            margin-bottom: 30px;
+          }
+          @media #{$sm-device} {
+            font-size: 18px;
+            margin-bottom: 30px;
+          }
+        }
+        .btn-theme {
+          border-color: #fff;
+          height: 60px;
+          line-height: 59px;
+          font-family: $font-current-theme2;
+          font-weight: 400;
+          font-size: 16px;
+          padding: 0 44px;
+          @media #{$lg-device} {
+            font-size: 16px;
+          }
+          @media #{$md-device} {
+            font-size: 15px;
+            height: auto;
+            padding: 0 32px;
+          }
+          @media #{$sm-device} {
+            font-size: 13px;
+            line-height: 1;
+            padding: 16px 25px;
+          }
+          @media #{$xxs-device} {
+            font-size: 13px;
+            line-height: 1;
+            padding: 10px 25px;
+          }
+          &:hover {
+            color: #333;
+            background-color: #fff;
+          }
+        }
       }
       .shape-top {
         position: absolute;

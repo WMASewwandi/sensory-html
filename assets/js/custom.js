@@ -345,9 +345,23 @@
           var url = $(this).attr('data-bg-img');
           if (url) $(this).css('background-image', 'url(' + url + ')');
         });
+        // Trigger overlay content animation on active slide (first slide on load)
+        triggerHomeSliderContentAnimation();
+      },
+      slideChangeTransitionEnd: function() {
+        // Re-trigger overlay content animation every time slide changes
+        triggerHomeSliderContentAnimation();
       }
     }
   });
+
+  function triggerHomeSliderContentAnimation() {
+    var $container = $('.home-slider-container');
+    $container.find('.home-slider-overlay-content').removeClass('slide-content-animate');
+    setTimeout(function() {
+      $container.find('.swiper-slide-active .home-slider-overlay-content').addClass('slide-content-animate');
+    }, 10);
+  }
 
   // Gallery Trends Slider
   var swiper = new Swiper('.product-category1-slider-container', {
