@@ -561,6 +561,27 @@
     #product-categories-list li a.active:hover {
       color: #e06896 !important;
     }
+
+    #product-categories-list li.category-child-item {
+      margin-left: 16px;
+    }
+
+    #product-categories-list li.category-child-item > a {
+      padding-left: 10px;
+    }
+
+    #product-categories-list li.category-parent-item > a::before {
+      content: "\2713";
+      display: inline-block;
+      margin-right: 8px;
+      color: #f379a7;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    #product-categories-list li.category-parent-item > a {
+      font-weight: 600;
+    }
     
     /* Product Quick View Modal - Centered and Scrollable */
     .product-quick-view-modal {
@@ -2150,8 +2171,35 @@
       });
       
       categoriesList.append(allCategoriesItem);
-      
-      categories.forEach(category => {
+
+      const sortCategoriesByName = (leftCategory, rightCategory) => {
+        return (leftCategory.name || '').localeCompare(rightCategory.name || '');
+      };
+
+      const categoryMap = new Map(
+        categories.map(category => [String(category.id), category])
+      );
+      const appendedCategoryIds = new Set();
+
+      const parentCategories = categories
+        .filter(category => {
+          if (category.isParentCategory === true) {
+            return true;
+          }
+
+          if (category.parentCategoryId === null || category.parentCategoryId === undefined || category.parentCategoryId === '') {
+            return true;
+          }
+
+          return !categoryMap.has(String(category.parentCategoryId));
+        })
+        .sort(sortCategoriesByName);
+
+      function appendCategoryItem(category, isChildCategory) {
+        if (!category || appendedCategoryIds.has(String(category.id))) {
+          return;
+        }
+
         // Preserve search parameter when clicking categories
         const newParams = new URLSearchParams();
         if (category.id) {
@@ -2164,8 +2212,9 @@
         const categoryLink = `shop${queryString ? '?' + queryString : ''}`;
         const isActive = currentCategoryId && String(category.id) === String(currentCategoryId);
         const activeClass = isActive ? 'active' : '';
+        const listItemClass = isChildCategory ? 'category-child-item' : 'category-parent-item';
         const listItem = $(`
-          <li data-category-id="${category.id}"><a href="${categoryLink}" class="${activeClass}">${category.name} <span class="category-count">(${category.productCount || 0})</span></a></li>
+          <li data-category-id="${category.id}" class="${listItemClass}"><a href="${categoryLink}" class="${activeClass}">${category.name} <span class="category-count">(${category.productCount || 0})</span></a></li>
         `);
         
         // Prevent default navigation and handle with JavaScript to avoid scroll to top
@@ -2200,7 +2249,31 @@
         });
         
         categoriesList.append(listItem);
+        appendedCategoryIds.add(String(category.id));
+      }
+
+      parentCategories.forEach(parentCategory => {
+        appendCategoryItem(parentCategory, false);
+
+        const childCategories = categories
+          .filter(category => {
+            return category.parentCategoryId !== null &&
+              category.parentCategoryId !== undefined &&
+              String(category.parentCategoryId) === String(parentCategory.id);
+          })
+          .sort(sortCategoriesByName);
+
+        childCategories.forEach(childCategory => {
+          appendCategoryItem(childCategory, true);
+        });
       });
+
+      categories
+        .filter(category => !appendedCategoryIds.has(String(category.id)))
+        .sort(sortCategoriesByName)
+        .forEach(category => {
+          appendCategoryItem(category, false);
+        });
     }
     
     // Clear search function

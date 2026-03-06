@@ -472,6 +472,9 @@
         opacity: 0.4;
         cursor: not-allowed;
       }
+      @media #{$sm-device} {
+        display: none;
+      }
     }
     &.sticky {
       animation: 300ms ease-in-out 0s normal none 1 running fadeInDown;
@@ -512,6 +515,9 @@
         &:disabled {
           opacity: 0.4;
           cursor: not-allowed;
+        }
+        @media #{$sm-device} {
+          display: none;
         }
       }
       .header-navigation-area {

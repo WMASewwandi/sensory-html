@@ -459,6 +459,7 @@
   background-color: $theme-color2;
   overflow: hidden;
   position: relative;
+  padding: 0;
   &:after {
     content: "";
     background: no-repeat center center;
@@ -471,12 +472,12 @@
     left: 0;
   }
   .page-title-content {
-    padding: 134px 0 137px;
+    padding: 72px 0 78px;
     @media #{$md-device} {
-      padding: 134px 0 110px;
+      padding: 60px 0 64px;
     }
     @media #{$sm-device} {
-      padding: 105px 0 80px;
+      padding: 44px 0 48px;
     }
     .title {
       color: $white;
