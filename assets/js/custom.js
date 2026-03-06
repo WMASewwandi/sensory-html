@@ -937,7 +937,7 @@
       return;
     }
 
-    // Take first 6 categories for display
+    // Show up to 6 categories from the randomized list
     const displayCategories = categories.slice(0, 6);
     const styleClasses = ['thumb-style1', 'thumb-style2', 'thumb-style3'];
     const marginClasses = ['', 'mt-xs-25', 'mt-sm-25'];
@@ -981,7 +981,7 @@
       return;
     }
 
-    // Take first 3 categories for tabs (plus "All Items")
+    // Show up to 3 categories from the randomized list (plus "All Items")
     const displayCategories = categories.slice(0, 3);
     
     tabsContainer.empty();
@@ -1089,6 +1089,32 @@
     return shuffled;
   }
 
+  function isSubcategory(category) {
+    return category && category.parentCategoryId != null && String(category.parentCategoryId).trim() !== '';
+  }
+
+  const CATEGORY_ROTATION_INTERVAL_MS = 8000;
+  let categoryRotationIntervalId = null;
+
+  function renderRandomCategories(categories) {
+    renderCategories(shuffleArray(categories));
+  }
+
+  function startCategoryRotation(categories) {
+    if (categoryRotationIntervalId) {
+      clearInterval(categoryRotationIntervalId);
+      categoryRotationIntervalId = null;
+    }
+
+    if (!categories || categories.length <= 6 || !$('#categories-container').length) {
+      return;
+    }
+
+    categoryRotationIntervalId = setInterval(() => {
+      renderRandomCategories(categories);
+    }, CATEGORY_ROTATION_INTERVAL_MS);
+  }
+
   // Load and render products
   async function loadProducts(categoryId = null) {
     const container = $('#products-container');
@@ -1161,8 +1187,10 @@
     try {
       const categories = await fetchCategories();
       if (categories && categories.length > 0) {
-        renderCategories(categories);
-        renderCategoryTabs(categories);
+        const subcategories = categories.filter(isSubcategory);
+        renderRandomCategories(subcategories);
+        renderCategoryTabs(subcategories);
+        startCategoryRotation(subcategories);
       }
     } catch (error) {
       // Error loading categories
