@@ -4095,7 +4095,7 @@ table p {
   position: absolute;
   inset: 0;
   z-index: 3;
-  background-color: rgba(135, 182, 188, 0.5);
+  background-color: rgba(87,106,108, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
