@@ -359,13 +359,7 @@
                       </div>
                     </div>
                   </div>
-                  <div id="directpay_sandbox_notice" style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 12px; margin-top: 15px;">
-                    <strong style="color: #856404;"><i class="fa fa-exclamation-triangle"></i> Test Mode</strong>
-                    <p style="margin: 8px 0 0 0; font-size: 12px; color: #856404;">
-                      This is a test environment. Use any card details to simulate payment.<br>
-                      <strong>Test Card:</strong> 4111 1111 1111 1111, Expiry: 12/25, CVV: 123
-                    </p>
-                  </div>
+                  <div id="directpay_sandbox_notice" style="display: none;"></div>
                 </div>
                 <div class="payment-condition">
                   <p>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <a href="privacy-policy">privacy policy</a>.</p>
@@ -1273,7 +1267,6 @@ function saveOrderToLocal(apiOrder, orderData) {
     const $container = $('#directpay_container');
     const $cardContainer = $('#card_container');
     const $loading = $('#directpay_loading');
-    const $sandboxNotice = $('#directpay_sandbox_notice');
 
     // Show loading message in the card container
     $cardContainer.html(`
@@ -1287,14 +1280,6 @@ function saveOrderToLocal(apiOrder, orderData) {
     `);
     $cardContainer.show();
     $loading.hide();
-
-    // Show/hide sandbox notice
-    if (window.DirectPayService && DirectPayService.isSandbox()) {
-      $sandboxNotice.show();
-      console.log('[Checkout] Sandbox mode enabled');
-    } else {
-      $sandboxNotice.hide();
-    }
 
     // Check if DirectPayService is available
     if (typeof DirectPayService === 'undefined') {
