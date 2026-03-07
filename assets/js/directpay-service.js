@@ -166,6 +166,11 @@ const DirectPayService = (function() {
       const orderId = options.orderId || generateOrderId();
       const formattedAmount = formatAmount(options.amount);
 
+      // Live integration requires merchant credentials to be configured.
+      if (!config.merchantId || !config.secretKey) {
+        throw new Error('DirectPay live credentials are missing. Please configure merchantId and secretKey in directpay-config.js');
+      }
+
       // Create payload object
       const payload = {
         merchant_id: config.merchantId,

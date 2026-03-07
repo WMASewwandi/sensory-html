@@ -1,24 +1,18 @@
 /**
- * DirectPay.lk Payment Gateway Configuration
+ * DirectPay.lk Payment Gateway Configuration (LIVE)
  * Documentation: https://doc.directpay.lk/
  * NPM Package: https://www.npmjs.com/package/directpay-ipg-js
- * 
- * Sandbox Portal: https://dpmp.directpay.lk/
- * Production Portal: https://portal.directpay.lk/
- * 
- * IMPORTANT: These are SANDBOX credentials for testing only.
- * For production, replace with live credentials from https://portal.directpay.lk/
+ *
+ * Merchant portal: https://portal.directpay.lk/
  */
 const DIRECTPAY_CONFIG = {
-  // Environment: 'sandbox' or 'production'
-  // DEV = Sandbox, PROD = Production
-  environment: 'sandbox',
+  // Force production environment for live transactions
+  environment: 'production',
   
   // Sandbox Configuration (https://dpmp.directpay.lk/)
   sandbox: {
-    merchantId: 'LA13502',
-    // Secret key for HMAC-SHA256 signature generation
-    secretKey: '2f8832325b0d1b593ed486a0c0b7b1ad2caad263d5fd20cf4650bda4bb8dcc5f',
+    merchantId: '',
+    secretKey: '',
     // DirectPay IPG CDN (v3)
     cdnUrl: 'https://cdn.directpay.lk/v3/directpayipg.min.js',
     // Stage for SDK
@@ -27,10 +21,12 @@ const DIRECTPAY_CONFIG = {
     portalUrl: 'https://dpmp.directpay.lk/'
   },
   
-  // Production Configuration (Update with live credentials when ready)
+  // Production Configuration (live)
   production: {
-    merchantId: 'LA13502', // Replace with production Merchant ID
-    secretKey: '', // Replace with production Secret Key from https://portal.directpay.lk/
+    merchantId: 'LA13502',
+    // IMPORTANT: set your LIVE secret key from https://portal.directpay.lk/
+    // If this value is empty, payment initialization will fail.
+    secretKey: '',
     cdnUrl: 'https://cdn.directpay.lk/v3/directpayipg.min.js',
     stage: 'PROD',
     portalUrl: 'https://portal.directpay.lk/'
@@ -70,7 +66,7 @@ const DIRECTPAY_CONFIG = {
   }
 };
 
-// Test Card Details for Sandbox (for reference)
+// Test Card Details for Sandbox (for reference only when sandbox is enabled)
 const DIRECTPAY_TEST_CARDS = {
   mastercard_3ds: {
     number: '5123 4500 0000 0008',
