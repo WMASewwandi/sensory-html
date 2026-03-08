@@ -7555,7 +7555,7 @@ table p {
   content: "";
   position: absolute;
   inset: 0;
-  background-color: rgba(87, 106, 108, 0.85);
+  background-color: rgba(87, 106, 108, 0.6);
   z-index: 1;
   transition: all 0.3s ease-in-out;
   -webkit-transition: all 0.3s ease-in-out;
@@ -7577,7 +7577,7 @@ table p {
   background-color: #e4f6fe;
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb:hover:before {
-  background-color: rgba(87, 106, 108, 0.78);
+  background-color: rgba(87, 106, 108, 0.6);
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb img {
   position: absolute;
@@ -7623,16 +7623,20 @@ table p {
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb .content {
   position: absolute;
+  inset: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
   width: 100%;
+  padding: 24px;
+  text-align: center;
   z-index: 2;
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb .content .contact-info {
-  margin-top: 33px;
-  margin-left: 31px;
+  margin: 0;
 }
 .category-area.product-category1-area .category-items1 .category-item .thumb .content .contact-info .title {
   color: #fff;
@@ -7657,8 +7661,7 @@ table p {
   font-family: "Fredoka One", cursive;
   font-weight: 400;
   font-size: 16px;
-  margin-bottom: 25px;
-  margin-left: 31px;
+  margin: 0;
   text-transform: capitalize;
   transition: all 0.3s ease-in-out;
   -webkit-transition: all 0.3s ease-in-out;
