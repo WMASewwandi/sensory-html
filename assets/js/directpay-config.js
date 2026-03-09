@@ -24,9 +24,9 @@ const DIRECTPAY_CONFIG = {
   // Production Configuration (live)
   production: {
     merchantId: 'LA13502',
-    // IMPORTANT: set your LIVE secret key from https://portal.directpay.lk/
-    // If this value is empty, payment initialization will fail.
-    secretKey: '',
+    apiKey: '2f8832325b0d1b593ed486a0c0b7b1ad2caad263d5fd20cf4650bda4bb8dcc5f',
+    // Merchant Secret Key used for HMAC-SHA256 signature generation
+    secretKey: 'b67a8f964800f2425fe4682557ad4b43ebb38277f67b64fd08403886ec19605f',
     cdnUrl: 'https://cdn.directpay.lk/v3/directpayipg.min.js',
     stage: 'PROD',
     portalUrl: 'https://portal.directpay.lk/'
