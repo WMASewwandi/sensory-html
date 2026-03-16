@@ -248,19 +248,20 @@
                 <div class="col-12">
                   <div class="billing-info mb-20">
                     <label>Town / City <abbr class="required" title="required">*</abbr></label>
-                    <input type="text">
+                    <input id="billing_town_city" type="text" list="srilanka_city_list" autocomplete="off" placeholder="Start typing your town/city in Sri Lanka">
+                    <datalist id="srilanka_city_list"></datalist>
                   </div>
                 </div>
                 <div class="col-12">
                   <div class="billing-info mb-20">
                     <label>District <abbr class="required" title="required">*</abbr></label>
-                    <input type="text">
+                    <input id="billing_district" type="text">
                   </div>
                 </div>
                 <div class="col-12">
                   <div class="billing-info mb-20">
                     <label>Postcode / ZIP (optional) <abbr class="required" title="required">*</abbr></label>
-                    <input type="text">
+                    <input id="billing_postcode" type="text" inputmode="numeric">
                   </div>
                 </div>
                 <div class="col-12">
@@ -318,45 +319,24 @@
                       </div>
                     </div>
                   </div>
+                  <div class="pay-top sin-payment">
+                    <input id="payment_method_2" class="input-radio" type="radio" value="cod" name="payment_method">
+                    <label for="payment_method_2"> Cash on Delivery </label>
+                    <div class="payment-box payment_method_cod" style="display: none;">
+                      <p>Pay with cash when your order is delivered. Your order will be confirmed now, and payment will be collected at delivery.</p>
+                    </div>
+                  </div>
                 </div>
                 
                 <!-- Card Payment Container -->
                 <div id="directpay_container" class="directpay-container" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa;">
                   <div id="card_container">
-                    <!-- Manual Card Entry Form -->
-                    <div class="manual-card-form" style="padding: 10px;">
-                      <h5 style="margin-bottom: 20px; color: #333; font-size: 16px;">
-                        <i class="fa fa-credit-card"></i> Enter Card Details
-                      </h5>
-                      <div class="form-group" style="margin-bottom: 15px;">
-                        <label for="card_number" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Card Number *</label>
-                        <input type="text" id="card_number" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" 
-                          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;"
-                          oninput="formatCardNumber(this)">
-                      </div>
-                      <div style="display: flex; gap: 15px;">
-                        <div class="form-group" style="flex: 1; margin-bottom: 15px;">
-                          <label for="card_expiry" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Expiry Date *</label>
-                          <input type="text" id="card_expiry" class="form-control" placeholder="MM/YY" maxlength="5"
-                            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;"
-                            oninput="formatExpiry(this)">
-                        </div>
-                        <div class="form-group" style="flex: 1; margin-bottom: 15px;">
-                          <label for="card_cvv" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">CVV *</label>
-                          <input type="text" id="card_cvv" class="form-control" placeholder="123" maxlength="4"
-                            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        </div>
-                      </div>
-                      <div class="form-group" style="margin-bottom: 15px;">
-                        <label for="card_name" style="display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">Cardholder Name *</label>
-                        <input type="text" id="card_name" class="form-control" placeholder="Name on card"
-                          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
-                      </div>
-                      <div style="display: flex; align-items: center; gap: 10px; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 6px;">
-                        <i class="fa fa-lock" style="color: #4CAF50; font-size: 20px;"></i>
-                        <span style="font-size: 13px; color: #2e7d32;">Your payment information is secure and encrypted.</span>
-                      </div>
+                    <div class="directpay-professional-card">
+                      <div class="dp-title"><i class="fa fa-shield"></i> Secure Payment Window</div>
+                      <div class="dp-subtitle">When you click Place Order, a DirectPay secure window opens for card and OTP verification.</div>
+                      <div class="dp-step"><i class="fa fa-check-circle"></i> Card and OTP entry happen only in DirectPay.</div>
+                      <div class="dp-step"><i class="fa fa-check-circle"></i> This page never stores your card details.</div>
+                      <div class="dp-step"><i class="fa fa-check-circle"></i> Order is created only after successful payment.</div>
                     </div>
                   </div>
                   <div id="directpay_sandbox_notice" style="display: none;"></div>
@@ -683,7 +663,7 @@
   }
   
   .directpay-container #card_container {
-    min-height: 300px;
+    min-height: 220px;
     background: #fff;
     border: 1px solid #e8e8e8;
     border-radius: 6px;
@@ -691,7 +671,7 @@
   }
   
   .directpay-container #card_container:empty::before {
-    content: "Loading payment form...";
+    content: "Preparing secure payment...";
     display: block;
     text-align: center;
     padding: 40px;
@@ -749,6 +729,39 @@
     border-radius: 4px;
     font-size: 13px;
     color: #666;
+  }
+
+  .directpay-professional-card {
+    border: 1px solid #edf0f4;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+    padding: 16px;
+  }
+
+  .directpay-professional-card .dp-title {
+    font-weight: 600;
+    color: #25364a;
+    margin-bottom: 8px;
+  }
+
+  .directpay-professional-card .dp-subtitle {
+    font-size: 13px;
+    color: #6c7a89;
+    margin-bottom: 12px;
+  }
+
+  .directpay-professional-card .dp-step {
+    font-size: 13px;
+    color: #3d4f62;
+    margin: 6px 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .directpay-professional-card .dp-step i {
+    color: #22a06b;
+    width: 14px;
   }
   
   /* Spinner for loading state */
@@ -949,8 +962,8 @@ function saveOrderToLocal(apiOrder, orderData) {
 (function($) {
   'use strict';
 
-  // Track if card form is ready
-  let directPayInitialized = false;
+  // Track DirectPay popup launch state
+  let directPayInitializing = false;
   let pendingOrderData = null;
 
   // Toast notification function
@@ -1010,6 +1023,105 @@ function saveOrderToLocal(apiOrder, orderData) {
       return 0;
     }
     return 450;
+  }
+
+  // Sri Lanka city directory for Town/City autocomplete
+  const SL_CITY_DIRECTORY = [
+    { city: 'Colombo', district: 'Colombo', postcode: '00100' },
+    { city: 'Dehiwala', district: 'Colombo', postcode: '10350' },
+    { city: 'Moratuwa', district: 'Colombo', postcode: '10400' },
+    { city: 'Kotte', district: 'Colombo', postcode: '10100' },
+    { city: 'Maharagama', district: 'Colombo', postcode: '10280' },
+    { city: 'Nugegoda', district: 'Colombo', postcode: '10250' },
+    { city: 'Kandy', district: 'Kandy', postcode: '20000' },
+    { city: 'Peradeniya', district: 'Kandy', postcode: '20400' },
+    { city: 'Katugastota', district: 'Kandy', postcode: '20800' },
+    { city: 'Gampola', district: 'Kandy', postcode: '20500' },
+    { city: 'Galle', district: 'Galle', postcode: '80000' },
+    { city: 'Ambalangoda', district: 'Galle', postcode: '80300' },
+    { city: 'Elpitiya', district: 'Galle', postcode: '80400' },
+    { city: 'Matara', district: 'Matara', postcode: '81000' },
+    { city: 'Weligama', district: 'Matara', postcode: '81700' },
+    { city: 'Hambantota', district: 'Hambantota', postcode: '82000' },
+    { city: 'Tangalle', district: 'Hambantota', postcode: '82200' },
+    { city: 'Jaffna', district: 'Jaffna', postcode: '40000' },
+    { city: 'Vavuniya', district: 'Vavuniya', postcode: '43000' },
+    { city: 'Mannar', district: 'Mannar', postcode: '41000' },
+    { city: 'Kilinochchi', district: 'Kilinochchi', postcode: '44000' },
+    { city: 'Batticaloa', district: 'Batticaloa', postcode: '30000' },
+    { city: 'Trincomalee', district: 'Trincomalee', postcode: '31000' },
+    { city: 'Ampara', district: 'Ampara', postcode: '32000' },
+    { city: 'Kurunegala', district: 'Kurunegala', postcode: '60000' },
+    { city: 'Kuliyapitiya', district: 'Kurunegala', postcode: '60200' },
+    { city: 'Puttalam', district: 'Puttalam', postcode: '61300' },
+    { city: 'Chilaw', district: 'Puttalam', postcode: '61000' },
+    { city: 'Anuradhapura', district: 'Anuradhapura', postcode: '50000' },
+    { city: 'Polonnaruwa', district: 'Polonnaruwa', postcode: '51000' },
+    { city: 'Badulla', district: 'Badulla', postcode: '90000' },
+    { city: 'Bandarawela', district: 'Badulla', postcode: '90100' },
+    { city: 'Nuwara Eliya', district: 'Nuwara Eliya', postcode: '22200' },
+    { city: 'Ratnapura', district: 'Ratnapura', postcode: '70000' },
+    { city: 'Balangoda', district: 'Ratnapura', postcode: '70100' },
+    { city: 'Kegalle', district: 'Kegalle', postcode: '71000' },
+    { city: 'Kalutara', district: 'Kalutara', postcode: '12000' },
+    { city: 'Panadura', district: 'Kalutara', postcode: '12500' },
+    { city: 'Beruwala', district: 'Kalutara', postcode: '12070' },
+    { city: 'Negombo', district: 'Gampaha', postcode: '11500' },
+    { city: 'Gampaha', district: 'Gampaha', postcode: '11000' },
+    { city: 'Ja-Ela', district: 'Gampaha', postcode: '11350' },
+    { city: 'Wattala', district: 'Gampaha', postcode: '11300' }
+  ];
+
+  function normalizeLocationValue(value) {
+    return (value || '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  function setupSriLankaTownCityAutocomplete() {
+    const townInput = document.getElementById('billing_town_city');
+    const districtInput = document.getElementById('billing_district');
+    const postcodeInput = document.getElementById('billing_postcode');
+    const datalist = document.getElementById('srilanka_city_list');
+
+    if (!townInput || !datalist) {
+      return;
+    }
+
+    if (!datalist.children.length) {
+      datalist.innerHTML = SL_CITY_DIRECTORY
+        .map(function(item) { return '<option value="' + item.city + '"></option>'; })
+        .join('');
+    }
+
+    function applyCityDefaults() {
+      const city = normalizeLocationValue(townInput.value);
+      if (!city) return false;
+
+      const cityInfo = SL_CITY_DIRECTORY.find(function(item) {
+        return normalizeLocationValue(item.city) === city;
+      });
+
+      if (!cityInfo) return false;
+
+      townInput.value = cityInfo.city;
+      if (districtInput && !districtInput.value.trim()) {
+        districtInput.value = cityInfo.district;
+      }
+      if (postcodeInput && !postcodeInput.value.trim()) {
+        postcodeInput.value = cityInfo.postcode;
+      }
+      return true;
+    }
+
+    townInput.addEventListener('change', function() {
+      const hasMatch = applyCityDefaults();
+      if (townInput.value.trim() && !hasMatch) {
+        showToast('Please select a Sri Lankan town/city from the list.', 'warning');
+      }
+    });
+
+    townInput.addEventListener('blur', function() {
+      applyCityDefaults();
+    });
   }
 
   // Load cart items into checkout order summary
@@ -1082,21 +1194,31 @@ function saveOrderToLocal(apiOrder, orderData) {
   // Get billing info from form
   function getBillingInfo() {
     const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
+    const $billingWrap = $('.billing-info-wrap');
+
+    function getInputByLabel(labelText) {
+      const $label = $billingWrap.find('.billing-info label').filter(function() {
+        return $(this).text().toLowerCase().includes(labelText);
+      }).first();
+
+      if (!$label.length) return '';
+      return $label.nextAll('input[type="text"]').first().val()?.trim() || '';
+    }
+
+    const streetAddress1 = $billingWrap.find('.billing-address').first().val()?.trim() || '';
+    const streetAddress2 = $billingWrap.find('.billing-address').first().next('input[type="text"]').val()?.trim() || '';
+
     return {
-      firstName: $('.billing-info-wrap input[type="text"]').eq(0).val()?.trim() || '',
-      lastName: $('.billing-info-wrap input[type="text"]').eq(1).val()?.trim() || '',
+      firstName: getInputByLabel('first name'),
+      lastName: getInputByLabel('last name'),
       companyName: null,
-      streetAddress1: $('.billing-info-wrap .billing-address').eq(0).val()?.trim() || '',
-      streetAddress2: $('.billing-info-wrap .billing-address').eq(0).next('input').val()?.trim() || '',
-      city: $('.billing-info-wrap input[type="text"]').eq(2).val()?.trim() || '',
-      district: $('.billing-info-wrap input[type="text"]').eq(3).val()?.trim() || '',
-      postalCode: $('.billing-info-wrap input[type="text"]').eq(4).val()?.trim() || '',
-      phone: $('.billing-info-wrap input[type="text"]').filter(function() {
-        return $(this).prev('label').text().toLowerCase().includes('phone');
-      }).val()?.trim() || '',
-      email: $('.billing-info-wrap input[type="text"]').filter(function() {
-        return $(this).prev('label').text().toLowerCase().includes('email');
-      }).val()?.trim() || (currentUser ? currentUser.email : '') || ''
+      streetAddress1: streetAddress1,
+      streetAddress2: streetAddress2,
+      city: getInputByLabel('town / city'),
+      district: getInputByLabel('district'),
+      postalCode: getInputByLabel('postcode / zip'),
+      phone: getInputByLabel('phone'),
+      email: getInputByLabel('email') || (currentUser ? currentUser.email : '') || ''
     };
   }
 
@@ -1253,38 +1375,33 @@ function saveOrderToLocal(apiOrder, orderData) {
     }
   }
 
-  // Initialize DirectPay payment form
+  // Start DirectPay payment flow (popup / new tab)
   async function initializeDirectPayForm(billingInfo, totalAmount) {
-    if (directPayInitialized) {
-      console.log('[Checkout] DirectPay already initialized, skipping...');
-      return;
+    if (directPayInitializing) {
+      throw new Error('Payment is already in progress. Please complete or cancel the opened payment window.');
     }
+    directPayInitializing = true;
 
-    console.log('[Checkout] Starting DirectPay initialization...');
+    console.log('[Checkout] Starting DirectPay popup flow...');
     console.log('[Checkout] Billing info:', billingInfo);
     console.log('[Checkout] Total amount:', totalAmount);
 
-    const $container = $('#directpay_container');
     const $cardContainer = $('#card_container');
-    const $loading = $('#directpay_loading');
-
-    // Show loading message in the card container
     $cardContainer.html(`
-      <div style="text-align: center; padding: 40px;">
+      <div style="text-align: center; padding: 26px;">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
           <span class="sr-only">Loading...</span>
         </div>
-        <p style="margin-top: 15px; color: #666;">Loading secure payment form...</p>
-        <p style="font-size: 12px; color: #999;">Please wait while we connect to the payment gateway.</p>
+        <p style="margin-top: 12px; color: #49566a; font-weight: 600;">Opening secure payment window...</p>
+        <p style="font-size: 12px; color: #7a8797;">Complete card + OTP there to finish checkout.</p>
       </div>
     `);
-    $cardContainer.show();
-    $loading.hide();
 
     // Check if DirectPayService is available
     if (typeof DirectPayService === 'undefined') {
       console.error('[Checkout] DirectPayService is not defined!');
       $cardContainer.html('<p style="color: #dc3545; text-align: center; padding: 20px;">Payment service not available. Please refresh the page.</p>');
+      directPayInitializing = false;
       return;
     }
 
@@ -1301,9 +1418,8 @@ function saveOrderToLocal(apiOrder, orderData) {
 
       console.log('[Checkout] Initializing DirectPay with order:', orderId, 'Amount:', totalAmount);
 
-      // Initialize DirectPay with new SDK format
-      await DirectPayService.initOneTimePayment({
-        containerId: 'card_container',
+      // Launch DirectPay popup / new tab checkout
+      await DirectPayService.initPopupPayment({
         amount: totalAmount,
         orderId: orderId,
         firstName: billingInfo.firstName,
@@ -1316,6 +1432,17 @@ function saveOrderToLocal(apiOrder, orderData) {
         
         onSuccess: async function(paymentResult) {
           console.log('[Checkout] DirectPay payment successful:', paymentResult);
+          directPayInitializing = false;
+
+          const hasVerifiedSuccess = paymentResult && paymentResult.success === true && paymentResult.status === 'SUCCESS';
+          const hasTransactionId = paymentResult && paymentResult.transactionId;
+
+          if (!hasVerifiedSuccess || !hasTransactionId) {
+            console.error('[Checkout] Rejected unverified payment response:', paymentResult);
+            showToast('Payment response could not be verified. Please try again.', 'error');
+            return;
+          }
+
           showToast('Payment successful! Creating your order...', 'success');
           
           // Store payment result
@@ -1362,6 +1489,7 @@ function saveOrderToLocal(apiOrder, orderData) {
         
         onError: function(error) {
           console.error('[Checkout] DirectPay payment error:', error);
+          directPayInitializing = false;
           
           // Build detailed error message
           let errorMessage = 'Payment failed. Please try again.';
@@ -1385,90 +1513,49 @@ function saveOrderToLocal(apiOrder, orderData) {
           // Log full error for debugging
           console.log('[Checkout] Full error details:', JSON.stringify(error, null, 2));
           
-          // Reset the form to allow retry
-          directPayInitialized = false;
-          $('#card_container').empty();
+          // Reset UI to allow retry
+          $('#card_container').html(`
+            <div class="directpay-professional-card">
+              <div class="dp-title"><i class="fa fa-shield"></i> Secure Payment Window</div>
+              <div class="dp-subtitle">When you click Place Order, a DirectPay secure window opens for card and OTP verification.</div>
+              <div class="dp-step"><i class="fa fa-check-circle"></i> Card and OTP entry happen only in DirectPay.</div>
+              <div class="dp-step"><i class="fa fa-check-circle"></i> This page never stores your card details.</div>
+              <div class="dp-step"><i class="fa fa-check-circle"></i> Order is created only after successful payment.</div>
+            </div>
+          `);
           $('.place-order a').prop('disabled', false).text('Place Order');
-          
-          // Re-initialize the payment form after a short delay
-          setTimeout(function() {
-            const billingInfo = pendingOrderData ? pendingOrderData.billingInfo : null;
-            if (billingInfo) {
-              const totalAmount = parseFloat($('#order-total-amount').text().replace(/[^0-9.]/g, '')) || 0;
-              if (totalAmount > 0) {
-                initializeDirectPayForm(billingInfo, totalAmount);
-              }
-            }
-          }, 1500);
         }
       });
-
-      // The card form should now be rendered by DirectPay SDK inside the container
-      // Mark as initialized
-      directPayInitialized = true;
-      console.log('[Checkout] DirectPay initialization complete. Form should be visible now.');
-      
-      // Add a small delay to ensure the iframe is rendered
-      setTimeout(function() {
-        const iframe = $cardContainer.find('iframe');
-        if (iframe.length === 0) {
-          console.warn('[Checkout] No iframe found in card container. DirectPay may not have rendered properly.');
-          // Check if there's any content
-          if ($cardContainer.children().length === 0 || $cardContainer.html().includes('Loading')) {
-            $cardContainer.html(`
-              <div style="text-align: center; padding: 30px; background: #fff8e1; border-radius: 8px;">
-                <i class="fa fa-exclamation-triangle" style="font-size: 48px; color: #ffc107; margin-bottom: 15px;"></i>
-                <h5 style="color: #856404;">Payment Form Not Loading</h5>
-                <p style="color: #666; margin-bottom: 20px;">The payment form could not be loaded. This may be due to browser settings or network issues.</p>
-                <button type="button" class="btn btn-primary" onclick="location.reload()" style="margin-right: 10px;">
-                  <i class="fa fa-refresh"></i> Refresh Page
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="retryDirectPay()">
-                  <i class="fa fa-repeat"></i> Retry
-                </button>
-              </div>
-            `);
-          }
-        } else {
-          console.log('[Checkout] DirectPay iframe found and rendered successfully.');
-        }
-      }, 3000);
+      console.log('[Checkout] DirectPay popup launched');
 
     } catch (error) {
       console.error('[Checkout] Failed to initialize DirectPay:', error);
-      $loading.hide();
       
-      // Show fallback manual card entry form
       $('#card_container').html(`
-        <div class="fallback-card-form" style="padding: 20px;">
+        <div class="fallback-card-form" style="padding: 20px; text-align: center;">
           <p style="color: #dc3545; text-align: center; margin-bottom: 20px;">
-            <i class="fa fa-exclamation-circle"></i> DirectPay payment form could not be loaded. 
+            <i class="fa fa-exclamation-circle"></i> Could not open secure payment window.
             <br><small>Error: ${error.message || 'Unknown error'}</small>
           </p>
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
-            <p style="text-align: center; color: #666; margin-bottom: 15px;">
-              <strong>Alternative Payment Options:</strong>
-            </p>
-            <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-              <button type="button" class="btn btn-primary" onclick="location.reload()" style="padding: 10px 30px;">
-                <i class="fa fa-refresh"></i> Refresh Page & Try Again
-              </button>
-              <p style="color: #888; font-size: 12px; margin-top: 10px;">
-                If the problem persists, please contact support.
-              </p>
-            </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <button type="button" class="btn btn-primary" onclick="retryDirectPay()" style="padding: 10px 30px;">
+              <i class="fa fa-repeat"></i> Try Again
+            </button>
+            <p style="color: #888; font-size: 12px; margin-top: 10px;">Check popup blocker and browser settings if issue persists.</p>
           </div>
         </div>
       `);
-      showToast('Failed to load payment form: ' + (error.message || 'Unknown error'), 'error');
+      showToast('Failed to open payment window: ' + (error.message || 'Unknown error'), 'error');
+      directPayInitializing = false;
+    } finally {
+      // Keep directPayInitializing true while customer completes popup flow.
     }
   }
 
   // Retry DirectPay initialization
   function retryDirectPay() {
     console.log('[Checkout] Retrying DirectPay initialization...');
-    directPayInitialized = false;
-    $('#card_container').empty();
+    directPayInitializing = false;
     
     const cart = CartService.getCart();
     if (cart.length > 0) {
@@ -1498,7 +1585,6 @@ function saveOrderToLocal(apiOrder, orderData) {
     // Toggle Card container
     if (selectedMethod === 'directpay') {
       $('#directpay_container').show();
-      directPayInitialized = true; // Manual form is always ready
     } else {
       $('#directpay_container').hide();
     }
@@ -1526,6 +1612,7 @@ function saveOrderToLocal(apiOrder, orderData) {
 
     // Prefill billing details
     prefillBillingDetails();
+    setupSriLankaTownCityAutocomplete();
 
     // Setup payment method toggle
     $('input[name="payment_method"]').on('change', function() {
@@ -1568,60 +1655,62 @@ function saveOrderToLocal(apiOrder, orderData) {
 
       // Handle Card payment
       if (selectedPaymentMethod === 'directpay') {
-        // Validate card form
-        const cardValidation = validateCardForm();
-        if (!cardValidation.valid) {
-          showToast(cardValidation.message, 'warning');
+        if (directPayInitializing) {
+          showToast('Payment is already in progress. Complete or cancel it in the DirectPay window.', 'info');
           return;
         }
-        
-        placeOrderBtn.prop('disabled', true).text('Processing Payment...');
-        
+
+        const totals = calculateOrderTotals(cart);
+        if (!totals.totalAmount || totals.totalAmount <= 0) {
+          showToast('Invalid order total. Please refresh and try again.', 'error');
+          return;
+        }
+
+        placeOrderBtn.prop('disabled', true).text('Opening Secure Payment...');
+
         try {
-          // Generate a mock transaction ID for the card payment
-          const transactionId = 'TXN' + Date.now() + Math.random().toString(36).substring(2, 8).toUpperCase();
-          const cardLast4 = $('#card_number').val().replace(/\s/g, '').slice(-4);
-          
-          // Prepare order data using the existing function with card payment details
-          const orderData = prepareOrderData(billingInfo, 'Card', 'Paid', {
-            transactionId: transactionId,
-            reference: transactionId,
-            cardNumber: $('#card_number').val().replace(/\s/g, '')
-          });
-          
-          console.log('[Checkout] Order data prepared:', JSON.stringify(orderData).substring(0, 500));
-          
-          // Create order using existing function
-          const result = await createOrder(orderData);
-          
-          console.log('[Checkout] Order creation result:', JSON.stringify(result).substring(0, 500));
-          
-          if (result.success && result.order) {
-            // Clear cart on success
-            CartService.clearCart();
-            CartService.updateCartCount();
-            
-            const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
-            showToast('Payment successful! Order #' + orderNumber + ' placed.', 'success');
-            
-            // Redirect to order confirmation
-            setTimeout(() => {
-              window.location.href = 'my-account?tab=orders';
-            }, 2000);
-          } else {
-            throw new Error(result.error || 'Failed to create order');
-          }
-          
+          await initializeDirectPayForm(billingInfo, totals.totalAmount);
+          placeOrderBtn.text('Waiting for Payment...');
+          showToast('Secure payment window opened. Complete card and OTP there.', 'info');
         } catch (error) {
-          console.error('Order creation failed:', error);
-          showToast('Payment failed: ' + (error.message || 'Please try again.'), 'error');
+          console.error('[Checkout] Failed to start DirectPay:', error);
+          showToast('Unable to start payment gateway: ' + (error.message || 'Please try again.'), 'error');
           placeOrderBtn.prop('disabled', false).text(originalText);
         }
         return;
       }
 
-      // Fallback
-      showToast('Please select a payment method.', 'warning');
+      // Handle Cash on Delivery
+      if (selectedPaymentMethod === 'cod') {
+        placeOrderBtn.prop('disabled', true).text('Placing Order...');
+        try {
+          const orderData = prepareOrderData(billingInfo, 'CashOnDelivery', 'Pending');
+          const result = await createOrder(orderData);
+
+          if (result.success && result.order) {
+            CartService.clearCart();
+            CartService.updateCartCount();
+
+            const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
+            showToast('Order placed successfully! Cash on Delivery selected. Order #' + orderNumber, 'success');
+
+            setTimeout(() => {
+              const resultOrderId = result.order.id || result.order.orderId || '';
+              window.location.href = resultOrderId ? 'my-account?order=' + resultOrderId : 'my-account?tab=orders';
+            }, 1800);
+          } else {
+            showToast(result.message || 'Failed to place order. Please try again.', 'error');
+            placeOrderBtn.prop('disabled', false).text(originalText);
+          }
+        } catch (error) {
+          console.error('[Checkout] COD order creation failed:', error);
+          showToast('Could not place COD order: ' + (error.message || 'Please try again.'), 'error');
+          placeOrderBtn.prop('disabled', false).text(originalText);
+        }
+        return;
+      }
+
+      showToast('Please select a valid payment method.', 'warning');
     });
 
   });
