@@ -75,8 +75,10 @@ async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = nul
     const data = await response.json();
     
     if (data.success && data.data && data.data.items) {
+      const activeProducts = data.data.items.filter(product => product && product.isActive !== false);
+
       // Normalize product data to match existing code expectations
-      const normalizedItems = data.data.items.map(product => ({
+      const normalizedItems = activeProducts.map(product => ({
         ...product,
         // Map imageUrl to imageURL for backward compatibility
         imageURL: product.imageUrl || product.imageURL || null,
@@ -86,7 +88,7 @@ async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = nul
       
       return {
         items: normalizedItems,
-        totalCount: data.data.totalCount
+        totalCount: normalizedItems.length
       };
     } else {
       // Invalid response format
