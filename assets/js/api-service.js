@@ -18,8 +18,10 @@ async function fetchCategories() {
     const data = await response.json();
     
     if (data.success && data.data && data.data.items) {
+      const activeCategories = data.data.items.filter(category => category && category.isActive !== false);
+
       // Sort by name alphabetically
-      const sortedCategories = data.data.items.sort((a, b) => {
+      const sortedCategories = activeCategories.sort((a, b) => {
         return (a.name || '').localeCompare(b.name || '');
       });
       
