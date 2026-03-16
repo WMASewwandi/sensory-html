@@ -1284,6 +1284,61 @@
     overflow: hidden !important;
     height: 100% !important;
   }
+
+  .modal-stock-info {
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .modal-stock-info.in-stock {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .modal-stock-info.out-of-stock {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .modal-stock-info.low-stock {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+  }
+
+  .stock-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    z-index: 10;
+    text-transform: uppercase;
+  }
+
+  .stock-badge.out-of-stock {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  .stock-badge.low-stock {
+    background-color: #ffc107;
+    color: #000;
+  }
+
+  .product-item.out-of-stock-item .product-thumb img {
+    opacity: 0.6;
+  }
+
+  .product-item .product-thumb {
+    position: relative;
+  }
   
   body.fix {
     position: relative !important;
@@ -1370,7 +1425,7 @@
 
     $(document).ready(function() {
       // Handle quick view modal - use event delegation for dynamically created elements
-      $(document).on('click', '.action-quick-view:has(.ion-arrow-expand), .quick-view-btn', function(e) {
+      $(document).on('click', '.action-quick-view:has(.ion-arrow-expand), .quick-view-btn', async function(e) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -1385,7 +1440,7 @@
             if (itemDataStr) {
               try {
                 const product = JSON.parse(itemDataStr);
-                showQuickViewModal(product);
+                await showQuickViewModal(product);
               } catch (error) {
                 // Error parsing product data
               }
@@ -1411,7 +1466,7 @@
             }
           }
           
-          showQuickViewModal(product);
+          await showQuickViewModal(product);
         } catch (error) {
           // Error parsing product data
         }
@@ -1476,7 +1531,7 @@
       }
 
       // Function to show quick view modal with product data
-      function showQuickViewModal(product) {
+      async function showQuickViewModal(product) {
         const productName = product.name || 'Product Name';
         
         // Get price - handle null, undefined, and 0 values properly
@@ -1562,6 +1617,29 @@
           // Hide thumbnails container if only one image
           thumbnailsContainer.hide();
         }
+
+        let stockMap = new Map();
+        try {
+          if (typeof window.getStockMap === 'function') {
+            stockMap = await window.getStockMap();
+          }
+        } catch (error) {
+          stockMap = new Map();
+        }
+
+        const productStock = product.maxStock !== undefined ? product.maxStock : (stockMap.get(product.id) || stockMap.get(String(product.id)) || stockMap.get(Number(product.id)) || 0);
+        const isOutOfStock = productStock <= 0;
+
+        let stockInfoHtml = '';
+        if (isOutOfStock) {
+          stockInfoHtml = '<div class="modal-stock-info out-of-stock"><i class="ion-close-circled"></i> Out of Stock</div>';
+        } else if (productStock <= 5) {
+          stockInfoHtml = `<div class="modal-stock-info low-stock"><i class="ion-alert-circled"></i> Only ${productStock} left in stock - order soon!</div>`;
+        } else {
+          stockInfoHtml = `<div class="modal-stock-info in-stock"><i class="ion-checkmark-circled"></i> In Stock (${productStock} available)</div>`;
+        }
+
+        product.maxStock = productStock;
         
         // Update modal content
         const modalContent = `
@@ -1579,13 +1657,16 @@
                 <span class="fa fa-star"></span>
               </div>
             </div>
+            ${stockInfoHtml}
             <p class="product-desc">${productDescription}</p>
             <div class="quick-product-action">
               <div class="action-top">
+                ${isOutOfStock ? '' : `
                 <div class="pro-qty">
-                  <input type="text" id="modal-quantity" title="Quantity" value="1" min="1" />
+                  <input type="text" id="modal-quantity" title="Quantity" value="1" min="1" max="${productStock}" data-max-stock="${productStock}" />
                 </div>
                 <button class="btn btn-theme add-to-cart-btn" data-product='${JSON.stringify(product)}'>Add to Cart</button>
+                `}
                 <a class="btn-wishlist add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(product)}">Add to Wishlist</a>
               </div>
             </div>
@@ -1646,34 +1727,6 @@
           }, 300);
         });
       }
-
-      // Handle quick view modal - use event delegation for dynamically created elements
-      $(document).on('click', '.quick-view-btn', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const productDataStr = $(this).attr('data-product');
-        if (!productDataStr) return;
-        
-        try {
-          const product = JSON.parse(productDataStr);
-          
-          // If price is 0, try to get from the full product list
-          if ((!product.sellingPrice || product.sellingPrice === 0) && (!product.unitPrice || product.unitPrice === 0)) {
-            // Try to find the full product from allProducts array
-            if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
-              const fullProduct = allProducts.find(p => p.id === product.id);
-              if (fullProduct) {
-                Object.assign(product, fullProduct);
-              }
-            }
-          }
-          
-          showQuickViewModal(product);
-        } catch (error) {
-          // Error parsing product data
-        }
-      });
 
       $(document).on('click', '.product-quick-view-modal .btn-close, .canvas-overlay', function() {
         $('.product-quick-view-modal').removeClass('active');
@@ -1787,6 +1840,47 @@
           } else {
             $input.val(1);
           }
+        }
+      });
+
+      $(document).on('change input', '.product-quick-view-modal #modal-quantity', function(e) {
+        const $input = $(this);
+        const maxStock = parseInt($input.attr('data-max-stock')) || parseInt($input.attr('max')) || 9999;
+        let value = parseInt($input.val()) || 1;
+        
+        if (value < 1) {
+          value = 1;
+          $input.val(value);
+        } else if (value > maxStock) {
+          value = maxStock;
+          $input.val(value);
+          if (e.type === 'change') {
+            showToast(`Maximum available quantity is ${maxStock}`, 'warning');
+          }
+        }
+      });
+
+      $(document).on('blur', '.product-quick-view-modal #modal-quantity', function() {
+        const $input = $(this);
+        const maxStock = parseInt($input.attr('data-max-stock')) || parseInt($input.attr('max')) || 9999;
+        let value = parseInt($input.val()) || 1;
+        
+        if (value < 1) value = 1;
+        if (value > maxStock) {
+          value = maxStock;
+          showToast(`Maximum available quantity is ${maxStock}`, 'warning');
+        }
+        $input.val(value);
+      });
+
+      $(document).on('keyup', '.product-quick-view-modal #modal-quantity', function() {
+        const $input = $(this);
+        const maxStock = parseInt($input.attr('data-max-stock')) || parseInt($input.attr('max')) || 9999;
+        const value = parseInt($input.val());
+        
+        if (!isNaN(value) && value > maxStock) {
+          $input.val(maxStock);
+          showToast(`Maximum available quantity is ${maxStock}`, 'warning');
         }
       });
     });

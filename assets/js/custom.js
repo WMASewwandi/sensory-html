@@ -1009,8 +1009,23 @@
     });
   }
 
+  function getProductStockDetails(product, stockMap) {
+    const resolvedStockMap = stockMap instanceof Map ? stockMap : new Map();
+    const productStock = product && product.maxStock !== undefined
+      ? product.maxStock
+      : (resolvedStockMap.get(product.id) || resolvedStockMap.get(String(product.id)) || resolvedStockMap.get(Number(product.id)) || 0);
+
+    return {
+      productStock: productStock,
+      isOutOfStock: productStock <= 0,
+      stockBadgeHtml: productStock <= 0
+        ? '<span class="stock-badge out-of-stock">Out of Stock</span>'
+        : (productStock <= 5 ? `<span class="stock-badge low-stock">Only ${productStock} left</span>` : '')
+    };
+  }
+
   // Render Products
-  function renderProducts(products, containerId = '#products-container') {
+  function renderProducts(products, containerId = '#products-container', stockMap = new Map()) {
     const container = $(containerId);
     if (!container.length || !products || products.length === 0) {
       container.html('<div class="col-12"><p class="text-center">No products found.</p></div>');
@@ -1044,12 +1059,14 @@
         unitPrice: product.unitPrice,
         description: product.description || ''
       };
+      const { isOutOfStock, stockBadgeHtml } = getProductStockDetails(product, stockMap);
       
       const productHtml = `
         <div class="col-lg-3 col-md-4 col-sm-6">
           <!-- Start Product Item -->
-          <div class="product-item">
+          <div class="product-item ${isOutOfStock ? 'out-of-stock-item' : ''}">
             <div class="product-thumb">
+              ${stockBadgeHtml}
               <img src="${productImage}" alt="${product.name}">
               <div class="product-action">
                 <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
@@ -1123,6 +1140,15 @@
     container.html('<div class="col-12"><p class="text-center">Loading products...</p></div>');
     
     try {
+      let stockMap = new Map();
+      try {
+        if (typeof getStockMap === 'function') {
+          stockMap = await getStockMap();
+        }
+      } catch (error) {
+        stockMap = new Map();
+      }
+
       // Fetch more products to ensure we have enough with images after filtering
       const result = await fetchProducts(0, 100, categoryId); // Fetch more to get enough products with images
       
@@ -1170,7 +1196,7 @@
         window.homeProducts = result.items;
         
         if (latestProducts.length > 0) {
-          renderProducts(latestProducts);
+          renderProducts(latestProducts, '#products-container', stockMap);
         } else {
           container.html('<div class="col-12"><p class="text-center">No products found.</p></div>');
         }
@@ -1237,6 +1263,15 @@
     }
     
     try {
+      let stockMap = new Map();
+      try {
+        if (typeof getStockMap === 'function') {
+          stockMap = await getStockMap();
+        }
+      } catch (error) {
+        stockMap = new Map();
+      }
+
       // Fetch products to get enough with images
       const result = await fetchProducts(0, 100, null);
       
@@ -1272,12 +1307,14 @@
             unitPrice: product.unitPrice,
             description: product.description || ''
           };
+          const { isOutOfStock, stockBadgeHtml } = getProductStockDetails(product, stockMap);
           
           const slideItemHtml = `
             <div class="slide-item">
               <!-- Start Product Item -->
-              <div class="product-item">
+              <div class="product-item ${isOutOfStock ? 'out-of-stock-item' : ''}">
                 <div class="product-thumb">
+                  ${stockBadgeHtml}
                   <img src="${productImage}" alt="${product.name}">
                   <div class="product-action">
                     <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
