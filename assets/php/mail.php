@@ -19,7 +19,7 @@ header("Access-Control-Allow-Origin: *");
         }
 
         // Set the recipient email address.
-        $recipient = "sensorysl12@gmail.com";
+        $recipient = "sales@sensory.lk";
 
         // Set the email subject.
         $subject = !empty($user_subject) ? "Sensory Contact: $user_subject" : "Sensory - Contact Form Message from $name";
