@@ -1457,12 +1457,20 @@
           if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
             const fullProduct = allProducts.find(p => p.id === product.id);
             if (fullProduct) {
+              const uiStock = product.maxStock;
               Object.assign(product, fullProduct);
+              if (uiStock !== undefined) {
+                product.maxStock = uiStock;
+              }
             }
           } else if (typeof window.homeProducts !== 'undefined' && window.homeProducts.length > 0) {
             const fullProduct = window.homeProducts.find(p => p.id === product.id);
             if (fullProduct) {
+              const uiStock = product.maxStock;
               Object.assign(product, fullProduct);
+              if (uiStock !== undefined) {
+                product.maxStock = uiStock;
+              }
             }
           }
           
@@ -1627,7 +1635,11 @@
           stockMap = new Map();
         }
 
-        const productStock = product.maxStock !== undefined ? product.maxStock : (stockMap.get(product.id) || stockMap.get(String(product.id)) || stockMap.get(Number(product.id)) || 0);
+        const stockFromMap = stockMap.get(product.id) ?? stockMap.get(String(product.id)) ?? stockMap.get(Number(product.id));
+        const fallbackStock = Number(product.maxStock);
+        const productStock = Number.isFinite(stockFromMap)
+          ? Number(stockFromMap)
+          : (Number.isFinite(fallbackStock) && fallbackStock > 0 ? fallbackStock : 0);
         const isOutOfStock = productStock <= 0;
 
         let stockInfoHtml = '';

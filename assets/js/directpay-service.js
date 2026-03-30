@@ -316,8 +316,8 @@ const DirectPayService = (function() {
     console.log('[DirectPay] Processing response:', result);
     console.log('[DirectPay] Response type:', typeof result);
     console.log('[DirectPay] Response keys:', result ? Object.keys(result) : 'null');
+    console.log('[DirectPay] Response stringified:', JSON.stringify(result, null, 2));
 
-    // Check for null or undefined result
     if (!result) {
       console.error('[DirectPay] Null or undefined response received');
       if (onError) {
@@ -332,16 +332,45 @@ const DirectPayService = (function() {
       return;
     }
 
-    // DirectPay IPG response structure
-    if (result && result.status === 'SUCCESS') {
-      const paymentData = {
+    // DirectPay IPG V3 SDK client response format per documentation:
+    //   { status: 200, card: {...}, transaction: { id, status, amount, ... } }
+    // Payment confirmation (webhook) format:
+    //   { status: "SUCCESS", transaction_id: "...", order_id: "...", transaction: {...} }
+    // Legacy flat format:
+    //   { status: "SUCCESS", transaction_id: "...", amount: "..." }
+
+    var txn = result.transaction || result.data?.transaction || {};
+    var txnStatus = txn.status || result.status;
+    var txnId = txn.id || result.transaction_id || result.transactionId
+              || result.data?.transaction_id || result.data?.transactionId || null;
+    var txnAmount = txn.amount || result.amount || result.data?.amount || null;
+    var txnMessage = txn.message || txn.description || result.message || result.description || '';
+    var cardNumber = result.card?.number || result.card_mask || null;
+
+    // Determine success: status 200 (SDK), or "SUCCESS" string, or explicit boolean
+    var isSuccess = (
+      txnStatus === 'SUCCESS' ||
+      result.status === 200 ||
+      result.status === '200' ||
+      result.success === true
+    );
+
+    // Determine failure explicitly
+    var isFailed = (
+      txnStatus === 'FAILED' || txnStatus === 'CANCELLED' ||
+      result.status === 'FAILED' || result.status === 'CANCELLED'
+    );
+
+    if (isSuccess && !isFailed) {
+      var paymentData = {
         success: true,
-        transactionId: result.transaction_id || result.transactionId,
-        status: result.status,
+        transactionId: txnId,
+        status: 'SUCCESS',
         orderId: orderId,
-        amount: result.amount,
-        currency: result.currency || DIRECTPAY_CONFIG.currency,
-        message: result.message || 'Payment successful',
+        amount: txnAmount,
+        currency: txn.currency || result.currency || DIRECTPAY_CONFIG.currency,
+        message: txnMessage || 'Payment successful',
+        cardNumber: cardNumber,
         rawResponse: result
       };
 
@@ -351,12 +380,12 @@ const DirectPayService = (function() {
       if (onSuccess) {
         onSuccess(paymentData);
       }
-    } else if (result && (result.status === 'FAILED' || result.status === 'CANCELLED')) {
-      const errorData = {
+    } else {
+      var errorData = {
         success: false,
-        status: result.status,
+        status: txnStatus || result.status || 'UNKNOWN',
         orderId: orderId,
-        message: result.message || 'Payment ' + (result.status === 'CANCELLED' ? 'cancelled' : 'failed'),
+        message: txnMessage || 'Payment ' + (txnStatus === 'CANCELLED' ? 'cancelled' : 'failed'),
         rawResponse: result
       };
 
@@ -364,43 +393,6 @@ const DirectPayService = (function() {
 
       if (onError) {
         onError(errorData);
-      }
-    } else {
-      // Handle other response formats
-      const isSuccess = result && (
-        result.status === 'SUCCESS' || 
-        result.status === 200 || 
-        result.success === true
-      );
-
-      if (isSuccess) {
-        const paymentData = {
-          success: true,
-          transactionId: result.transaction_id || result.transactionId || result.data?.transactionId,
-          status: 'SUCCESS',
-          orderId: orderId,
-          amount: result.amount || result.data?.amount,
-          message: result.message || 'Payment successful',
-          rawResponse: result
-        };
-
-        storePaymentResult(paymentData);
-
-        if (onSuccess) {
-          onSuccess(paymentData);
-        }
-      } else {
-        const errorData = {
-          success: false,
-          status: result?.status || 'UNKNOWN',
-          orderId: orderId,
-          message: result?.message || 'Payment failed',
-          rawResponse: result
-        };
-
-        if (onError) {
-          onError(errorData);
-        }
       }
     }
   }

@@ -75,7 +75,15 @@ async function fetchProducts(skipCount = 0, maxResultCount = 8, categoryId = nul
     const data = await response.json();
     
     if (data.success && data.data && data.data.items) {
-      const activeProducts = data.data.items.filter(product => product && product.isActive !== false);
+      const activeProducts = data.data.items.filter(product => {
+        if (!product || product.isActive === false) {
+          return false;
+        }
+
+        // Business rule: never display products with zero selling price.
+        const sellingPrice = Number(product.sellingPrice);
+        return Number.isFinite(sellingPrice) && sellingPrice > 0;
+      });
 
       // Normalize product data to match existing code expectations
       const normalizedItems = activeProducts.map(product => ({
@@ -401,7 +409,49 @@ function isUserLoggedIn() {
     const user = sessionStorage.getItem('loggedInUser');
     return !!(token && user);
   } catch (error) {
-    // Error checking login status
+    return false;
+  }
+}
+
+// Refresh the auth token using the stored refresh token
+async function refreshAuthToken() {
+  try {
+    const refreshToken = sessionStorage.getItem('refreshToken') || localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      return false;
+    }
+
+    const response = await fetch(API_CONFIG.BASE_URL + '/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ refreshToken: refreshToken })
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+
+    if (data.success && data.data) {
+      const loginResponse = data.data;
+      if (loginResponse.token) {
+        sessionStorage.setItem('authToken', loginResponse.token);
+      }
+      if (loginResponse.refreshToken) {
+        sessionStorage.setItem('refreshToken', loginResponse.refreshToken);
+      }
+      if (loginResponse.expiresAt) {
+        sessionStorage.setItem('tokenExpiresAt', loginResponse.expiresAt);
+      }
+      return true;
+    }
+
+    return false;
+  } catch (error) {
     return false;
   }
 }
@@ -434,6 +484,7 @@ window.saveCurrentUser = saveCurrentUser;
 window.logoutUser = logoutUser;
 window.getAuthHeaders = getAuthHeaders;
 window.isUserLoggedIn = isUserLoggedIn;
+window.refreshAuthToken = refreshAuthToken;
 window.fetchStockLevels = fetchStockLevels;
 window.getProductStockLevel = getProductStockLevel;
 window.getStockMap = getStockMap;

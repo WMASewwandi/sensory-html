@@ -195,6 +195,25 @@
     </section>
     <!--== End Page Title Area ==-->
 
+    <!--== Start Inline Product Search ==-->
+    <div class="container" style="margin-top: -10px; margin-bottom: 25px;">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+          <div class="shop-inline-search" style="position: relative;">
+            <input type="text" id="shop-search-input" class="form-control" placeholder="Search products by name..."
+              style="width: 100%; padding: 14px 50px 14px 22px; border: 2px solid #eee; border-radius: 50px; font-size: 15px; outline: none; transition: border-color 0.3s; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.06);"
+              onfocus="this.style.borderColor='#f379a7'" onblur="this.style.borderColor='#eee'">
+            <button id="shop-search-btn" type="button"
+              style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: #f379a7; border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: background 0.3s;"
+              onmouseover="this.style.background='#e0608e'" onmouseout="this.style.background='#f379a7'">
+              <i class="pe-7s-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--== End Inline Product Search ==-->
+
     <!--== Start Shop Area Wrapper ==-->
     <div class="product-area product-grid-area">
       <div class="container">
@@ -1685,6 +1704,18 @@
           // Use all products (no image filter - will use default image if needed)
           let productsToDisplay = productsToShow;
           
+          // Client-side keyword filtering (API may not filter by keyword)
+          if (searchKeyword && searchKeyword.trim() !== '') {
+            const searchTerm = searchKeyword.toLowerCase().trim();
+            productsToDisplay = productsToDisplay.filter(product => {
+              const name = (product.name || '').toLowerCase();
+              const description = (product.description || '').toLowerCase();
+              const searchWords = searchTerm.split(/\s+/);
+              return searchWords.every(word => name.includes(word) || description.includes(word));
+            });
+            totalProductsCount = productsToDisplay.length;
+          }
+
           // If searching and no results, show message
           if (searchKeyword && productsToDisplay.length === 0) {
             $('#products-container').html('<div class="col-12"><p class="text-center">No products found for "' + searchKeyword + '".</p></div>');
@@ -1703,34 +1734,27 @@
               const descriptionA = (a.description || '').toLowerCase();
               const descriptionB = (b.description || '').toLowerCase();
               
-              // Calculate relevance score
               let scoreA = 0;
               let scoreB = 0;
               
-              // Exact name match gets highest priority
               if (nameA === searchTerm) scoreA += 1000;
               if (nameB === searchTerm) scoreB += 1000;
               
-              // Name starts with search term
               if (nameA.startsWith(searchTerm)) scoreA += 500;
               if (nameB.startsWith(searchTerm)) scoreB += 500;
               
-              // Name contains search term
               if (nameA.includes(searchTerm)) scoreA += 100;
               if (nameB.includes(searchTerm)) scoreB += 100;
               
-              // Description contains search term
               if (descriptionA.includes(searchTerm)) scoreA += 50;
               if (descriptionB.includes(searchTerm)) scoreB += 50;
               
-              // If same relevance, sort by date (newest first)
               if (scoreA === scoreB) {
                 const dateA = new Date(a.creationTime || a.lastModificationTime || 0);
                 const dateB = new Date(b.creationTime || b.lastModificationTime || 0);
                 return dateB - dateA;
               }
               
-              // Sort by relevance score (highest first)
               return scoreB - scoreA;
             });
           } else {
@@ -2278,10 +2302,9 @@
     
     // Clear search function
     function clearSearch() {
-      // Clear search inputs
       $('#search').val('');
       $('#search-input').val('');
-      // Reload page without search parameter
+      $('#shop-search-input').val('');
       window.location.href = 'shop';
     }
     
@@ -2312,6 +2335,7 @@
         // Keep search term visible in inputs
         $('#search').val(searchKeyword);
         $('#search-input').val(searchKeyword);
+        $('#shop-search-input').val(searchKeyword);
         // Show search results message
         $('#search-results-message').show();
         $('#search-term-display').text(searchKeyword);
@@ -2319,8 +2343,28 @@
         // Clear search inputs and hide message when no search
         $('#search').val('');
         $('#search-input').val('');
+        $('#shop-search-input').val('');
         $('#search-results-message').hide();
       }
+
+      // Inline search bar handlers
+      $('#shop-search-btn').on('click', function() {
+        var term = $('#shop-search-input').val();
+        if (typeof handleSearch === 'function') {
+          handleSearch(term);
+        } else {
+          if (term && term.trim() !== '') {
+            window.location.href = 'shop?search=' + encodeURIComponent(term.trim());
+          }
+        }
+      });
+
+      $('#shop-search-input').on('keypress', function(e) {
+        if (e.which === 13) {
+          e.preventDefault();
+          $('#shop-search-btn').click();
+        }
+      });
       
       // Clear price filter inputs on page load (no default values)
       $('#price-min-input').val('');
@@ -2464,8 +2508,12 @@
           thumbnailsContainer.hide();
         }
         
-        // Get stock level for this product (try both number and string keys)
-        const productStock = product.maxStock !== undefined ? product.maxStock : (stockMap.get(product.id) || stockMap.get(String(product.id)) || stockMap.get(Number(product.id)) || 0);
+        // Get stock level for this product from stock map first (website-side source of truth)
+        const stockFromMap = stockMap.get(product.id) ?? stockMap.get(String(product.id)) ?? stockMap.get(Number(product.id));
+        const fallbackStock = Number(product.maxStock);
+        const productStock = Number.isFinite(stockFromMap)
+          ? Number(stockFromMap)
+          : (Number.isFinite(fallbackStock) && fallbackStock > 0 ? fallbackStock : 0);
         const isOutOfStock = productStock <= 0;
         
         // Stock info HTML
@@ -2552,12 +2600,21 @@
           if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
             const fullProduct = allProducts.find(p => p.id === product.id);
             if (fullProduct) {
+              const uiStock = product.maxStock;
               Object.assign(product, fullProduct);
+              // Keep website-calculated stock; do not overwrite it with unrelated product fields.
+              if (uiStock !== undefined) {
+                product.maxStock = uiStock;
+              }
             }
           } else if (typeof window.homeProducts !== 'undefined' && window.homeProducts.length > 0) {
             const fullProduct = window.homeProducts.find(p => p.id === product.id);
             if (fullProduct) {
+              const uiStock = product.maxStock;
               Object.assign(product, fullProduct);
+              if (uiStock !== undefined) {
+                product.maxStock = uiStock;
+              }
             }
           }
           

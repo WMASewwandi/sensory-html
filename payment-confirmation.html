@@ -421,17 +421,45 @@
     $('#pending-state').fadeIn();
   }
   
+  // Show order-placed confirmation (card or COD)
+  function showOrderConfirmation(orderNumber, paymentData) {
+    $('#loading-state').hide();
+    $('#error-state').hide();
+    $('#pending-state').hide();
+
+    if (paymentData && paymentData.transactionId) {
+      $('#txn-id').text(paymentData.transactionId || '-');
+      $('#txn-ref').text(paymentData.reference || paymentData.refCode || orderNumber || '-');
+      $('#txn-amount').text(paymentData.amount ? formatCurrency(paymentData.amount) : '-');
+      $('#txn-card').text(paymentData.cardNumber || 'xxxx-xxxx-xxxx-xxxx');
+    } else {
+      $('#txn-id').closest('.order-detail-row').hide();
+      $('#txn-card').closest('.order-detail-row').hide();
+      $('#txn-amount').closest('.order-detail-row').hide();
+      $('#txn-ref').text(orderNumber || '-');
+    }
+    $('#txn-datetime').text(new Date().toLocaleString());
+
+    $('.confirmation-title').text('Order Placed Successfully!');
+    $('.confirmation-message').text('Thank you for your order. Your order number is ' + orderNumber + '.');
+    
+    $('#success-state').fadeIn();
+  }
+
   $(document).ready(function() {
-    // Check URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
-    const orderId = urlParams.get('order');
+    const orderNumber = urlParams.get('order');
     
-    // Check for stored payment result
     const storedPayment = DirectPayService.getStoredPaymentResult();
     
-    if (storedPayment) {
-      // Clear stored result
+    if (orderNumber) {
+      // Redirected after successful order placement
+      if (storedPayment) {
+        DirectPayService.clearStoredPaymentResult();
+      }
+      showOrderConfirmation(orderNumber, storedPayment);
+    } else if (storedPayment) {
       DirectPayService.clearStoredPaymentResult();
       
       if (storedPayment.success) {
@@ -455,9 +483,7 @@
     } else if (status === 'pending') {
       showPending();
     } else {
-      // No status, check if redirected without params
       setTimeout(function() {
-        // If still on loading after 3 seconds, show error
         if ($('#loading-state').is(':visible')) {
           showError({
             message: 'No payment information found. Please return to checkout.',

@@ -300,8 +300,7 @@
                     <h3>Subtotal <span id="checkout-subtotal">LKR 0.00</span></h3>
                   </div>
                   <div class="your-order-shipping">
-                    <h3>Shipping <span id="checkout-shipping">LKR 450.00</span></h3>
-                    <p class="shipping-note" style="font-size: 12px; color: #666; margin-top: 8px; margin-bottom: 0;">Free shipping for orders over LKR 40,000</p>
+                    <h3>Shipping <span id="checkout-shipping">Free</span></h3>
                   </div>
                   <div class="your-order-total">
                     <h3>Total <span id="checkout-total">LKR 0.00</span></h3>
@@ -1018,11 +1017,7 @@ function saveOrderToLocal(apiOrder, orderData) {
 
   // Calculate shipping cost based on order total
   function calculateShippingCost(subtotal) {
-    // Free shipping if order is over 40,000 LKR, otherwise 450 LKR
-    if (subtotal >= 40000) {
-      return 0;
-    }
-    return 450;
+    return 0;
   }
 
   // Sri Lanka city directory for Town/City autocomplete
@@ -1135,7 +1130,7 @@ function saveOrderToLocal(apiOrder, orderData) {
     if (cart.length === 0) {
       orderList.html('<li>Your cart is empty. <a href="shop">Continue Shopping</a></li>');
       subtotalEl.text('LKR 0.00');
-      shippingEl.text('LKR 450.00');
+      shippingEl.text('Free');
       totalEl.text('LKR 0.00');
       return;
     }
@@ -1315,29 +1310,35 @@ function saveOrderToLocal(apiOrder, orderData) {
   }
 
   // Create order API call
-  async function createOrder(orderData) {
+  async function createOrder(orderData, isRetry = false) {
     try {
-      const authToken = window.getAuthToken ? window.getAuthToken() : null;
+      let authToken = window.getAuthToken ? window.getAuthToken() : null;
       
       if (!authToken) {
         throw new Error('Please login to proceed with checkout.');
       }
 
-      const fetchHeaders = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${authToken}`
-      };
-
       const apiUrl = API_CONFIG.BASE_URL + '/pos/shopping-cart-orders';
 
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: fetchHeaders,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
         body: JSON.stringify(orderData)
       });
 
       if (!response.ok) {
+        if (response.status === 401 && !isRetry) {
+          const refreshed = window.refreshAuthToken ? await window.refreshAuthToken() : false;
+          if (refreshed) {
+            return await createOrder(orderData, true);
+          }
+          throw new Error('Your session has expired. Please login again.');
+        }
+
         let errorData = {};
         try {
           const errorText = await response.text();
@@ -1349,7 +1350,7 @@ function saveOrderToLocal(apiOrder, orderData) {
         }
         
         if (response.status === 401) {
-          throw new Error('Authentication failed. Please login again.');
+          throw new Error('Your session has expired. Please login again.');
         }
         
         const errorMessage = errorData.message || errorData.error?.message || `Order creation failed (Status: ${response.status})`;
@@ -1432,56 +1433,64 @@ function saveOrderToLocal(apiOrder, orderData) {
         
         onSuccess: async function(paymentResult) {
           console.log('[Checkout] DirectPay payment successful:', paymentResult);
+          console.log('[Checkout] Full payment result:', JSON.stringify(paymentResult, null, 2));
           directPayInitializing = false;
 
-          const hasVerifiedSuccess = paymentResult && paymentResult.success === true && paymentResult.status === 'SUCCESS';
-          const hasTransactionId = paymentResult && paymentResult.transactionId;
-
-          if (!hasVerifiedSuccess || !hasTransactionId) {
-            console.error('[Checkout] Rejected unverified payment response:', paymentResult);
-            showToast('Payment response could not be verified. Please try again.', 'error');
-            return;
-          }
+          // onSuccess is only called by DirectPay SDK after verified successful payment.
+          // The result is already mapped by handlePaymentResponse in directpay-service.js.
+          // Extract transaction ID from mapped result, raw response, or fall back to our orderId.
+          const txnId = paymentResult.transactionId
+            || paymentResult.transaction_id
+            || paymentResult.rawResponse?.transaction?.id
+            || paymentResult.rawResponse?.transaction_id
+            || orderId;
 
           showToast('Payment successful! Creating your order...', 'success');
           
-          // Store payment result
           DirectPayService.storePaymentResult(paymentResult);
           
-          // Create order with payment details
           const orderData = prepareOrderData(billingInfo, 'Card', 'Paid', {
-            transactionId: paymentResult.transactionId,
+            transactionId: String(txnId),
             orderId: paymentResult.orderId || orderId,
-            reference: paymentResult.orderId || orderId
+            reference: paymentResult.orderId || orderId,
+            cardNumber: paymentResult.cardNumber || null
           });
           
           const placeOrderBtn = $('.place-order a');
           placeOrderBtn.prop('disabled', true).text('Creating Order...');
           
-          try {
-            const result = await createOrder(orderData);
-            
-            if (result.success && result.order) {
-              // Clear cart and payment result
-              CartService.clearCart();
-              CartService.updateCartCount();
-              DirectPayService.clearStoredPaymentResult();
-              
-              const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
-              const resultOrderId = result.order.id || result.order.orderId || '';
-              
-              showToast('Order placed successfully! Order Number: ' + orderNumber, 'success');
-              
-              // Redirect to confirmation
-              setTimeout(() => {
-                window.location.href = resultOrderId ? 'my-account?order=' + resultOrderId : 'shop-cart';
-              }, 2000);
-            } else {
-              showToast(result.message || 'Failed to create order after payment.', 'error');
-              placeOrderBtn.prop('disabled', false).text('Place Order');
+          // Retry order creation up to 3 times
+          let retries = 3;
+          let result = null;
+          while (retries > 0) {
+            try {
+              result = await createOrder(orderData);
+              if (result.success && result.order) break;
+            } catch (err) {
+              console.error('[Checkout] Order creation attempt failed:', err);
             }
-          } catch (error) {
-            console.error('[Checkout] Order creation error:', error);
+            retries--;
+            if (retries > 0) {
+              console.log('[Checkout] Retrying order creation... (' + retries + ' attempts left)');
+              await new Promise(r => setTimeout(r, 2000));
+            }
+          }
+
+          if (result && result.success && result.order) {
+            CartService.clearCart();
+            CartService.updateCartCount();
+            DirectPayService.clearStoredPaymentResult();
+            
+            const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
+            
+            showToast('Order placed successfully! Order Number: ' + orderNumber, 'success');
+            
+            setTimeout(() => {
+              window.location.href = 'payment-confirmation?order=' + encodeURIComponent(orderNumber);
+            }, 1500);
+          } else {
+            const errMsg = (result && result.message) || 'Failed to create order after payment.';
+            console.error('[Checkout] All order creation attempts failed:', errMsg);
             showToast('Payment was successful but order creation failed. Please contact support with reference: ' + orderId, 'error');
             placeOrderBtn.prop('disabled', false).text('Place Order');
           }
@@ -1695,9 +1704,8 @@ function saveOrderToLocal(apiOrder, orderData) {
             showToast('Order placed successfully! Cash on Delivery selected. Order #' + orderNumber, 'success');
 
             setTimeout(() => {
-              const resultOrderId = result.order.id || result.order.orderId || '';
-              window.location.href = resultOrderId ? 'my-account?order=' + resultOrderId : 'my-account?tab=orders';
-            }, 1800);
+              window.location.href = 'payment-confirmation?order=' + encodeURIComponent(orderNumber);
+            }, 1500);
           } else {
             showToast(result.message || 'Failed to place order. Please try again.', 'error');
             placeOrderBtn.prop('disabled', false).text(originalText);
