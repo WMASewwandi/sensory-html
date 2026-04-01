@@ -300,7 +300,8 @@
                     <h3>Subtotal <span id="checkout-subtotal">LKR 0.00</span></h3>
                   </div>
                   <div class="your-order-shipping">
-                    <h3>Shipping <span id="checkout-shipping">Free</span></h3>
+                    <h3>Delivery <span id="checkout-shipping">LKR 450.00</span></h3>
+                    <p class="shipping-note" style="font-size: 12px; color: #666; margin-top: 8px; margin-bottom: 0;">Free delivery for orders over LKR 40,000</p>
                   </div>
                   <div class="your-order-total">
                     <h3>Total <span id="checkout-total">LKR 0.00</span></h3>
@@ -316,13 +317,6 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="24" viewBox="0 0 750 471"><g fill="none" fill-rule="evenodd"><rect width="750" height="471" fill="#0E4595" rx="40"/><path fill="#FFF" d="M278.198 334.228l33.36-195.763h53.358l-33.384 195.763zM524.307 142.687c-10.57-3.966-27.135-8.222-47.822-8.222-52.725 0-89.863 26.551-90.18 64.604-.297 28.129 26.514 43.821 46.754 53.185 20.771 9.598 27.752 15.716 27.652 24.283-.133 13.123-16.586 19.116-31.924 19.116-21.355 0-32.701-2.967-50.225-10.274l-6.879-3.112-7.488 43.823c12.463 5.467 35.508 10.199 59.438 10.445 56.09 0 92.502-26.248 92.916-66.885.199-22.27-14.016-39.215-44.801-53.188-18.65-9.056-30.072-15.099-29.951-24.269 0-8.137 9.668-16.838 30.559-16.838 17.447-.271 30.088 3.534 39.936 7.5l4.781 2.259 7.234-42.427M661.615 138.464h-41.23c-12.773 0-22.332 3.486-27.941 16.234l-79.244 179.53h56.031s9.16-24.121 11.232-29.418c6.123 0 60.555.084 68.336.084 1.596 6.854 6.492 29.334 6.492 29.334h49.512l-43.188-195.764zm-65.417 126.408c4.414-11.279 21.26-54.724 21.26-54.724-.314.521 4.381-11.334 7.074-18.684l3.607 16.878s10.217 46.729 12.352 56.53h-44.293zM232.903 138.464l-52.24 133.496-5.565-27.129c-9.726-31.274-40.025-65.157-73.898-82.12l47.767 171.204 56.455-.063 84.004-195.388h-56.523"/><path fill="#F2AE14" d="M131.92 138.464H45.879l-.682 4.073c66.939 16.204 111.232 55.363 129.618 102.415l-18.71-89.96c-3.229-12.396-12.597-16.095-24.186-16.528"/></g></svg>
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="24" viewBox="0 0 750 471"><g fill="none" fill-rule="evenodd"><rect width="750" height="471" fill="#FFF" rx="40"/><circle cx="250" cy="235" r="150" fill="#EB001B"/><circle cx="500" cy="235" r="150" fill="#F79E1B"/><path fill="#FF5F00" d="M325 235c0-54.3 28.8-101.8 72-128.1-32.1-21.2-70.6-33.6-112-33.6-112.4 0-203.5 89.5-203.5 200s91.1 200 203.5 200c41.4 0 79.9-12.4 112-33.6-43.2-26.3-72-73.8-72-128.1z"/></g></svg>
                       </div>
-                    </div>
-                  </div>
-                  <div class="pay-top sin-payment">
-                    <input id="payment_method_2" class="input-radio" type="radio" value="cod" name="payment_method">
-                    <label for="payment_method_2"> Cash on Delivery </label>
-                    <div class="payment-box payment_method_cod" style="display: none;">
-                      <p>Pay with cash when your order is delivered. Your order will be confirmed now, and payment will be collected at delivery.</p>
                     </div>
                   </div>
                 </div>
@@ -1015,9 +1009,12 @@ function saveOrderToLocal(apiOrder, orderData) {
     return 'LKR ' + parseFloat(price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
-  // Calculate shipping cost based on order total
+  // Calculate delivery charge: 450 LKR, free for orders >= 40,000
   function calculateShippingCost(subtotal) {
-    return 0;
+    if (subtotal >= 40000) {
+      return 0;
+    }
+    return 450;
   }
 
   // Sri Lanka city directory for Town/City autocomplete
@@ -1130,7 +1127,7 @@ function saveOrderToLocal(apiOrder, orderData) {
     if (cart.length === 0) {
       orderList.html('<li>Your cart is empty. <a href="shop">Continue Shopping</a></li>');
       subtotalEl.text('LKR 0.00');
-      shippingEl.text('Free');
+      shippingEl.text('LKR 450.00');
       totalEl.text('LKR 0.00');
       return;
     }
@@ -1148,12 +1145,13 @@ function saveOrderToLocal(apiOrder, orderData) {
       orderList.append(itemHtml);
     });
 
-    // Calculate shipping cost
-    const shippingCost = calculateShippingCost(subtotal);
-    const total = subtotal + shippingCost;
+    const deliveryCharge = calculateShippingCost(subtotal);
+    const total = subtotal + deliveryCharge;
 
     subtotalEl.text(formatPrice(subtotal));
-    shippingEl.text(formatPrice(shippingCost));
+    shippingEl.text(deliveryCharge === 0 ? 'FREE' : formatPrice(deliveryCharge));
+    $('.shipping-note').text(deliveryCharge === 0 ? 'You qualify for free delivery!' : 'Free delivery for orders over LKR 40,000');
+    $('.shipping-note').css('color', deliveryCharge === 0 ? '#28a745' : '#666');
     totalEl.text(formatPrice(total));
   }
 
@@ -1689,34 +1687,6 @@ function saveOrderToLocal(apiOrder, orderData) {
         return;
       }
 
-      // Handle Cash on Delivery
-      if (selectedPaymentMethod === 'cod') {
-        placeOrderBtn.prop('disabled', true).text('Placing Order...');
-        try {
-          const orderData = prepareOrderData(billingInfo, 'CashOnDelivery', 'Pending');
-          const result = await createOrder(orderData);
-
-          if (result.success && result.order) {
-            CartService.clearCart();
-            CartService.updateCartCount();
-
-            const orderNumber = result.order.orderNumber || result.order.orderNo || 'N/A';
-            showToast('Order placed successfully! Cash on Delivery selected. Order #' + orderNumber, 'success');
-
-            setTimeout(() => {
-              window.location.href = 'payment-confirmation?order=' + encodeURIComponent(orderNumber);
-            }, 1500);
-          } else {
-            showToast(result.message || 'Failed to place order. Please try again.', 'error');
-            placeOrderBtn.prop('disabled', false).text(originalText);
-          }
-        } catch (error) {
-          console.error('[Checkout] COD order creation failed:', error);
-          showToast('Could not place COD order: ' + (error.message || 'Please try again.'), 'error');
-          placeOrderBtn.prop('disabled', false).text(originalText);
-        }
-        return;
-      }
 
       showToast('Please select a valid payment method.', 'warning');
     });
