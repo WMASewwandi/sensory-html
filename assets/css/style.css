@@ -6850,6 +6850,7 @@ table p {
 .shop-toolbar-wrap .product-sorting-menu {
   cursor: pointer;
   position: relative;
+  z-index: 50;
 }
 @media only screen and (max-width: 575px) {
   .shop-toolbar-wrap .product-sorting-menu {
@@ -6884,7 +6885,7 @@ table p {
   position: absolute;
   top: 44px;
   visibility: hidden;
-  z-index: 1;
+  z-index: 9999;
   transition: all 0.3s ease-in-out;
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
@@ -10189,21 +10190,178 @@ table p {
 }
 
 .page-title-area .page-title-content {
-  padding: 72px 0 78px !important;
+  padding: 50px 0 55px !important;
 }
 
 @media only screen and (max-width: 991px) {
   .page-title-area .page-title-content {
-    padding: 60px 0 64px !important;
+    padding: 40px 0 45px !important;
   }
 }
 
 @media only screen and (max-width: 767px) {
   .page-title-area .page-title-content {
-    padding: 44px 0 48px !important;
+    padding: 30px 0 35px !important;
   }
 
   .header-middle {
     padding: 10px 0 !important;
+  }
+}
+
+/* Reduce shop grid area top padding */
+.page-shop-wrapper .product-area.product-grid-area {
+  padding: 30px 0 80px !important;
+}
+
+@media only screen and (max-width: 991px) {
+  .page-shop-wrapper .product-area.product-grid-area {
+    padding: 20px 0 60px !important;
+  }
+}
+
+/* Improved product tiles for 3-column layout */
+.page-shop-wrapper .product-item {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.page-shop-wrapper .product-item:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+}
+
+.page-shop-wrapper .product-item .product-thumb {
+  min-height: 200px;
+  border-radius: 8px 8px 0 0;
+}
+
+.page-shop-wrapper .product-item .product-info {
+  min-height: auto;
+  padding: 12px 15px 18px;
+}
+
+.page-shop-wrapper .product-item .product-info .rating {
+  margin-bottom: 8px;
+}
+
+.page-shop-wrapper .product-item .product-info .title {
+  font-size: 14px;
+  min-height: 2.8em;
+  -webkit-line-clamp: 2;
+  margin-bottom: 6px;
+}
+
+.page-shop-wrapper .product-item .product-info .prices .price {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f379a7;
+}
+
+.page-shop-wrapper .product-item .product-thumb .product-action a {
+  width: 36px;
+  height: 36px;
+  line-height: 37px;
+  font-size: 18px;
+  border-radius: 8px;
+  margin-right: 4px;
+}
+
+.page-shop-wrapper .product-item .product-info .rating span {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+@media only screen and (max-width: 991px) {
+  .page-shop-wrapper .product-item .product-thumb {
+    min-height: 180px;
+  }
+}
+
+.page-shop-wrapper .shop-card-cart-wrap {
+  margin-top: 8px;
+}
+
+.page-shop-wrapper .shop-card-cart-btn {
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: #f379a7;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.page-shop-wrapper .shop-card-cart-btn:hover {
+  background-color: #e0608e;
+}
+
+.page-shop-wrapper .shop-card-cart-btn.disabled,
+.page-shop-wrapper .shop-card-cart-btn:disabled {
+  background-color: #cfcfcf;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* Widen shop layout to reduce side gaps */
+@media only screen and (min-width: 1200px) {
+  .page-shop-wrapper .container {
+    max-width: 1320px;
+  }
+}
+
+/* Compact shop toolbar (count + view + sort) */
+.page-shop-wrapper .shop-content .shop-toolbar-wrap {
+  height: auto;
+  min-height: 48px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  gap: 10px;
+}
+
+.page-shop-wrapper .shop-content .shop-toolbar-wrap .product-showing-status .count-result {
+  margin: 0;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.page-shop-wrapper .shop-content .shop-toolbar-wrap .product-view-mode {
+  padding: 0 14px;
+}
+
+.page-shop-wrapper .shop-content .shop-toolbar-wrap .product-view-mode nav .nav-tabs .nav-link {
+  margin-right: 12px;
+  font-size: 14px;
+}
+
+.page-shop-wrapper .shop-content .shop-toolbar-wrap .product-sorting-menu {
+  margin-left: auto;
+}
+
+.page-shop-wrapper .shop-content .shop-toolbar-wrap .product-sorting-menu .current {
+  font-size: 14px;
+}
+
+.page-shop-wrapper .shop-content .shop-toolbar-wrap .product-sorting-menu .current span i {
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+/* First highlighted grid tab: always 3 items/row on desktop */
+@media only screen and (min-width: 992px) {
+  .page-shop-wrapper #products-container > [class*="col-"] {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
   }
 }

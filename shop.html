@@ -196,7 +196,7 @@
     <!--== End Page Title Area ==-->
 
     <!--== Start Inline Product Search ==-->
-    <div class="container" style="margin-top: -10px; margin-bottom: 25px;">
+    <div class="container" style="margin-top: -10px; margin-bottom: 10px;">
       <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10 col-sm-12">
           <div class="shop-inline-search" style="position: relative;">
@@ -218,7 +218,7 @@
     <div class="product-area product-grid-area">
       <div class="container">
         <div class="row">
-          <div class="col-lg-9 order-0 order-lg-1">
+          <div class="col-lg-6 order-0 order-lg-1">
             <div class="shop-content">
               <div class="shop-toolbar-wrap">
                 <div class="product-showing-status">
@@ -301,6 +301,10 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+          <div class="col-lg-3 order-2 order-lg-2">
+            <div class="sidebar-area shop-sidebar-area" style="position: sticky; top: 20px;">
               <div class="widget-item">
                 <div class="widget-filter">
                   <div class="widget-title">
@@ -778,14 +782,15 @@
     /* Stock badge styles */
     .stock-badge {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      padding: 5px 12px;
-      font-size: 12px;
+      top: 8px;
+      left: 8px;
+      padding: 4px 10px;
+      font-size: 11px;
       font-weight: 600;
       border-radius: 4px;
       z-index: 10;
       text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
     
     .stock-badge.out-of-stock {
@@ -964,8 +969,8 @@
           maxStock: productStock
         };
         
-        // Determine column class based on container - 3 products per row
-        let colClass = 'col-sm-6 col-md-4 col-lg-4';
+        // Default tab (#column-three): show 3 items per row
+        let colClass = 'col-6 col-md-4 col-lg-4';
         if (containerId === '#products-container-list') {
           colClass = 'col-12 product-items-list';
         } else if (containerId === '#products-container-two') {
@@ -982,6 +987,11 @@
         const cartButtonHtml = isOutOfStock 
           ? '' // No cart button for out of stock items
           : `<a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>`;
+
+        // Visible cart action for grid cards (better mobile/desktop usability)
+        const gridCartActionHtml = isOutOfStock
+          ? `<button type="button" class="shop-card-cart-btn disabled" disabled>Out of Stock</button>`
+          : `<button type="button" class="shop-card-cart-btn add-to-cart-btn" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i> Add to Cart</button>`;
         
         if (containerId === '#products-container-list') {
           // List view
@@ -1040,6 +1050,9 @@
                   <h4 class="title"><a href="shop-single-product.html?id=${product.id}">${product.name}</a></h4>
                   <div class="prices">
                     <span class="price">${formattedPrice}</span>
+                  </div>
+                  <div class="shop-card-cart-wrap">
+                    ${gridCartActionHtml}
                   </div>
                 </div>
               </div>
@@ -1473,8 +1486,11 @@
       // Check for active category
       const categoryId = urlParams.get('category');
       if (categoryId) {
-        // Find category name
-        const categoryName = $('#product-categories-list li a.active').text().replace(/\s*\(\d+\)$/, '') || 'Category';
+        // Find category name reliably by category id (active class might not be set yet in some flows)
+        const categoryLink = $(`#product-categories-list li[data-category-id="${categoryId}"] a`).first();
+        const categoryName = categoryLink.length
+          ? categoryLink.text().replace(/\s*\(\d+\)$/, '').trim()
+          : `Category #${categoryId}`;
         activeFiltersList.append(`
           <span class="active-filter-badge" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background-color: #fff; border: 1px solid #2196F3; border-radius: 12px; font-size: 12px;">
             <span>Category: ${categoryName}</span>
@@ -1541,6 +1557,9 @@
       
       // Show/hide active filters container
       if (hasFilters) {
+        activeFiltersList.prepend(`
+          <span style="font-weight: 600; color: #1976D2; margin-right: 5px;">Active Filters:</span>
+        `);
         activeFiltersContainer.show();
       } else {
         activeFiltersContainer.hide();
@@ -1722,6 +1741,9 @@
             $('#products-container-list').html('<div class="col-12"><p class="text-center">No products found for "' + searchKeyword + '".</p></div>');
             $('#products-container-two').html('<div class="col-12"><p class="text-center">No products found for "' + searchKeyword + '".</p></div>');
             $('.pagination-area nav').html('');
+            filteredProducts = [];
+            updateProductCount();
+            updateActiveFiltersDisplay();
             return;
           }
           
@@ -1841,6 +1863,10 @@
               window.history.replaceState({}, '', newUrl);
             }
           }
+
+          filteredProducts = [];
+          updateProductCount();
+          updateActiveFiltersDisplay();
         }
       } catch (error) {
         // Error loading products
@@ -2347,22 +2373,48 @@
         $('#search-results-message').hide();
       }
 
-      // Inline search bar handlers
-      $('#shop-search-btn').on('click', function() {
-        var term = $('#shop-search-input').val();
-        if (typeof handleSearch === 'function') {
-          handleSearch(term);
+      // Inline search bar handlers (search field filters products reliably)
+      function applyInlineSearch() {
+        const term = ($('#shop-search-input').val() || '').trim();
+        const currentParams = new URLSearchParams(window.location.search);
+
+        if (term) {
+          currentParams.set('search', term);
         } else {
-          if (term && term.trim() !== '') {
-            window.location.href = 'shop?search=' + encodeURIComponent(term.trim());
-          }
+          currentParams.delete('search');
         }
+
+        // Reset page when applying a new search term
+        currentParams.delete('page');
+
+        const newUrl = window.location.pathname + (currentParams.toString() ? '?' + currentParams.toString() : '');
+        window.history.pushState({ search: term }, '', newUrl);
+
+        // Keep all search inputs synced
+        $('#search').val(term);
+        $('#search-input').val(term);
+        $('#shop-search-input').val(term);
+
+        if (term) {
+          $('#search-results-message').show();
+          $('#search-term-display').text(term);
+        } else {
+          $('#search-results-message').hide();
+          $('#search-term-display').text('');
+        }
+
+        currentPage = 1;
+        loadProducts();
+      }
+
+      $('#shop-search-btn').on('click', function() {
+        applyInlineSearch();
       });
 
       $('#shop-search-input').on('keypress', function(e) {
         if (e.which === 13) {
           e.preventDefault();
-          $('#shop-search-btn').click();
+          applyInlineSearch();
         }
       });
       
