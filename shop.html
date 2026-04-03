@@ -376,7 +376,6 @@
                 </a>
                 <p>
                   Sensory a brand of ANKH Trading Pvt Ltd is a curated destination for premium sensory books, toddler sensory, and early learning products, created to support holistic childhood development. We bring together safe, reliable, and thoughtfully designed sensory essentials in one place—making it easier for parents, educators, and retailers to access quality products that encourage learning through play, exploration, and imagination.
-0 
                 </p>
               </div>
             </div>
@@ -461,7 +460,13 @@
         <div class="row row-gutter-0">
           <div class="col-lg-6 col-md-6 col-12">
             <div class="thumb">
+              <button type="button" class="quick-view-nav-arrow quick-view-prev" id="quick-view-prev" aria-label="Previous image">
+                <i class="ion-chevron-left"></i>
+              </button>
               <img id="quick-view-main-image" src="/assets/img/shop/quick-view1.jpg" alt="Image">
+              <button type="button" class="quick-view-nav-arrow quick-view-next" id="quick-view-next" aria-label="Next image">
+                <i class="ion-chevron-right"></i>
+              </button>
               <div class="product-image-thumbnails" id="quick-view-thumbnails">
                 <!-- Thumbnails will be loaded dynamically -->
               </div>
@@ -650,6 +655,7 @@
       overflow: visible !important;
       display: flex !important;
       flex-direction: column !important;
+      position: relative !important;
     }
     
     .product-quick-view-content .thumb img {
@@ -694,6 +700,42 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    .quick-view-nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      color: #333;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .quick-view-nav-arrow:hover {
+      background: #f379a7;
+      color: #fff;
+    }
+
+    .quick-view-nav-arrow.quick-view-prev {
+      left: 12px;
+    }
+
+    .quick-view-nav-arrow.quick-view-next {
+      right: 12px;
+    }
+
+    .quick-view-nav-arrow.hidden {
+      display: none !important;
     }
     
     /* Prevent body scroll when modal is open */
@@ -2353,6 +2395,23 @@
     
     // Separate initialization function for better error handling
     function initializePage() {
+      let quickViewImages = [];
+      let quickViewCurrentIndex = 0;
+
+      function showQuickViewImageByIndex(targetIndex) {
+        if (!quickViewImages || quickViewImages.length === 0) {
+          return;
+        }
+
+        const totalImages = quickViewImages.length;
+        quickViewCurrentIndex = ((targetIndex % totalImages) + totalImages) % totalImages;
+        const activeImage = quickViewImages[quickViewCurrentIndex];
+
+        $('#quick-view-main-image').attr('src', activeImage);
+        $('#quick-view-thumbnails .thumbnail-item').removeClass('active');
+        $(`#quick-view-thumbnails .thumbnail-item[data-image-index="${quickViewCurrentIndex}"]`).addClass('active');
+      }
+
       // Populate search inputs when page loads
       const urlParams = new URLSearchParams(window.location.search);
       const searchKeyword = urlParams.get('search') || '';
@@ -2522,7 +2581,9 @@
             productImages = [singleImage];
           }
         }
-        
+        quickViewImages = productImages && productImages.length > 0 ? productImages : [mainImage];
+        quickViewCurrentIndex = 0;
+
         // Update modal main image
         $('#quick-view-main-image').attr('src', mainImage).attr('alt', productName);
         
@@ -2545,20 +2606,24 @@
           
           // Add click handlers for thumbnails
           thumbnailsContainer.off('click', '.thumbnail-item').on('click', '.thumbnail-item', function() {
-            const $this = $(this);
-            const imageUrl = $this.find('img').attr('src');
-            
-            // Update main image
-            $('#quick-view-main-image').attr('src', imageUrl);
-            
-            // Update active state
-            thumbnailsContainer.find('.thumbnail-item').removeClass('active');
-            $this.addClass('active');
+            const newIndex = parseInt($(this).attr('data-image-index'), 10);
+            if (!Number.isNaN(newIndex)) {
+              showQuickViewImageByIndex(newIndex);
+            }
           });
         } else {
           // Hide thumbnails container if only one image
           thumbnailsContainer.hide();
         }
+
+        // Show or hide navigation arrows based on image count
+        if (quickViewImages.length > 1) {
+          $('#quick-view-prev, #quick-view-next').removeClass('hidden');
+        } else {
+          $('#quick-view-prev, #quick-view-next').addClass('hidden');
+        }
+
+        showQuickViewImageByIndex(0);
         
         // Get stock level for this product from stock map first (website-side source of truth)
         const stockFromMap = stockMap.get(product.id) ?? stockMap.get(String(product.id)) ?? stockMap.get(Number(product.id));
@@ -2679,6 +2744,8 @@
       // Close modal handlers (if not already handled by custom.js)
       $(document).on('click', '.product-quick-view-modal .btn-close, .canvas-overlay', function() {
         $('.product-quick-view-modal').removeClass('active');
+        quickViewImages = [];
+        quickViewCurrentIndex = 0;
         
         // Remove fix class from both html and body
         $('html, body').removeClass('fix');
@@ -2691,6 +2758,43 @@
           window.scrollTo(0, scrollPosition);
           $('html, body').removeData('scroll-position');
         });
+      });
+
+      // Quick view image navigation arrows
+      $(document).on('click', '#quick-view-prev', function(e) {
+        e.preventDefault();
+        if (!$('.product-quick-view-modal').hasClass('active') || quickViewImages.length <= 1) {
+          return;
+        }
+        showQuickViewImageByIndex(quickViewCurrentIndex - 1);
+      });
+
+      $(document).on('click', '#quick-view-next', function(e) {
+        e.preventDefault();
+        if (!$('.product-quick-view-modal').hasClass('active') || quickViewImages.length <= 1) {
+          return;
+        }
+        showQuickViewImageByIndex(quickViewCurrentIndex + 1);
+      });
+
+      // Keyboard arrow keys for quick view image navigation
+      $(document).on('keydown', function(e) {
+        if (!$('.product-quick-view-modal').hasClass('active') || quickViewImages.length <= 1) {
+          return;
+        }
+
+        const activeTag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+        if (activeTag === 'input' || activeTag === 'textarea') {
+          return;
+        }
+
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          showQuickViewImageByIndex(quickViewCurrentIndex - 1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          showQuickViewImageByIndex(quickViewCurrentIndex + 1);
+        }
       });
       
       // Handle quantity buttons in modal (event delegation for dynamically created elements)
