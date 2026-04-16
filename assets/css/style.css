@@ -10316,7 +10316,8 @@ table p {
 
 /* Widen shop layout to reduce side gaps */
 @media only screen and (min-width: 1200px) {
-  .page-shop-wrapper .container {
+  .page-shop-wrapper .main-content > .container,
+  .page-shop-wrapper .product-area .container {
     max-width: 1320px;
   }
 }

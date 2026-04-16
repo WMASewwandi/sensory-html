@@ -1011,16 +1011,19 @@
 
   function getProductStockDetails(product, stockMap) {
     const resolvedStockMap = stockMap instanceof Map ? stockMap : new Map();
+    const hasRecord = resolvedStockMap.has(product.id) || resolvedStockMap.has(String(product.id)) || resolvedStockMap.has(Number(product.id));
     const productStock = product && product.maxStock !== undefined
       ? product.maxStock
       : (resolvedStockMap.get(product.id) || resolvedStockMap.get(String(product.id)) || resolvedStockMap.get(Number(product.id)) || 0);
+    // No stock record = treat as available
+    const isOutOfStock = hasRecord && productStock <= 0;
 
     return {
       productStock: productStock,
-      isOutOfStock: productStock <= 0,
-      stockBadgeHtml: productStock <= 0
+      isOutOfStock: isOutOfStock,
+      stockBadgeHtml: isOutOfStock
         ? '<span class="stock-badge out-of-stock">Out of Stock</span>'
-        : (productStock <= 5 ? `<span class="stock-badge low-stock">Only ${productStock} left</span>` : '')
+        : (hasRecord && productStock <= 5 ? `<span class="stock-badge low-stock">Only ${productStock} left</span>` : '')
     };
   }
 
@@ -1059,19 +1062,19 @@
         unitPrice: product.unitPrice,
         description: product.description || ''
       };
+      const productDataAttr = JSON.stringify(productData).replace(/'/g, '&#39;');
       const { isOutOfStock, stockBadgeHtml } = getProductStockDetails(product, stockMap);
       
       const productHtml = `
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <!-- Start Product Item -->
           <div class="product-item ${isOutOfStock ? 'out-of-stock-item' : ''}">
             <div class="product-thumb">
               ${stockBadgeHtml}
               <img src="${productImage}" alt="${product.name}">
               <div class="product-action">
-                <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
-                <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-arrow-expand"></i></a>
-                <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-heart"></i></a>
+                <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${productDataAttr}'><i class="ion-ios-cart"></i></a>
+                <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${productDataAttr}'><i class="ion-arrow-expand"></i></a>
+                <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${productDataAttr}'><i class="ion-heart"></i></a>
               </div>
             </div>
             <div class="product-info">
@@ -1088,7 +1091,6 @@
               </div>
             </div>
           </div>
-          <!-- End Product Item -->
         </div>
       `;
       
@@ -1132,6 +1134,15 @@
     }, CATEGORY_ROTATION_INTERVAL_MS);
   }
 
+  function productBelongsToCategory(product, categoryId) {
+    if (!categoryId) return true;
+    const cid = String(categoryId);
+    if (String(product.categoryId || '') === cid) return true;
+    if (product.parentCategoryId != null && product.parentCategoryId !== undefined &&
+        String(product.parentCategoryId) === cid) return true;
+    return false;
+  }
+
   // Load and render products
   async function loadProducts(categoryId = null) {
     const container = $('#products-container');
@@ -1157,14 +1168,7 @@
         
         // Client-side filtering by categoryId if provided
         if (categoryId) {
-          productsToShow = result.items.filter(product => {
-            // Compare as strings to ensure matching
-            const productCatId = String(product.categoryId || '');
-            const filterCatId = String(categoryId || '');
-            const matches = productCatId === filterCatId;
-            
-            return matches;
-          });
+          productsToShow = result.items.filter(product => productBelongsToCategory(product, categoryId));
         }
         
         // Use all products (no image filter - will use default image if needed)
@@ -1223,12 +1227,11 @@
     }
   }
 
-  // Handle category tab clicks
-  $(document).on('click', '[data-category-id]', function(e) {
+  // Handle category tab clicks (home page only — shop page has its own handlers)
+  $(document).on('click', '#category-tabs [data-category-id]', function(e) {
     e.preventDefault();
     const $this = $(this);
     const categoryId = $this.data('category-id');
-    
     
     // Update active states
     $('#category-tabs .nav-link').removeClass('active');
@@ -1307,19 +1310,19 @@
             unitPrice: product.unitPrice,
             description: product.description || ''
           };
+          const productDataAttr = JSON.stringify(productData).replace(/'/g, '&#39;');
           const { isOutOfStock, stockBadgeHtml } = getProductStockDetails(product, stockMap);
           
           const slideItemHtml = `
             <div class="slide-item">
-              <!-- Start Product Item -->
               <div class="product-item ${isOutOfStock ? 'out-of-stock-item' : ''}">
                 <div class="product-thumb">
                   ${stockBadgeHtml}
                   <img src="${productImage}" alt="${product.name}">
                   <div class="product-action">
-                    <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-ios-cart"></i></a>
-                    <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-arrow-expand"></i></a>
-                    <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${JSON.stringify(productData)}'><i class="ion-heart"></i></a>
+                    <a class="action-quick-view add-to-cart-btn" href="javascript:void(0)" data-product='${productDataAttr}'><i class="ion-ios-cart"></i></a>
+                    <a class="action-quick-view quick-view-btn" href="javascript:void(0)" data-product='${productDataAttr}'><i class="ion-arrow-expand"></i></a>
+                    <a class="action-quick-view add-to-wishlist-btn" href="javascript:void(0)" data-product='${productDataAttr}'><i class="ion-heart"></i></a>
                   </div>
                 </div>
                 <div class="product-info">
@@ -1336,7 +1339,6 @@
                   </div>
                 </div>
               </div>
-              <!-- End Product Item -->
             </div>
           `;
           
@@ -1479,7 +1481,11 @@
     }
     
     if (typeof fetchProducts === 'function') {
-      loadProducts();
+      // Shop page has its own product loading logic in shop.html — skip here to avoid overwriting filtered results
+      var isShopPage = window.location.pathname.indexOf('shop') !== -1 || document.querySelector('.page-shop-wrapper');
+      if (!isShopPage) {
+        loadProducts();
+      }
       loadTrendingProducts();
     }
   });

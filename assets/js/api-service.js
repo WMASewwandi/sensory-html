@@ -24,6 +24,13 @@ async function fetchCategories() {
       const sortedCategories = activeCategories.sort((a, b) => {
         return (a.name || '').localeCompare(b.name || '');
       });
+
+      window.categoryNameById = window.categoryNameById || new Map();
+      sortedCategories.forEach(function (c) {
+        if (c && c.id != null) {
+          window.categoryNameById.set(String(c.id), String(c.name || '').trim());
+        }
+      });
       
       return sortedCategories;
     } else {
@@ -144,25 +151,35 @@ async function fetchStockLevels(pageNumber = 1, pageSize = 1000) {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     };
-    const response = await fetch(
-      `${API_CONFIG.BASE_URL}/inventory/stock-levels?pageNumber=${pageNumber}&pageSize=${pageSize}`,
-      {
-        method: 'GET',
-        headers: headers
+
+    var allItems = [];
+    var currentPage = pageNumber;
+
+    while (true) {
+      var response = await fetch(
+        `${API_CONFIG.BASE_URL}/inventory/stock-levels?pageNumber=${currentPage}&pageSize=${pageSize}`,
+        { method: 'GET', headers: headers }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch stock levels');
       }
-    );
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch stock levels');
+      var data = await response.json();
+
+      if (data.success && data.data && data.data.items && data.data.items.length > 0) {
+        allItems = allItems.concat(data.data.items);
+        var totalCount = data.data.totalCount || 0;
+        if (allItems.length >= totalCount || data.data.items.length < pageSize) {
+          break;
+        }
+        currentPage++;
+      } else {
+        break;
+      }
     }
 
-    const data = await response.json();
-    
-    if (data.success && data.data && data.data.items) {
-      return data.data.items;
-    }
-    
-    return [];
+    return allItems;
   } catch (error) {
     // Error fetching stock levels
     return [];
