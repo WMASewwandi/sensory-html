@@ -245,8 +245,18 @@
               <div class="cart-shiping-btn update-btn">
                 <div class="grand-total-wrap">
                   <div class="grand-total-content">
-                    <div class="grand-total">
-                      <h4>Total <span id="cart-total">LKR 0.00</span></h4>
+                    <div class="grand-total" style="display:flex;justify-content:space-between;align-items:center;">
+                      <h5 style="margin:0;">Subtotal</h5>
+                      <span id="cart-subtotal" style="font-weight:600;">LKR 0.00</span>
+                    </div>
+                    <div class="grand-total" style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                      <h5 style="margin:0;">Delivery</h5>
+                      <span id="cart-delivery" style="font-weight:600;">LKR 450.00</span>
+                    </div>
+                    <p id="cart-delivery-note" style="font-size:12px;color:#666;margin:4px 0 8px;">Free delivery for orders over LKR 40,000</p>
+                    <div class="grand-total" style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #eee;padding-top:8px;">
+                      <h4 style="margin:0;">Total</h4>
+                      <span id="cart-total" style="font-weight:700;">LKR 0.00</span>
                     </div>
                   </div>
                   <div class="grand-total-btn">
@@ -723,14 +733,14 @@
       const container = $('#cart-items-container');
       const subtotalEl = $('#cart-subtotal');
       const totalEl = $('#cart-total');
+      const deliveryEl = $('#cart-delivery');
+      const deliveryNoteEl = $('#cart-delivery-note');
       
-      // Debug logging
       console.log('Cart items:', cart);
       console.log('Container found:', container.length);
       
       if (!container.length) {
         console.error('Cart container not found: #cart-items-container');
-        // Try to find it with a different selector
         const altContainer = $('tbody#cart-items-container, #cart-items-container');
         if (altContainer.length) {
           console.log('Found container with alternative selector');
@@ -741,6 +751,10 @@
       if (!cart || !Array.isArray(cart) || cart.length === 0) {
         container.html('<tr><td colspan="7" class="text-center">Your cart is empty. <a href="shop">Continue Shopping</a></td></tr>');
         if (subtotalEl.length) subtotalEl.text('LKR 0.00');
+        if (deliveryEl.length) deliveryEl.text('LKR 0.00');
+        if (deliveryNoteEl.length) {
+          deliveryNoteEl.text('Free delivery for orders over LKR 40,000').css('color', '#666');
+        }
         if (totalEl.length) totalEl.text('LKR 0.00');
         return;
       }
@@ -817,8 +831,19 @@
         container.append(rowHtml);
       });
       
+      const deliveryCharge = subtotal >= 40000 ? 0 : 450;
+      const grandTotal = subtotal + deliveryCharge;
+      
       if (subtotalEl.length) subtotalEl.text(formatPrice(subtotal));
-      if (totalEl.length) totalEl.text(formatPrice(subtotal));
+      if (deliveryEl.length) deliveryEl.text(deliveryCharge === 0 ? 'FREE' : formatPrice(deliveryCharge));
+      if (deliveryNoteEl.length) {
+        if (deliveryCharge === 0) {
+          deliveryNoteEl.text('You qualify for free delivery!').css('color', '#28a745');
+        } else {
+          deliveryNoteEl.text('Free delivery for orders over LKR 40,000').css('color', '#666');
+        }
+      }
+      if (totalEl.length) totalEl.text(formatPrice(grandTotal));
       
       // Show warning if there are stock issues
       if (hasStockIssues) {
