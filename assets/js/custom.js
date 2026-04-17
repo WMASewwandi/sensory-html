@@ -350,13 +350,13 @@
       const itemHtml = `
         <li class="cart-item">
           <div class="cart-img">
-            <a href="shop-single-product.html?id=${item.id}">
+            <a href="shop.html">
               <img src="${item.imageURL || item.imageUrl || 'https://www.holoimage.net/images/no-image.jpg'}" alt="${item.name || 'Product'}">
             </a>
           </div>
           <div class="cart-content">
             <h5>
-              <a href="shop-single-product.html?id=${item.id}">${item.name || 'Product'}</a>
+              <a href="shop.html">${item.name || 'Product'}</a>
             </h5>
             <span class="cart-price">${formatPrice(item.price || 0)} × ${item.quantity || 1}</span>
             <div class="cart-item-close">
@@ -1085,7 +1085,7 @@
                 <span class="fa fa-star"></span>
                 <span class="fa fa-star"></span>
               </div>
-              <h4 class="title"><a href="shop-single-product.html?id=${product.id}">${product.name}</a></h4>
+              <h4 class="title"><a href="javascript:void(0)" class="quick-view-btn" data-product='${productDataAttr}'>${product.name}</a></h4>
               <div class="prices">
                 <span class="price">${formattedPrice}</span>
               </div>
@@ -1333,7 +1333,7 @@
                     <span class="fa fa-star"></span>
                     <span class="fa fa-star"></span>
                   </div>
-                  <h4 class="title"><a href="shop-single-product.html?id=${product.id}">${product.name}</a></h4>
+                  <h4 class="title"><a href="javascript:void(0)" class="quick-view-btn" data-product='${productDataAttr}'>${product.name}</a></h4>
                   <div class="prices">
                     <span class="price">${formattedPrice}</span>
                   </div>
